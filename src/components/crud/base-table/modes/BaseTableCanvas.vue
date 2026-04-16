@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import type { BaseTableColumn } from "../types";
-import { layoutColumnWidths, visibleColumns } from "../utils/column";
+import { layoutColumnWidths, trySwitchToggle, visibleColumns } from "../utils/column";
 import { drawTable2D } from "../utils/canvasDraw";
 import { hitTestTable } from "../utils/tableHitTest";
 import { useBaseTableSelection } from "../utils/useBaseTableSelection";
+import { isClickOnSlotText, isClickOnSwitch, useCanvasSlotPopup } from "../utils/useCanvasSlotPopup";
+import TableSlotOverlay from "./TableSlotOverlay.vue";
 
 defineOptions({ name: "BaseTableCanvas" });
 
@@ -41,6 +43,8 @@ const totalHeight = computed(() => props.headerHeight + props.tableData.length *
 
 const tableDataRef = toRef(props, "tableData");
 const selection = useBaseTableSelection(props.rowKey, tableDataRef);
+
+const { slotTriggerRef, slotPopup, openSlotPopup, closeSlotPopup } = useCanvasSlotPopup(containerRef);
 
 function clampScroll() {
   const maxX = Math.max(0, totalWidth.value - cssW.value);
@@ -117,9 +121,31 @@ function onCanvasClick(e: MouseEvent) {
     props.tableData.length,
   );
   if (!hit) {
+    closeSlotPopup();
     return;
   }
   const col = vis[hit.colIndex];
+  if (col?.type === "tableSlot" && hit.kind === "body") {
+    if (isClickOnSlotText(docX, colWidths.value, hit.colIndex)) {
+      const row = props.tableData[hit.rowIndex];
+      if (row) {
+        openSlotPopup(row, col, e.clientX - rect.left, e.clientY - rect.top);
+      }
+      return;
+    }
+  }
+  closeSlotPopup();
+  if (col?.type === "switch" && hit.kind === "body") {
+    if (isClickOnSwitch(docX, docY, colWidths.value, hit.colIndex, props.headerHeight, props.rowHeight, hit.rowIndex)) {
+      const row = props.tableData[hit.rowIndex];
+      if (row) {
+        trySwitchToggle(row, col).then((newVal) => {
+          if (newVal !== null) schedulePaint();
+        });
+      }
+    }
+    return;
+  }
   if (col?.type !== "selection") {
     return;
   }
@@ -170,11 +196,23 @@ watch(selection.selectedKeys, () => schedulePaint(), { deep: true });
 <template>
   <div ref="containerRef" class="crud-base-table__canvas" tabindex="0" @wheel="onWheel">
     <canvas ref="canvasRef" class="crud-base-table__canvas-surface" @click="onCanvasClick" />
+    <span
+      ref="slotTriggerRef"
+      class="crud-base-table__slot-anchor"
+      :style="{ left: slotPopup.x + 'px', top: slotPopup.y + 'px' }"
+    />
+    <TableSlotOverlay
+      v-model:visible="slotPopup.visible"
+      :row="slotPopup.row"
+      :column="slotPopup.column"
+      :trigger-ref="slotTriggerRef"
+    />
   </div>
 </template>
 
 <style scoped lang="scss">
 .crud-base-table__canvas {
+  position: relative;
   height: 100%;
   min-height: 120px;
   outline: none;
@@ -185,5 +223,12 @@ watch(selection.selectedKeys, () => schedulePaint(), { deep: true });
   display: block;
   vertical-align: top;
   cursor: default;
+}
+
+.crud-base-table__slot-anchor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
 }
 </style>

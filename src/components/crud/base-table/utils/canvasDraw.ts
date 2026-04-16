@@ -60,6 +60,50 @@ function drawCheckbox2D(
   ctx.restore();
 }
 
+function fillRoundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawSwitch2D(
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  centerY: number,
+  checked: boolean,
+  disabled: boolean,
+) {
+  const trackW = 40;
+  const trackH = 20;
+  const thumbR = 7;
+  const gap = 3;
+  const x = centerX - trackW / 2;
+  const y = centerY - trackH / 2;
+
+  ctx.save();
+  ctx.fillStyle = disabled ? "#a8abb2" : checked ? "#409eff" : "#dcdfe6";
+  fillRoundRect(ctx, x, y, trackW, trackH, trackH / 2);
+
+  const thumbX = checked ? x + trackW - gap - thumbR : x + gap + thumbR;
+  ctx.beginPath();
+  ctx.arc(thumbX, centerY, thumbR, 0, Math.PI * 2);
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  ctx.restore();
+}
+
 function drawStatusCustom2D(
   ctx: CanvasRenderingContext2D,
   cellLeft: number,
@@ -223,6 +267,9 @@ export function drawTable2D(o: DrawTable2DOptions): void {
         if (col.type === "selection") {
           const checked = selectedKeys.has(keyString(rowKeyValue(row, rowKey)));
           drawCheckbox2D(ctx, cellLeft + cw / 2, y + rowHeight / 2, checked, false);
+        } else if (col.type === "switch") {
+          const active = (col.activeValue as string | number | boolean) ?? true;
+          drawSwitch2D(ctx, cellLeft + cw / 2, y + rowHeight / 2, row[col.key] === active, Boolean(col.disabled));
         } else if (col.type === "status-custom") {
           drawStatusCustom2D(ctx, cellLeft, y, cw, rowHeight, col, row, r);
         } else {

@@ -29,6 +29,7 @@ export interface BaseTableColumn {
     | "image"
     | "status"
     | "status-custom"
+    | "tableSlot"
     | string;
   formatter?: (row: Record<string, unknown>, column: BaseTableColumn, cellValue: unknown) => string;
   /**
@@ -36,6 +37,28 @@ export interface BaseTableColumn {
    *（与历史项目 BaseTable 一致；键可为数字或字符串）
    */
   colorMap?: Record<string, string>;
+
+  /** `type === 'switch'` 激活值，默认 true */
+  activeValue?: string | number | boolean;
+  /** `type === 'switch'` 非激活值，默认 false */
+  inactiveValue?: string | number | boolean;
+  /** `type === 'switch'` 是否禁用 */
+  disabled?: boolean;
+  /**
+   * `type === 'switch'` 切换前的阻断钩子，返回 false 或 reject 时阻止切换。
+   * 签名与 Element Plus ElSwitch before-change 一致，额外提供 row / col 上下文。
+   */
+  beforeChange?: (row: Record<string, unknown>, col: BaseTableColumn) => boolean | Promise<boolean>;
+
+  /** `type === 'tableSlot'` 时弹窗内嵌子表格的列配置 */
+  columns?: BaseTableColumn[];
+  /** `type === 'tableSlot'` 弹窗宽度，默认 430 */
+  popoverWidth?: number;
+  /** `type === 'tableSlot'` 弹窗内搜索过滤函数 */
+  filter?: (keyword: string, item: Record<string, unknown>) => boolean;
+  /** `type === 'tableSlot'` 弹窗内搜索框 placeholder */
+  filterPlaceholder?: string;
+
   /** 透传给 el-table-column / el-table-v2 Column 的额外属性（经 omit 过滤业务字段后） */
   [key: string]: unknown;
 }

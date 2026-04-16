@@ -26,6 +26,7 @@ const TABLE_BIND_OMIT = [
   "filter",
   "filterPlaceholder",
   "objectSpanMethod",
+  "beforeChange",
   "tableSlot",
   "slotName",
   "click",
@@ -91,6 +92,13 @@ export function formatCell(
   if (col.type === "selection") {
     return "";
   }
+  if (col.type === "switch") {
+    const active = (col.activeValue as string | number | boolean) ?? true;
+    return raw === active ? "开" : "关";
+  }
+  if (col.type === "tableSlot") {
+    return "查看";
+  }
   if (raw === null || raw === undefined) {
     return "";
   }
@@ -124,4 +132,30 @@ export function layoutColumnWidths(columns: BaseTableColumn[], innerWidth: numbe
   }
   const scale = innerWidth / sum;
   return requested.map((w) => Math.max(minW, Math.floor(w * scale)));
+}
+
+/**
+ * switch 列切换：调用 beforeChange 阻断钩子，通过后直接修改 row 数据。
+ * 返回切换后的新值；若被阻断则返回 null。
+ */
+export async function trySwitchToggle(
+  row: Record<string, unknown>,
+  col: BaseTableColumn,
+): Promise<unknown> {
+  if (col.disabled) return null;
+  const activeVal = (col.activeValue as string | number | boolean) ?? true;
+  const inactiveVal = (col.inactiveValue as string | number | boolean) ?? false;
+  const newValue = row[col.key] === activeVal ? inactiveVal : activeVal;
+
+  if (col.beforeChange) {
+    try {
+      const allowed = await col.beforeChange(row, col);
+      if (!allowed) return null;
+    } catch {
+      return null;
+    }
+  }
+
+  row[col.key] = newValue;
+  return newValue;
 }

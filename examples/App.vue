@@ -39,8 +39,13 @@ const tableData = computed(() =>
     name: `项 ${i + 1}`,
     amount: (Math.random() * 10000).toFixed(2),
     remark: i % 7 === 0 ? "备注较长用于测试截断" : "正常",
-    /** 供 status-custom 列 colorMap 取灯色 */
+    status: i % 3 === 0 ? 1 : 2,
     "status-custom": i % 5,
+    tableSlot: Array.from({ length: 2 + (i % 4) }, (_, j) => ({
+      img: `https://picsum.photos/seed/${i * 10 + j}/60/60`,
+      code: `TC-${String(i + 1).padStart(3, "0")}-${j + 1}`,
+      name: `花色${["红", "蓝", "绿", "白"][j % 4]}`,
+    })),
   })),
 );
 
@@ -50,6 +55,15 @@ const columns: BaseTableColumn[] = [
   { key: "id", label: "ID", width: 72 },
   { key: "name", label: "名称", width: 140 },
   { key: "formatter", label: "formatter字段", width: 120, formatter: (row) => String(1212) },
+  {
+    key: "status",
+    label: "switch状态",
+    type: "switch",
+    width: 100,
+    activeValue: 1,
+    inactiveValue: 2,
+    beforeChange: () => window.confirm("确认切换？"),
+  },
   {
     key: "status-custom",
     label: "status-custom字段",
@@ -64,30 +78,19 @@ const columns: BaseTableColumn[] = [
     },
   },
    {
-    key: 'textures',
-    label: '花色',
+    key: 'tableSlot',
+    label: 'tableSlot字段',
     width: 120,
     type: 'tableSlot',
-    filterPlaceholder: '请输入花色编码/名称',
-    filter: (str, item) =>
-      item.textureCode.includes(str.trim()) || item.textureName.includes(str.trim()),
+    filterPlaceholder: '请输入编码/名称',
+    filter: (str: string, item: Record<string, unknown>) =>
+      String(item.Code ?? "").includes(str.trim()) ||
+      String(item.Name ?? "").includes(str.trim()),
     columns: [
-      { key: 'index', type: 'index', label: '序号', width: '60' },
-      { key: 'textureImg', type: 'image', label: '预览图', width: '80' },
-      { key: 'textureCode', label: '花色编码', width: '80' },
-      { key: 'textureName', label: '花色名称', width: '100' },
-      {
-        key: 'status',
-        label: '状态',
-        width: '80',
-        formatter: row => {
-          const map = {
-            1: '启用',
-            2: '禁用'
-          }
-          return map[row.status] || ''
-        }
-      }
+      { key: 'index', type: 'index', label: '序号', width: 60 },
+      { key: 'img', type: 'image', label: '预览图', width: 80 },
+      { key: 'code', label: '编码', width: 80 },
+      { key: 'name', label: '名称', minWidth: 100 }
     ]
   },
   { key: "amount", label: "金额", width: 100, align: "right" },

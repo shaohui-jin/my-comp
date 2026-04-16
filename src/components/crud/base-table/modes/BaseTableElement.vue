@@ -3,15 +3,18 @@ import { ElImage, ElSwitch, ElTable, ElTableColumn } from "element-plus";
 import type { BaseTableColumn } from "../types";
 import { tableLayoutDefaults } from "../theme/tableSurface";
 import { formatCell, getTableColumnBinds, statusCustomLampColor, visibleColumns } from "../utils/column";
+import TableSlotPopover from "./TableSlotPopover.vue";
 
 defineOptions({ name: "BaseTableElement" });
 
-defineProps<{
+const props = defineProps<{
   tableData: Record<string, unknown>[];
   columns: BaseTableColumn[];
   rowKey?: string;
   emptyText?: string;
   loading?: boolean;
+  /** 嵌套子表格时使用 max-height 而非 height，使表格高度自适应 */
+  tableMaxHeight?: number;
 }>();
 
 const emit = defineEmits<{
@@ -29,10 +32,10 @@ function columnFormatter(col: BaseTableColumn) {
 </script>
 
 <template>
-  <div class="crud-base-table__element">
+  <div :class="['crud-base-table__element', { 'crud-base-table__element--nested': tableMaxHeight != null }]">
     <ElTable
       :data="tableData"
-      height="100%"
+      v-bind="tableMaxHeight != null ? { 'max-height': tableMaxHeight } : { height: '100%' }"
       border
       stripe
       :row-key="rowKey"
@@ -58,10 +61,11 @@ function columnFormatter(col: BaseTableColumn) {
           #default="scope"
         >
           <ElSwitch
-            :model-value="scope.row[col.key]"
+            v-model="scope.row[col.key]"
             :active-value="(col.activeValue as string | number | boolean) ?? true"
             :inactive-value="(col.inactiveValue as string | number | boolean) ?? false"
             :disabled="Boolean(col.disabled)"
+            :before-change="col.beforeChange ? () => col.beforeChange!(scope.row, col) : undefined"
           />
         </ElTableColumn>
         <ElTableColumn
@@ -96,6 +100,13 @@ function columnFormatter(col: BaseTableColumn) {
           </div>
         </ElTableColumn>
         <ElTableColumn
+          v-else-if="col.type === 'tableSlot'"
+          v-bind="getTableColumnBinds(col)"
+          #default="scope"
+        >
+          <TableSlotPopover :row="scope.row" :column="col" />
+        </ElTableColumn>
+        <ElTableColumn
           v-else-if="col.formatter"
           v-bind="getTableColumnBinds(col)"
           :formatter="columnFormatter(col)"
@@ -120,6 +131,10 @@ function columnFormatter(col: BaseTableColumn) {
   position: relative;
   height: 100%;
   min-height: 0;
+
+  &--nested {
+    height: auto;
+  }
 }
 
 .crud-base-table__element-mask {
@@ -161,4 +176,5 @@ function columnFormatter(col: BaseTableColumn) {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 </style>

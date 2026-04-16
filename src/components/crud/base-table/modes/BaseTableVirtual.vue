@@ -1,11 +1,40 @@
 <script setup lang="ts">
-import { ElAutoResizer, ElCheckbox, ElTableV2 } from "element-plus";
+import { ElAutoResizer, ElCheckbox, ElSwitch, ElTableV2 } from "element-plus";
 import type { Column } from "element-plus";
-import { h, toRef } from "vue";
+import { defineComponent, h, ref, toRef, watch, PropType } from "vue";
 import type { BaseTableColumn } from "../types";
 import { tableLayoutDefaults } from "../theme/tableSurface";
 import { formatCell, layoutColumnWidths, statusCustomLampColor, visibleColumns } from "../utils/column";
 import { useBaseTableSelection } from "../utils/useBaseTableSelection";
+import TableSlotPopover from "./TableSlotPopover.vue";
+
+const VirtualSwitchCell = defineComponent({
+  name: "VirtualSwitchCell",
+  props: {
+    row: { type: Object as PropType<Record<string, unknown>>, required: true },
+    colKey: { type: String, required: true },
+    activeValue: { type: [String, Number, Boolean] as PropType<string | number | boolean>, default: true },
+    inactiveValue: { type: [String, Number, Boolean] as PropType<string | number | boolean>, default: false },
+    disabled: { type: Boolean, default: false },
+    beforeChange: { type: Function as PropType<() => boolean | Promise<boolean>>, default: undefined },
+  },
+  setup(props) {
+    const localValue = ref(props.row[props.colKey]);
+    watch(() => props.row[props.colKey], (v) => { localValue.value = v; });
+    return () =>
+      h(ElSwitch, {
+        modelValue: localValue.value,
+        activeValue: props.activeValue,
+        inactiveValue: props.inactiveValue,
+        disabled: props.disabled,
+        beforeChange: props.beforeChange,
+        "onUpdate:modelValue": (val: unknown) => {
+          localValue.value = val;
+          props.row[props.colKey] = val;
+        },
+      });
+  },
+});
 
 defineOptions({ name: "BaseTableVirtual" });
 
@@ -50,6 +79,44 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
           h(ElCheckbox, {
             modelValue: selection.isRowSelected(rowData as Record<string, unknown>),
             onChange: () => emit("selectionChange", selection.toggleRow(rowData as Record<string, unknown>)),
+          }),
+      };
+    }
+
+    if (col.type === "switch") {
+      return {
+        key: col.key,
+        dataKey: col.key,
+        title: String(col.label ?? col.title ?? col.key),
+        width: w,
+        align: "center",
+        cellRenderer: ({ rowData }) => {
+          const row = rowData as Record<string, unknown>;
+          return h(VirtualSwitchCell, {
+            row,
+            colKey: col.key,
+            activeValue: (col.activeValue as string | number | boolean) ?? true,
+            inactiveValue: (col.inactiveValue as string | number | boolean) ?? false,
+            disabled: Boolean(col.disabled),
+            beforeChange: col.beforeChange
+              ? () => col.beforeChange!(row, col)
+              : undefined,
+          });
+        },
+      };
+    }
+
+    if (col.type === "tableSlot") {
+      return {
+        key: col.key,
+        dataKey: col.key,
+        title: String(col.label ?? col.title ?? col.key),
+        width: w,
+        align,
+        cellRenderer: ({ rowData }) =>
+          h(TableSlotPopover, {
+            row: rowData as Record<string, unknown>,
+            column: col,
           }),
       };
     }

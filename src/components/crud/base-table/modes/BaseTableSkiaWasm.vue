@@ -4,11 +4,13 @@ import type { Canvas, CanvasKit, Font, Paint, Surface, Typeface } from "canvaski
 import type { BaseTableColumn } from "../types";
 import { cssRgbOrRgbaToRgb, hexToRgb, tableLayoutDefaults, tableSurfaceTokens } from "../theme/tableSurface";
 import { canvaskitLocateFile } from "../utils/canvaskitLocate";
-import { formatCell, headerText, layoutColumnWidths, statusCustomLampColor, visibleColumns } from "../utils/column";
+import { formatCell, headerText, layoutColumnWidths, statusCustomLampColor, trySwitchToggle, visibleColumns } from "../utils/column";
 import { keyString, rowKeyValue } from "../utils/selectionKeys";
 import { hitTestTable } from "../utils/tableHitTest";
 import { resolveSkiaTypeface } from "../utils/skiaTypeface";
 import { useBaseTableSelection } from "../utils/useBaseTableSelection";
+import { isClickOnSlotText, isClickOnSwitch, useCanvasSlotPopup } from "../utils/useCanvasSlotPopup";
+import TableSlotOverlay from "./TableSlotOverlay.vue";
 
 defineOptions({ name: "BaseTableSkiaWasm" });
 
@@ -40,6 +42,8 @@ const tableDataRef = toRef(props, "tableData");
 const selection = useBaseTableSelection(props.rowKey, tableDataRef);
 
 const containerRef = ref<HTMLDivElement | null>(null);
+
+const { slotTriggerRef, slotPopup, openSlotPopup, closeSlotPopup } = useCanvasSlotPopup(containerRef);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const loadError = ref("");
 /** 与 WASM 加载失败区分：仅 Surface 创建失败 */
@@ -357,6 +361,22 @@ function paintSkia() {
       if (col.type === "selection") {
         const checked = selectedKeys.has(keyString(rowKeyValue(row, props.rowKey)));
         drawSkiaCheckbox(skCanvas, cx + cellW / 2, y * dpr + rh / 2, checked, false, strokePaint, fillPaint, checkStroke);
+      } else if (col.type === "switch") {
+        const activeVal = (col.activeValue as string | number | boolean) ?? true;
+        const isOn = row[col.key] === activeVal;
+        const isDisabled = Boolean(col.disabled);
+        const tW = 40 * dpr;
+        const tH = 20 * dpr;
+        const tR = 7 * dpr;
+        const gap = 3 * dpr;
+        const trackX = cx + cellW / 2 - tW / 2;
+        const trackY = y * dpr + rh / 2 - tH / 2;
+        const trackColor = isDisabled ? { r: 168, g: 171, b: 178 } : isOn ? { r: 64, g: 158, b: 255 } : { r: 220, g: 223, b: 230 };
+        fillPaint.setColor(skColor(trackColor));
+        skCanvas.drawRRect(ck.RRectXY(ck.LTRBRect(trackX, trackY, trackX + tW, trackY + tH), tH / 2, tH / 2), fillPaint);
+        const thumbX = isOn ? trackX + tW - gap - tR : trackX + gap + tR;
+        fillPaint.setColor(skColor({ r: 255, g: 255, b: 255 }));
+        skCanvas.drawCircle(thumbX, y * dpr + rh / 2, tR, fillPaint);
       } else if (col.type === "status-custom") {
         const text = formatCell(col, row, r);
         lampFillPaint.setColor(skColor(cssRgbOrRgbaToRgb(statusCustomLampColor(col, row))));
@@ -436,9 +456,31 @@ function onCanvasClick(e: MouseEvent) {
     props.tableData.length,
   );
   if (!hit) {
+    closeSlotPopup();
     return;
   }
   const col = vis[hit.colIndex];
+  if (col?.type === "tableSlot" && hit.kind === "body") {
+    if (isClickOnSlotText(docX, colWidths(), hit.colIndex)) {
+      const row = props.tableData[hit.rowIndex];
+      if (row) {
+        openSlotPopup(row, col, e.clientX - rect.left, e.clientY - rect.top);
+      }
+      return;
+    }
+  }
+  closeSlotPopup();
+  if (col?.type === "switch" && hit.kind === "body") {
+    if (isClickOnSwitch(docX, docY, colWidths(), hit.colIndex, props.headerHeight, props.rowHeight, hit.rowIndex)) {
+      const row = props.tableData[hit.rowIndex];
+      if (row) {
+        trySwitchToggle(row, col).then((newVal) => {
+          if (newVal !== null) schedulePaint();
+        });
+      }
+    }
+    return;
+  }
   if (col?.type !== "selection") {
     return;
   }
@@ -495,6 +537,17 @@ watch(selection.selectedKeys, () => schedulePaint());
     <div v-if="loadError" class="crud-base-table__skia-message">{{ loadError }}</div>
     <div v-else-if="surfaceError" class="crud-base-table__skia-message">{{ surfaceError }}</div>
     <canvas v-show="!loadError" ref="canvasRef" class="crud-base-table__skia-surface" @click="onCanvasClick" />
+    <span
+      ref="slotTriggerRef"
+      class="crud-base-table__slot-anchor"
+      :style="{ left: slotPopup.x + 'px', top: slotPopup.y + 'px' }"
+    />
+    <TableSlotOverlay
+      v-model:visible="slotPopup.visible"
+      :row="slotPopup.row"
+      :column="slotPopup.column"
+      :trigger-ref="slotTriggerRef"
+    />
   </div>
 </template>
 
@@ -516,5 +569,12 @@ watch(selection.selectedKeys, () => schedulePaint());
 .crud-base-table__skia-surface {
   display: block;
   vertical-align: top;
+}
+
+.crud-base-table__slot-anchor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
 }
 </style>
