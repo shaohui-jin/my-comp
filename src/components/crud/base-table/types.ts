@@ -59,6 +59,9 @@ export interface BaseTableColumn {
   /** `type === 'tableSlot'` 弹窗内搜索框 placeholder */
   filterPlaceholder?: string;
 
+  /** 超长文本省略时是否显示 tooltip，默认 true */
+  showOverflowTooltip?: boolean;
+
   /** 透传给 el-table-column / el-table-v2 Column 的额外属性（经 omit 过滤业务字段后） */
   [key: string]: unknown;
 }

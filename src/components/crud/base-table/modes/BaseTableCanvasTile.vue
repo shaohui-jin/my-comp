@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import { computed, onActivated, onDeactivated, onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import { ElTooltip } from "element-plus";
 import type { BaseTableColumn } from "../types";
-import { tableSurfaceTokens } from "../theme/tableSurface";
+import { tableSurfaceTokens, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
 import { layoutColumnWidths, trySwitchToggle, visibleColumns } from "../utils/column";
 import { drawTable2D } from "../utils/canvasDraw";
 import { hitTestTable } from "../utils/tableHitTest";
 import { useBaseTableSelection } from "../utils/useBaseTableSelection";
 import { isClickOnSlotText, isClickOnSwitch, useCanvasSlotPopup } from "../utils/useCanvasSlotPopup";
+import { useCanvasTooltip, canvas2DMeasureTextWidth } from "../utils/useCanvasTooltip";
+import { useCanvasScrollbar } from "../utils/useCanvasScrollbar";
 import TableSlotOverlay from "./TableSlotOverlay.vue";
 
 const t = tableSurfaceTokens;
@@ -43,6 +46,25 @@ const selection = useBaseTableSelection(props.rowKey, tableDataRef);
 const containerRef = ref<HTMLDivElement | null>(null);
 
 const { slotTriggerRef, slotPopup, openSlotPopup, closeSlotPopup } = useCanvasSlotPopup(containerRef);
+
+const {
+  tooltipAnchorRef,
+  tooltipVisible,
+  tooltipContent,
+  onContainerMousemove,
+  onContainerMouseleave,
+  hideTooltip,
+} = useCanvasTooltip(containerRef, {
+  columns: () => props.columns,
+  colWidths: () => colWidths.value,
+  data: () => props.tableData,
+  headerHeight: () => props.headerHeight,
+  rowHeight: () => props.rowHeight,
+  scrollX: () => scrollX.value,
+  scrollY: () => scrollY.value,
+  measureTextWidth: canvas2DMeasureTextWidth,
+});
+
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const scrollX = ref(0);
 const scrollY = ref(0);
@@ -55,10 +77,36 @@ let ro: ResizeObserver | null = null;
 let raf = 0;
 let offscreen: HTMLCanvasElement | null = null;
 let usePrerender = false;
+let active = true;
 
 const colWidths = computed(() => layoutColumnWidths(props.columns, cssW.value));
 const totalWidth = computed(() => colWidths.value.reduce((a, b) => a + b, 0));
 const totalHeight = computed(() => props.headerHeight + props.tableData.length * props.rowHeight);
+
+const {
+  scrollbarVisible,
+  hasVBar,
+  hasHBar,
+  showScrollbar,
+  hideScrollbar,
+  vTrackStyle,
+  vThumbStyle,
+  hTrackStyle,
+  hThumbStyle,
+  onVThumbMousedown,
+  onHThumbMousedown,
+  onVTrackClick,
+  onHTrackClick,
+} = useCanvasScrollbar({
+  scrollX,
+  scrollY,
+  cssW,
+  cssH,
+  totalWidth: () => totalWidth.value,
+  totalHeight: () => totalHeight.value,
+  headerHeight: () => props.headerHeight,
+  onScroll: schedulePaint,
+});
 
 const prerenderOk = computed(() => {
   const area = totalWidth.value * totalHeight.value;
@@ -128,17 +176,37 @@ function paintFromOffscreen() {
   ctx.fillRect(0, 0, cssW.value, cssH.value);
   const sx = scrollX.value;
   const sy = scrollY.value;
+  const hh = props.headerHeight;
+  const bodyH = cssH.value - hh;
+
+  // Body area: draw from (sx, hh + sy) of the offscreen into viewport below header
+  if (bodyH > 0) {
+    ctx.drawImage(
+      offscreen,
+      sx * dpr,
+      (hh + sy) * dpr,
+      cssW.value * dpr,
+      bodyH * dpr,
+      0,
+      hh,
+      cssW.value,
+      bodyH,
+    );
+  }
+
+  // Header: always from y=0 of offscreen, pinned at top
   ctx.drawImage(
     offscreen,
     sx * dpr,
-    sy * dpr,
+    0,
     cssW.value * dpr,
-    cssH.value * dpr,
+    hh * dpr,
     0,
     0,
     cssW.value,
-    cssH.value,
+    hh,
   );
+
   ctx.strokeStyle = t.borderColor;
   ctx.strokeRect(0, 0, cssW.value, cssH.value);
 }
@@ -246,11 +314,14 @@ function paint() {
 
 function schedulePaint() {
   cancelAnimationFrame(raf);
+  if (!active) return;
   raf = requestAnimationFrame(paint);
 }
 
 function onWheel(e: WheelEvent) {
   e.preventDefault();
+  hideTooltip();
+  showScrollbar();
   if (e.shiftKey) {
     scrollX.value += e.deltaY;
   } else {
@@ -275,6 +346,16 @@ onMounted(() => {
   ro.observe(el);
   buildOffscreen();
   schedulePaint();
+});
+
+onActivated(() => {
+  active = true;
+  schedulePaint();
+});
+
+onDeactivated(() => {
+  active = false;
+  cancelAnimationFrame(raf);
 });
 
 onUnmounted(() => {
@@ -304,8 +385,38 @@ watch(selection.selectedKeys, () => {
 </script>
 
 <template>
-  <div ref="containerRef" class="crud-base-table__tile" tabindex="0" @wheel="onWheel">
+  <div
+    ref="containerRef"
+    class="crud-base-table__tile"
+    tabindex="0"
+    @wheel="onWheel"
+    @mouseenter="showScrollbar"
+    @mousemove="onContainerMousemove"
+    @mouseleave="() => { onContainerMouseleave(); hideScrollbar(); }"
+  >
     <canvas ref="canvasRef" class="crud-base-table__tile-surface" @click="onCanvasClick" />
+    <div
+      v-if="hasVBar"
+      class="canvas-scrollbar is-vertical"
+      :class="{ 'is-visible': scrollbarVisible }"
+      :style="vTrackStyle"
+      @click="onVTrackClick"
+      @mouseenter="hideTooltip"
+      @mousemove.stop
+    >
+      <div class="canvas-scrollbar__thumb" :style="vThumbStyle" @mousedown="onVThumbMousedown" />
+    </div>
+    <div
+      v-if="hasHBar"
+      class="canvas-scrollbar is-horizontal"
+      :class="{ 'is-visible': scrollbarVisible }"
+      :style="hTrackStyle"
+      @click="onHTrackClick"
+      @mouseenter="hideTooltip"
+      @mousemove.stop
+    >
+      <div class="canvas-scrollbar__thumb" :style="hThumbStyle" @mousedown="onHThumbMousedown" />
+    </div>
     <span
       ref="slotTriggerRef"
       class="crud-base-table__slot-anchor"
@@ -316,6 +427,20 @@ watch(selection.selectedKeys, () => {
       :row="slotPopup.row"
       :column="slotPopup.column"
       :trigger-ref="slotTriggerRef"
+    />
+    <span ref="tooltipAnchorRef" class="crud-base-table__tooltip-anchor" />
+    <ElTooltip
+      v-if="tooltipAnchorRef"
+      :virtual-ref="tooltipAnchorRef"
+      virtual-triggering
+      :visible="tooltipVisible"
+      :content="tooltipContent"
+      placement="top"
+      :teleported="true"
+      :show-arrow="true"
+      :offset="8"
+      :enterable="false"
+      :popper-class="TABLE_TOOLTIP_POPPER_CLASS"
     />
   </div>
 </template>
@@ -334,10 +459,58 @@ watch(selection.selectedKeys, () => {
   vertical-align: top;
 }
 
-.crud-base-table__slot-anchor {
+.crud-base-table__slot-anchor,
+.crud-base-table__tooltip-anchor {
   position: absolute;
   width: 1px;
   height: 1px;
   pointer-events: none;
+}
+
+.canvas-scrollbar {
+  position: absolute;
+  border-radius: 4px;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+
+  &.is-visible {
+    opacity: 1;
+    transition: opacity 340ms ease-out;
+  }
+
+  &.is-vertical {
+    right: 2px;
+    width: 6px;
+  }
+
+  &.is-horizontal {
+    bottom: 2px;
+    left: 2px;
+    height: 6px;
+  }
+}
+
+.canvas-scrollbar__thumb {
+  position: absolute;
+  border-radius: inherit;
+  background-color: #909399;
+  opacity: 0.3;
+  cursor: pointer;
+  transition: opacity 0.3s;
+
+  &:hover {
+    opacity: 0.5;
+  }
+
+  .is-vertical & {
+    width: 100%;
+    left: 0;
+  }
+
+  .is-horizontal & {
+    height: 100%;
+    top: 0;
+  }
 }
 </style>

@@ -1,4 +1,10 @@
 /**
+ * 五种 BaseTable 模式共用的 tooltip popper class，
+ * 保证 element / virtual / canvas 系列的 tooltip 样式统一。
+ */
+export const TABLE_TOOLTIP_POPPER_CLASS = "crud-base-table-tooltip";
+
+/**
  * 五种 BaseTable 模式共用的布局默认值（行高、列宽与 BaseTable props 默认一致）。
  */
 export const tableLayoutDefaults = {

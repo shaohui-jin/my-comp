@@ -193,7 +193,11 @@ export function drawTable2D(o: DrawTable2DOptions): void {
     return;
   }
 
-  const { all: headerAll, indeterminate: headerIndeterminate } = selectionAllState(data, rowKey, selectedKeys);
+  const { all: headerAll, indeterminate: headerIndeterminate } = selectionAllState(
+    data,
+    rowKey,
+    selectedKeys,
+  );
 
   function paintHeaderRow() {
     ctx.fillStyle = t.headerBg;
@@ -239,17 +243,21 @@ export function drawTable2D(o: DrawTable2DOptions): void {
   const x0 = -scrollX;
   ctx.textBaseline = "middle";
 
-  paintHeaderRow();
-
   ctx.font = canvasCellFont();
 
   const startRow = Math.max(0, Math.floor((scrollY - headerHeight) / rowHeight));
   const endRow = Math.min(data.length - 1, Math.ceil((scrollY + h - headerHeight) / rowHeight));
 
+  // Clip body to area below header, draw rows first
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, headerHeight, w, h - headerHeight);
+  ctx.clip();
+
   for (let r = startRow; r <= endRow; r++) {
     const row = data[r]!;
     const y = headerHeight + r * rowHeight - scrollY;
-    if (y + rowHeight < 0 || y > h) {
+    if (y + rowHeight < headerHeight || y > h) {
       continue;
     }
     ctx.fillStyle = r % 2 === 1 ? t.rowStripe : t.rowBase;
@@ -269,7 +277,13 @@ export function drawTable2D(o: DrawTable2DOptions): void {
           drawCheckbox2D(ctx, cellLeft + cw / 2, y + rowHeight / 2, checked, false);
         } else if (col.type === "switch") {
           const active = (col.activeValue as string | number | boolean) ?? true;
-          drawSwitch2D(ctx, cellLeft + cw / 2, y + rowHeight / 2, row[col.key] === active, Boolean(col.disabled));
+          drawSwitch2D(
+            ctx,
+            cellLeft + cw / 2,
+            y + rowHeight / 2,
+            row[col.key] === active,
+            Boolean(col.disabled),
+          );
         } else if (col.type === "status-custom") {
           drawStatusCustom2D(ctx, cellLeft, y, cw, rowHeight, col, row, r);
         } else {
@@ -303,6 +317,11 @@ export function drawTable2D(o: DrawTable2DOptions): void {
       cx += cw;
     }
   }
+
+  ctx.restore(); // restore body clip
+
+  // Header drawn last so it stays on top
+  paintHeaderRow();
 
   ctx.strokeStyle = t.borderColor;
   ctx.strokeRect(0, 0, w, h);

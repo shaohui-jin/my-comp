@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import { onActivated, onDeactivated, onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import { ElTooltip } from "element-plus";
 import type { Canvas, CanvasKit, Font, Paint, Surface, Typeface } from "canvaskit-wasm";
 import type { BaseTableColumn } from "../types";
-import { cssRgbOrRgbaToRgb, hexToRgb, tableLayoutDefaults, tableSurfaceTokens } from "../theme/tableSurface";
+import { cssRgbOrRgbaToRgb, hexToRgb, tableLayoutDefaults, tableSurfaceTokens, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
 import { canvaskitLocateFile } from "../utils/canvaskitLocate";
 import { formatCell, headerText, layoutColumnWidths, statusCustomLampColor, trySwitchToggle, visibleColumns } from "../utils/column";
 import { keyString, rowKeyValue } from "../utils/selectionKeys";
@@ -10,6 +11,8 @@ import { hitTestTable } from "../utils/tableHitTest";
 import { resolveSkiaTypeface } from "../utils/skiaTypeface";
 import { useBaseTableSelection } from "../utils/useBaseTableSelection";
 import { isClickOnSlotText, isClickOnSwitch, useCanvasSlotPopup } from "../utils/useCanvasSlotPopup";
+import { useCanvasTooltip } from "../utils/useCanvasTooltip";
+import { useCanvasScrollbar } from "../utils/useCanvasScrollbar";
 import TableSlotOverlay from "./TableSlotOverlay.vue";
 
 defineOptions({ name: "BaseTableSkiaWasm" });
@@ -44,6 +47,26 @@ const selection = useBaseTableSelection(props.rowKey, tableDataRef);
 const containerRef = ref<HTMLDivElement | null>(null);
 
 const { slotTriggerRef, slotPopup, openSlotPopup, closeSlotPopup } = useCanvasSlotPopup(containerRef);
+
+const skiaApproxCharW = t.fontSizeCell * 0.52;
+const {
+  tooltipAnchorRef,
+  tooltipVisible,
+  tooltipContent,
+  onContainerMousemove,
+  onContainerMouseleave,
+  hideTooltip,
+} = useCanvasTooltip(containerRef, {
+  columns: () => props.columns,
+  colWidths: () => colWidths(),
+  data: () => props.tableData,
+  headerHeight: () => props.headerHeight,
+  rowHeight: () => props.rowHeight,
+  scrollX: () => scrollX.value,
+  scrollY: () => scrollY.value,
+  measureTextWidth: (text: string) => text.length * skiaApproxCharW,
+});
+
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const loadError = ref("");
 /** 与 WASM 加载失败区分：仅 Surface 创建失败 */
@@ -52,6 +75,31 @@ const scrollX = ref(0);
 const scrollY = ref(0);
 const cssW = ref(400);
 const cssH = ref(300);
+
+const {
+  scrollbarVisible,
+  hasVBar,
+  hasHBar,
+  showScrollbar,
+  hideScrollbar,
+  vTrackStyle,
+  vThumbStyle,
+  hTrackStyle,
+  hThumbStyle,
+  onVThumbMousedown,
+  onHThumbMousedown,
+  onVTrackClick,
+  onHTrackClick,
+} = useCanvasScrollbar({
+  scrollX,
+  scrollY,
+  cssW,
+  cssH,
+  totalWidth: () => totalWidth(),
+  totalHeight: () => totalHeight(),
+  headerHeight: () => props.headerHeight,
+  onScroll: schedulePaint,
+});
 
 let ck: CanvasKit | null = null;
 /** null 时勿用 Font(null)，否则 drawText 不显示 */
@@ -62,6 +110,7 @@ let paintFontHeader: Font | null = null;
 let surface: Surface | null = null;
 let ro: ResizeObserver | null = null;
 let raf = 0;
+let active = true;
 /** 避免每帧改 canvas 尺寸导致 WebGL 上下文丢失、MakeCanvasSurface 返回 null */
 let lastPixelW = 0;
 let lastPixelH = 0;
@@ -273,42 +322,6 @@ function paintSkia() {
     return;
   }
 
-  skCanvas.save();
-  skCanvas.translate(-scrollX.value * dpr, -scrollY.value * dpr);
-
-  const headerRgb = hexToRgb(t.headerBg);
-  fillPaint.setColor(skColor(headerRgb));
-  skCanvas.drawRect(ck.LTRBRect(0, 0, tw * dpr, props.headerHeight * dpr), fillPaint);
-
-  const headerTextPaint = new ck.Paint();
-  headerTextPaint.setAntiAlias(true);
-  headerTextPaint.setColor(skColor(hexToRgb(t.textHeader)));
-
-  let hx = 0;
-  for (let i = 0; i < vis.length; i++) {
-    const col = vis[i]!;
-    const cw = (widths[i] ?? tableLayoutDefaults.defaultColumnWidth) * dpr;
-    skCanvas.drawRect(ck.LTRBRect(hx, 0, hx + cw, props.headerHeight * dpr), strokePaint);
-    if (col.type === "selection") {
-      drawSkiaCheckbox(
-        skCanvas,
-        hx + cw / 2,
-        (props.headerHeight / 2) * dpr,
-        headerAll,
-        headerIndeterminate,
-        strokePaint,
-        fillPaint,
-        checkStroke,
-      );
-    } else {
-      const ht = headerText(col);
-      if (ht) {
-        skCanvas.drawText(ht, hx + 8 * dpr, (props.headerHeight / 2 + 5) * dpr, headerTextPaint, fontHeader);
-      }
-    }
-    hx += cw;
-  }
-
   const cellTextPaint = new ck.Paint();
   cellTextPaint.setAntiAlias(true);
   cellTextPaint.setColor(skColor(hexToRgb(t.textPrimary)));
@@ -317,7 +330,34 @@ function paintSkia() {
   lampFillPaint.setStyle(ck.PaintStyle.Fill);
   lampFillPaint.setAntiAlias(true);
 
+  const headerTextPaint = new ck.Paint();
+  headerTextPaint.setAntiAlias(true);
+  headerTextPaint.setColor(skColor(hexToRgb(t.textHeader)));
+
+  const hhPx = props.headerHeight * dpr;
+
   if (props.tableData.length === 0) {
+    // Draw header (only horizontal scroll)
+    skCanvas.save();
+    skCanvas.translate(-scrollX.value * dpr, 0);
+    const headerRgb = hexToRgb(t.headerBg);
+    fillPaint.setColor(skColor(headerRgb));
+    skCanvas.drawRect(ck.LTRBRect(0, 0, tw * dpr, hhPx), fillPaint);
+    let hx2 = 0;
+    for (let i = 0; i < vis.length; i++) {
+      const col = vis[i]!;
+      const cw = (widths[i] ?? tableLayoutDefaults.defaultColumnWidth) * dpr;
+      skCanvas.drawRect(ck.LTRBRect(hx2, 0, hx2 + cw, hhPx), strokePaint);
+      if (col.type !== "selection") {
+        const ht = headerText(col);
+        if (ht) {
+          skCanvas.drawText(ht, hx2 + 8 * dpr, (props.headerHeight / 2 + 5) * dpr, headerTextPaint, fontHeader);
+        }
+      }
+      hx2 += cw;
+    }
+    skCanvas.restore();
+
     const emptyPaint = new ck.Paint();
     emptyPaint.setAntiAlias(true);
     emptyPaint.setColor(skColor(hexToRgb(t.textEmpty)));
@@ -325,7 +365,6 @@ function paintSkia() {
     const approxHalf = txt.length * t.fontSizeEmpty * dpr * 0.32;
     const ey = (props.headerHeight + Math.max(0, (cssH.value - props.headerHeight) / 2)) * dpr;
     skCanvas.drawText(txt, (cssW.value / 2) * dpr - approxHalf, ey + t.fontSizeEmpty * dpr * 0.35, emptyPaint, fontEmpty);
-    skCanvas.restore();
     strokePaint.setColor(skColor(borderRgb));
     skCanvas.drawRect(ck.LTRBRect(0.5, 0.5, wPx - 0.5, hPx - 0.5), strokePaint);
     surf.flush();
@@ -342,6 +381,11 @@ function paintSkia() {
   );
 
   const approxCharW = t.fontSizeCell * dpr * 0.52;
+
+  // Body rows: clip to area below header, translate for scroll
+  skCanvas.save();
+  skCanvas.clipRect(ck.LTRBRect(0, hhPx, wPx, hPx), ck.ClipOp.Intersect, true);
+  skCanvas.translate(-scrollX.value * dpr, -scrollY.value * dpr);
 
   for (let r = startRow; r <= endRow; r++) {
     const row = props.tableData[r]!;
@@ -397,22 +441,69 @@ function paintSkia() {
               : col.align === "right"
                 ? "right"
                 : "left";
+        const padding = 8 * dpr;
+        const maxTw = Math.max(4 * dpr, cellW - padding * 2);
+        const maxChars = Math.max(1, Math.floor(maxTw / approxCharW));
+        const shown =
+          text.length <= maxChars ? text : `${text.slice(0, Math.max(0, maxChars - 1))}…`;
+        const shownW = shown.length * approxCharW;
         let tx: number;
-        const textW = text.length * approxCharW;
         if (align === "center") {
-          tx = cx + cellW / 2 - textW / 2;
+          tx = cx + cellW / 2 - shownW / 2;
         } else if (align === "right") {
-          tx = cx + cellW - 8 * dpr - textW;
+          tx = cx + cellW - padding - shownW;
         } else {
-          tx = cx + 8 * dpr;
+          tx = cx + padding;
         }
-        skCanvas.drawText(text, tx, midY, cellTextPaint, fontCell);
+        skCanvas.save();
+        skCanvas.clipRect(
+          ck!.LTRBRect(cx + 1, yd + 1, cx + cellW - 1, yd + rh - 1),
+          ck!.ClipOp.Intersect,
+          true,
+        );
+        skCanvas.drawText(shown, tx, midY, cellTextPaint, fontCell);
+        skCanvas.restore();
       }
       cx += cellW;
     }
   }
 
-  skCanvas.restore();
+  skCanvas.restore(); // restore body clip + translate
+
+  // Header: drawn last, only horizontal scroll, always at top
+  skCanvas.save();
+  skCanvas.translate(-scrollX.value * dpr, 0);
+
+  const headerRgb = hexToRgb(t.headerBg);
+  fillPaint.setColor(skColor(headerRgb));
+  skCanvas.drawRect(ck.LTRBRect(0, 0, tw * dpr, hhPx), fillPaint);
+
+  let hx = 0;
+  for (let i = 0; i < vis.length; i++) {
+    const col = vis[i]!;
+    const cw = (widths[i] ?? tableLayoutDefaults.defaultColumnWidth) * dpr;
+    skCanvas.drawRect(ck.LTRBRect(hx, 0, hx + cw, hhPx), strokePaint);
+    if (col.type === "selection") {
+      drawSkiaCheckbox(
+        skCanvas,
+        hx + cw / 2,
+        (props.headerHeight / 2) * dpr,
+        headerAll,
+        headerIndeterminate,
+        strokePaint,
+        fillPaint,
+        checkStroke,
+      );
+    } else {
+      const ht = headerText(col);
+      if (ht) {
+        skCanvas.drawText(ht, hx + 8 * dpr, (props.headerHeight / 2 + 5) * dpr, headerTextPaint, fontHeader);
+      }
+    }
+    hx += cw;
+  }
+
+  skCanvas.restore(); // restore header translate
 
   strokePaint.setColor(skColor(borderRgb));
   skCanvas.drawRect(ck.LTRBRect(0.5, 0.5, wPx - 0.5, hPx - 0.5), strokePaint);
@@ -422,6 +513,7 @@ function paintSkia() {
 
 function schedulePaint() {
   cancelAnimationFrame(raf);
+  if (!active) return;
   raf = requestAnimationFrame(() => {
     clampScroll();
     paintSkia();
@@ -430,6 +522,8 @@ function schedulePaint() {
 
 function onWheel(e: WheelEvent) {
   e.preventDefault();
+  hideTooltip();
+  showScrollbar();
   if (e.shiftKey) {
     scrollX.value += e.deltaY;
   } else {
@@ -512,6 +606,16 @@ onMounted(async () => {
   schedulePaint();
 });
 
+onActivated(() => {
+  active = true;
+  schedulePaint();
+});
+
+onDeactivated(() => {
+  active = false;
+  cancelAnimationFrame(raf);
+});
+
 onUnmounted(() => {
   ro?.disconnect();
   cancelAnimationFrame(raf);
@@ -533,10 +637,40 @@ watch(selection.selectedKeys, () => schedulePaint());
 </script>
 
 <template>
-  <div ref="containerRef" class="crud-base-table__skia" tabindex="0" @wheel="onWheel">
+  <div
+    ref="containerRef"
+    class="crud-base-table__skia"
+    tabindex="0"
+    @wheel="onWheel"
+    @mouseenter="showScrollbar"
+    @mousemove="onContainerMousemove"
+    @mouseleave="() => { onContainerMouseleave(); hideScrollbar(); }"
+  >
     <div v-if="loadError" class="crud-base-table__skia-message">{{ loadError }}</div>
     <div v-else-if="surfaceError" class="crud-base-table__skia-message">{{ surfaceError }}</div>
     <canvas v-show="!loadError" ref="canvasRef" class="crud-base-table__skia-surface" @click="onCanvasClick" />
+    <div
+      v-if="hasVBar"
+      class="canvas-scrollbar is-vertical"
+      :class="{ 'is-visible': scrollbarVisible }"
+      :style="vTrackStyle"
+      @click="onVTrackClick"
+      @mouseenter="hideTooltip"
+      @mousemove.stop
+    >
+      <div class="canvas-scrollbar__thumb" :style="vThumbStyle" @mousedown="onVThumbMousedown" />
+    </div>
+    <div
+      v-if="hasHBar"
+      class="canvas-scrollbar is-horizontal"
+      :class="{ 'is-visible': scrollbarVisible }"
+      :style="hTrackStyle"
+      @click="onHTrackClick"
+      @mouseenter="hideTooltip"
+      @mousemove.stop
+    >
+      <div class="canvas-scrollbar__thumb" :style="hThumbStyle" @mousedown="onHThumbMousedown" />
+    </div>
     <span
       ref="slotTriggerRef"
       class="crud-base-table__slot-anchor"
@@ -547,6 +681,20 @@ watch(selection.selectedKeys, () => schedulePaint());
       :row="slotPopup.row"
       :column="slotPopup.column"
       :trigger-ref="slotTriggerRef"
+    />
+    <span ref="tooltipAnchorRef" class="crud-base-table__tooltip-anchor" />
+    <ElTooltip
+      v-if="tooltipAnchorRef"
+      :virtual-ref="tooltipAnchorRef"
+      virtual-triggering
+      :visible="tooltipVisible"
+      :content="tooltipContent"
+      placement="top"
+      :teleported="true"
+      :show-arrow="true"
+      :offset="8"
+      :enterable="false"
+      :popper-class="TABLE_TOOLTIP_POPPER_CLASS"
     />
   </div>
 </template>
@@ -571,10 +719,58 @@ watch(selection.selectedKeys, () => schedulePaint());
   vertical-align: top;
 }
 
-.crud-base-table__slot-anchor {
+.crud-base-table__slot-anchor,
+.crud-base-table__tooltip-anchor {
   position: absolute;
   width: 1px;
   height: 1px;
   pointer-events: none;
+}
+
+.canvas-scrollbar {
+  position: absolute;
+  border-radius: 4px;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+
+  &.is-visible {
+    opacity: 1;
+    transition: opacity 340ms ease-out;
+  }
+
+  &.is-vertical {
+    right: 2px;
+    width: 6px;
+  }
+
+  &.is-horizontal {
+    bottom: 2px;
+    left: 2px;
+    height: 6px;
+  }
+}
+
+.canvas-scrollbar__thumb {
+  position: absolute;
+  border-radius: inherit;
+  background-color: #909399;
+  opacity: 0.3;
+  cursor: pointer;
+  transition: opacity 0.3s;
+
+  &:hover {
+    opacity: 0.5;
+  }
+
+  .is-vertical & {
+    width: 100%;
+    left: 0;
+  }
+
+  .is-horizontal & {
+    height: 100%;
+    top: 0;
+  }
 }
 </style>

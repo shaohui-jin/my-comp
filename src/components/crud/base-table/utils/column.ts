@@ -30,6 +30,7 @@ const TABLE_BIND_OMIT = [
   "tableSlot",
   "slotName",
   "click",
+  "showOverflowTooltip",
 ];
 
 /**
@@ -50,7 +51,7 @@ export function visibleColumns(columns: BaseTableColumn[]): BaseTableColumn[] {
 }
 
 export function headerText(col: BaseTableColumn): string {
-  if (col.type === "selection") {
+  if (col.type === "selection" || col.type === "index") {
     return "";
   }
   return String(col.label ?? col.title ?? col.key);
@@ -108,30 +109,54 @@ export function formatCell(
   return String(raw);
 }
 
-/** 计算每列像素宽度 */
+/**
+ * 计算每列像素宽度，与 Element Plus 策略对齐：
+ * - 设置了 `width` 的列（含 selection/index 默认宽度）为固定列，宽度不变
+ * - 未设置 `width` 的列为弹性列，以 `minWidth` 或 `defaultColumnWidth` 为基准，共享剩余空间
+ */
 export function layoutColumnWidths(columns: BaseTableColumn[], innerWidth: number): number[] {
   const vis = visibleColumns(columns);
   if (vis.length === 0) {
     return [];
   }
   const minW = tableLayoutDefaults.minColumnWidth;
-  const requested = vis.map((c) => {
+
+  const meta = vis.map((c) => {
     if (c.type === "selection") {
-      return Math.max(minW, c.width ?? tableLayoutDefaults.selectionColumnWidth);
+      return {
+        fixed: true,
+        base: Math.max(minW, c.width ?? tableLayoutDefaults.selectionColumnWidth),
+      };
     }
     if (c.type === "index") {
-      return Math.max(minW, c.width ?? tableLayoutDefaults.indexColumnWidth);
+      return { fixed: true, base: Math.max(minW, c.width ?? tableLayoutDefaults.indexColumnWidth) };
     }
-    return Math.max(minW, c.width ?? c.minWidth ?? tableLayoutDefaults.defaultColumnWidth);
+    if (c.width != null) {
+      return { fixed: true, base: Math.max(minW, c.width) };
+    }
+    return {
+      fixed: false,
+      base: Math.max(minW, c.minWidth ?? tableLayoutDefaults.defaultColumnWidth),
+    };
   });
-  const sum = requested.reduce((a, b) => a + b, 0);
-  if (sum <= innerWidth) {
-    const extra = innerWidth - sum;
-    const add = extra / vis.length;
-    return requested.map((w) => Math.floor(w + add));
+
+  const fixedTotal = meta.reduce((s, m) => s + (m.fixed ? m.base : 0), 0);
+  const flexItems = meta.filter((m) => !m.fixed);
+  const flexBaseTotal = flexItems.reduce((s, m) => s + m.base, 0);
+  const remaining = innerWidth - fixedTotal;
+
+  if (flexItems.length === 0) {
+    return meta.map((m) => m.base);
   }
-  const scale = innerWidth / sum;
-  return requested.map((w) => Math.max(minW, Math.floor(w * scale)));
+
+  if (remaining >= flexBaseTotal) {
+    const extra = remaining - flexBaseTotal;
+    const addPerFlex = extra / flexItems.length;
+    return meta.map((m) => (m.fixed ? m.base : Math.floor(m.base + addPerFlex)));
+  }
+
+  const scale = Math.max(0, remaining / flexBaseTotal);
+  return meta.map((m) => (m.fixed ? m.base : Math.max(minW, Math.floor(m.base * scale))));
 }
 
 /**

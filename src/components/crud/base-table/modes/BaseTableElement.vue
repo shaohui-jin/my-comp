@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ElImage, ElSwitch, ElTable, ElTableColumn } from "element-plus";
 import type { BaseTableColumn } from "../types";
-import { tableLayoutDefaults } from "../theme/tableSurface";
+import { tableLayoutDefaults, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
 import { formatCell, getTableColumnBinds, statusCustomLampColor, visibleColumns } from "../utils/column";
 import TableSlotPopover from "./TableSlotPopover.vue";
+
+const tooltipOptions = { popperClass: TABLE_TOOLTIP_POPPER_CLASS };
 
 defineOptions({ name: "BaseTableElement" });
 
@@ -40,6 +42,7 @@ function columnFormatter(col: BaseTableColumn) {
       stripe
       :row-key="rowKey"
       :empty-text="emptyText"
+      :tooltip-options="tooltipOptions"
       @selection-change="onSelectionChange"
     >
       <template v-for="(col, ci) in visibleColumns(columns)" :key="`${col.key}-${ci}`">
@@ -85,19 +88,13 @@ function columnFormatter(col: BaseTableColumn) {
         <ElTableColumn
           v-else-if="col.type === 'status-custom'"
           v-bind="getTableColumnBinds(col)"
+          class-name="crud-base-table__cell--text"
           #default="scope"
         >
-          <div class="crud-base-table__status-custom">
-            <div
-              class="crud-base-table__status-custom-lamp"
-              :style="{ backgroundColor: statusCustomLampColor(col, scope.row) }"
-            />
-            <div class="crud-base-table__status-custom-content">
-              <div class="crud-base-table__status-custom-text">
-                {{ formatCell(col, scope.row, scope.$index) }}
-              </div>
-            </div>
-          </div>
+          <i
+            class="crud-base-table__status-lamp"
+            :style="{ backgroundColor: statusCustomLampColor(col, scope.row) }"
+          />{{ formatCell(col, scope.row, scope.$index) }}
         </ElTableColumn>
         <ElTableColumn
           v-else-if="col.type === 'tableSlot'"
@@ -110,16 +107,14 @@ function columnFormatter(col: BaseTableColumn) {
           v-else-if="col.formatter"
           v-bind="getTableColumnBinds(col)"
           :formatter="columnFormatter(col)"
-          :show-overflow-tooltip="(col.showOverflowTooltip as boolean) !== false"
+          class-name="crud-base-table__cell--text"
         />
         <ElTableColumn
           v-else
           v-bind="getTableColumnBinds(col)"
-          :show-overflow-tooltip="(col.showOverflowTooltip as boolean) !== false"
-          #default="scope"
-        >
-          {{ formatCell(col, scope.row, scope.$index) }}
-        </ElTableColumn>
+          :prop="col.key"
+          class-name="crud-base-table__cell--text"
+        />
       </template>
     </ElTable>
     <div v-if="loading" class="crud-base-table__element-mask" />
@@ -145,36 +140,18 @@ function columnFormatter(col: BaseTableColumn) {
   pointer-events: none;
 }
 
-/** 与历史 BaseTable `status-custom` 一致：圆点 + 文案 */
-.crud-base-table__status-custom {
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  height: auto;
-}
-
-.crud-base-table__status-custom-lamp {
+:deep(.crud-base-table__status-lamp) {
+  display: inline-block;
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
   flex-shrink: 0;
 }
 
-.crud-base-table__status-custom-content {
-  display: flex;
-  flex-direction: column;
-  margin-left: 8px;
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-.crud-base-table__status-custom-text {
-  font-size: 14px;
-  color: var(--crud-bt-text, #606266);
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
+:deep(.crud-base-table__cell--text .cell) {
   white-space: nowrap;
+  word-break: normal;
 }
-
 </style>

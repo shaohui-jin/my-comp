@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import { computed, onActivated, onDeactivated, onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import { ElTooltip } from "element-plus";
 import type { BaseTableColumn } from "../types";
+import { TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
 import { layoutColumnWidths, trySwitchToggle, visibleColumns } from "../utils/column";
 import { drawTable2D } from "../utils/canvasDraw";
 import { hitTestTable } from "../utils/tableHitTest";
 import { useBaseTableSelection } from "../utils/useBaseTableSelection";
 import { isClickOnSlotText, isClickOnSwitch, useCanvasSlotPopup } from "../utils/useCanvasSlotPopup";
+import { useCanvasTooltip, canvas2DMeasureTextWidth } from "../utils/useCanvasTooltip";
+import { useCanvasScrollbar } from "../utils/useCanvasScrollbar";
 import TableSlotOverlay from "./TableSlotOverlay.vue";
 
 defineOptions({ name: "BaseTableCanvas" });
@@ -32,6 +36,7 @@ const cssH = ref(300);
 
 let ro: ResizeObserver | null = null;
 let raf = 0;
+let active = true;
 
 const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
 
@@ -45,6 +50,49 @@ const tableDataRef = toRef(props, "tableData");
 const selection = useBaseTableSelection(props.rowKey, tableDataRef);
 
 const { slotTriggerRef, slotPopup, openSlotPopup, closeSlotPopup } = useCanvasSlotPopup(containerRef);
+
+const {
+  tooltipAnchorRef,
+  tooltipVisible,
+  tooltipContent,
+  onContainerMousemove,
+  onContainerMouseleave,
+  hideTooltip,
+} = useCanvasTooltip(containerRef, {
+  columns: () => props.columns,
+  colWidths: () => colWidths.value,
+  data: () => props.tableData,
+  headerHeight: () => props.headerHeight,
+  rowHeight: () => props.rowHeight,
+  scrollX: () => scrollX.value,
+  scrollY: () => scrollY.value,
+  measureTextWidth: canvas2DMeasureTextWidth,
+});
+
+const {
+  scrollbarVisible,
+  hasVBar,
+  hasHBar,
+  showScrollbar,
+  hideScrollbar,
+  vTrackStyle,
+  vThumbStyle,
+  hTrackStyle,
+  hThumbStyle,
+  onVThumbMousedown,
+  onHThumbMousedown,
+  onVTrackClick,
+  onHTrackClick,
+} = useCanvasScrollbar({
+  scrollX,
+  scrollY,
+  cssW,
+  cssH,
+  totalWidth: () => totalWidth.value,
+  totalHeight: () => totalHeight.value,
+  headerHeight: () => props.headerHeight,
+  onScroll: schedulePaint,
+});
 
 function clampScroll() {
   const maxX = Math.max(0, totalWidth.value - cssW.value);
@@ -87,6 +135,7 @@ function paint() {
 
 function schedulePaint() {
   cancelAnimationFrame(raf);
+  if (!active) return;
   raf = requestAnimationFrame(() => {
     clampScroll();
     paint();
@@ -95,6 +144,8 @@ function schedulePaint() {
 
 function onWheel(e: WheelEvent) {
   e.preventDefault();
+  hideTooltip();
+  showScrollbar();
   if (e.shiftKey) {
     scrollX.value += e.deltaY;
   } else {
@@ -177,6 +228,16 @@ onMounted(() => {
   schedulePaint();
 });
 
+onActivated(() => {
+  active = true;
+  schedulePaint();
+});
+
+onDeactivated(() => {
+  active = false;
+  cancelAnimationFrame(raf);
+});
+
 onUnmounted(() => {
   ro?.disconnect();
   cancelAnimationFrame(raf);
@@ -194,8 +255,38 @@ watch(selection.selectedKeys, () => schedulePaint(), { deep: true });
 </script>
 
 <template>
-  <div ref="containerRef" class="crud-base-table__canvas" tabindex="0" @wheel="onWheel">
+  <div
+    ref="containerRef"
+    class="crud-base-table__canvas"
+    tabindex="0"
+    @wheel="onWheel"
+    @mouseenter="showScrollbar"
+    @mousemove="onContainerMousemove"
+    @mouseleave="() => { onContainerMouseleave(); hideScrollbar(); }"
+  >
     <canvas ref="canvasRef" class="crud-base-table__canvas-surface" @click="onCanvasClick" />
+    <div
+      v-if="hasVBar"
+      class="canvas-scrollbar is-vertical"
+      :class="{ 'is-visible': scrollbarVisible }"
+      :style="vTrackStyle"
+      @click="onVTrackClick"
+      @mouseenter="hideTooltip"
+      @mousemove.stop
+    >
+      <div class="canvas-scrollbar__thumb" :style="vThumbStyle" @mousedown="onVThumbMousedown" />
+    </div>
+    <div
+      v-if="hasHBar"
+      class="canvas-scrollbar is-horizontal"
+      :class="{ 'is-visible': scrollbarVisible }"
+      :style="hTrackStyle"
+      @click="onHTrackClick"
+      @mouseenter="hideTooltip"
+      @mousemove.stop
+    >
+      <div class="canvas-scrollbar__thumb" :style="hThumbStyle" @mousedown="onHThumbMousedown" />
+    </div>
     <span
       ref="slotTriggerRef"
       class="crud-base-table__slot-anchor"
@@ -206,6 +297,20 @@ watch(selection.selectedKeys, () => schedulePaint(), { deep: true });
       :row="slotPopup.row"
       :column="slotPopup.column"
       :trigger-ref="slotTriggerRef"
+    />
+    <span ref="tooltipAnchorRef" class="crud-base-table__tooltip-anchor" />
+    <ElTooltip
+      v-if="tooltipAnchorRef"
+      :virtual-ref="tooltipAnchorRef"
+      virtual-triggering
+      :visible="tooltipVisible"
+      :content="tooltipContent"
+      placement="top"
+      :teleported="true"
+      :show-arrow="true"
+      :offset="8"
+      :enterable="false"
+      :popper-class="TABLE_TOOLTIP_POPPER_CLASS"
     />
   </div>
 </template>
@@ -225,10 +330,58 @@ watch(selection.selectedKeys, () => schedulePaint(), { deep: true });
   cursor: default;
 }
 
-.crud-base-table__slot-anchor {
+.crud-base-table__slot-anchor,
+.crud-base-table__tooltip-anchor {
   position: absolute;
   width: 1px;
   height: 1px;
   pointer-events: none;
+}
+
+.canvas-scrollbar {
+  position: absolute;
+  border-radius: 4px;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+
+  &.is-visible {
+    opacity: 1;
+    transition: opacity 340ms ease-out;
+  }
+
+  &.is-vertical {
+    right: 2px;
+    width: 6px;
+  }
+
+  &.is-horizontal {
+    bottom: 2px;
+    left: 2px;
+    height: 6px;
+  }
+}
+
+.canvas-scrollbar__thumb {
+  position: absolute;
+  border-radius: inherit;
+  background-color: #909399;
+  opacity: 0.3;
+  cursor: pointer;
+  transition: opacity 0.3s;
+
+  &:hover {
+    opacity: 0.5;
+  }
+
+  .is-vertical & {
+    width: 100%;
+    left: 0;
+  }
+
+  .is-horizontal & {
+    height: 100%;
+    top: 0;
+  }
 }
 </style>

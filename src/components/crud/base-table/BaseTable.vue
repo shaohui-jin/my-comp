@@ -53,56 +53,58 @@ const surfaceStyle = computed(() => tableSurfaceCssVars(props.rowHeight, props.h
       <slot name="toolbar" />
     </div>
     <div class="crud-base-table__main">
-      <BaseTableElement
-        v-if="mode === 'element'"
-        :table-data="tableData"
-        :columns="columns"
-        :row-key="rowKey"
-        :empty-text="emptyText"
-        :loading="loading"
-        @selection-change="onSelectionChange"
-      />
-      <BaseTableVirtual
-        v-else-if="mode === 'virtual'"
-        :table-data="tableData"
-        :columns="columns"
-        :row-height="rowHeight"
-        :header-height="headerHeight"
-        :row-key="rowKey"
-        @selection-change="onSelectionChange"
-      />
-      <BaseTableCanvas
-        v-else-if="mode === 'canvas'"
-        :table-data="tableData"
-        :columns="columns"
-        :row-height="rowHeight"
-        :header-height="headerHeight"
-        :empty-text="emptyText"
-        :row-key="rowKey"
-        @selection-change="onSelectionChange"
-      />
-      <BaseTableCanvasTile
-        v-else-if="mode === 'canvas-tile'"
-        :table-data="tableData"
-        :columns="columns"
-        :row-height="rowHeight"
-        :header-height="headerHeight"
-        :empty-text="emptyText"
-        :max-prerender-pixels="maxPrerenderPixels"
-        :row-key="rowKey"
-        @selection-change="onSelectionChange"
-      />
-      <BaseTableSkiaWasm
-        v-else-if="mode === 'skia-wasm'"
-        :table-data="tableData"
-        :columns="columns"
-        :row-height="rowHeight"
-        :header-height="headerHeight"
-        :empty-text="emptyText"
-        :skia-wasm-base-url="skiaWasmBaseUrl"
-        :row-key="rowKey"
-        @selection-change="onSelectionChange"
-      />
+      <KeepAlive>
+        <BaseTableElement
+          v-if="mode === 'element'"
+          :table-data="tableData"
+          :columns="columns"
+          :row-key="rowKey"
+          :empty-text="emptyText"
+          :loading="loading"
+          @selection-change="onSelectionChange"
+        />
+        <BaseTableVirtual
+          v-else-if="mode === 'virtual'"
+          :table-data="tableData"
+          :columns="columns"
+          :row-height="rowHeight"
+          :header-height="headerHeight"
+          :row-key="rowKey"
+          @selection-change="onSelectionChange"
+        />
+        <BaseTableCanvas
+          v-else-if="mode === 'canvas'"
+          :table-data="tableData"
+          :columns="columns"
+          :row-height="rowHeight"
+          :header-height="headerHeight"
+          :empty-text="emptyText"
+          :row-key="rowKey"
+          @selection-change="onSelectionChange"
+        />
+        <BaseTableCanvasTile
+          v-else-if="mode === 'canvas-tile'"
+          :table-data="tableData"
+          :columns="columns"
+          :row-height="rowHeight"
+          :header-height="headerHeight"
+          :empty-text="emptyText"
+          :max-prerender-pixels="maxPrerenderPixels"
+          :row-key="rowKey"
+          @selection-change="onSelectionChange"
+        />
+        <BaseTableSkiaWasm
+          v-else-if="mode === 'skia-wasm'"
+          :table-data="tableData"
+          :columns="columns"
+          :row-height="rowHeight"
+          :header-height="headerHeight"
+          :empty-text="emptyText"
+          :skia-wasm-base-url="skiaWasmBaseUrl"
+          :row-key="rowKey"
+          @selection-change="onSelectionChange"
+        />
+      </KeepAlive>
     </div>
   </div>
 </template>

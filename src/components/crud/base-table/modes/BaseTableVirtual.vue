@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ElAutoResizer, ElCheckbox, ElSwitch, ElTableV2 } from "element-plus";
+import { ElAutoResizer, ElCheckbox, ElSwitch, ElTableV2, ElTooltip } from "element-plus";
 import type { Column } from "element-plus";
-import { defineComponent, h, ref, toRef, watch, PropType } from "vue";
+import { defineComponent, h, ref, shallowRef, toRef, watch, PropType } from "vue";
 import type { BaseTableColumn } from "../types";
-import { tableLayoutDefaults } from "../theme/tableSurface";
+import { tableLayoutDefaults, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
 import { formatCell, layoutColumnWidths, statusCustomLampColor, visibleColumns } from "../utils/column";
 import { useBaseTableSelection } from "../utils/useBaseTableSelection";
 import TableSlotPopover from "./TableSlotPopover.vue";
@@ -53,6 +53,34 @@ const emit = defineEmits<{
 const tableDataRef = toRef(props, "tableData");
 const selection = useBaseTableSelection(props.rowKey, tableDataRef);
 
+const virtualTooltipRef = shallowRef<HTMLElement>();
+const tooltipVisible = ref(false);
+const tooltipContent = ref("");
+
+const OVERFLOW_SELECTOR = ".crud-base-table__virtual-cell, .crud-base-table__status-custom-text";
+
+function onCellMouseover(e: MouseEvent) {
+  const cellText = (e.target as HTMLElement).closest?.(OVERFLOW_SELECTOR) as HTMLElement | null;
+  if (!cellText || cellText.hasAttribute("data-no-tooltip")) {
+    tooltipVisible.value = false;
+    return;
+  }
+  if (cellText === virtualTooltipRef.value && tooltipVisible.value) {
+    return;
+  }
+  if (cellText.scrollWidth > cellText.clientWidth) {
+    tooltipContent.value = cellText.textContent || "";
+    virtualTooltipRef.value = cellText;
+    tooltipVisible.value = true;
+  } else {
+    tooltipVisible.value = false;
+  }
+}
+
+function onContainerMouseleave() {
+  tooltipVisible.value = false;
+}
+
 /** Table-V2 需固定列宽；与 Canvas 系共用 layoutColumnWidths；selection 列用 ElCheckbox 与 Element 表多选一致 */
 function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
   const vis = visibleColumns(props.columns);
@@ -80,6 +108,18 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
             modelValue: selection.isRowSelected(rowData as Record<string, unknown>),
             onChange: () => emit("selectionChange", selection.toggleRow(rowData as Record<string, unknown>)),
           }),
+      };
+    }
+
+    if (col.type === "index") {
+      return {
+        key: col.key,
+        dataKey: col.key,
+        title: "",
+        width: w,
+        align,
+        cellRenderer: ({ rowIndex }) =>
+          h("span", { class: "crud-base-table__virtual-cell" }, String(rowIndex + 1)),
       };
     }
 
@@ -122,6 +162,7 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
     }
 
     if (col.type === "status-custom") {
+      const noTip = col.showOverflowTooltip === false;
       return {
         key: col.key,
         dataKey: col.key,
@@ -155,6 +196,7 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
                 "div",
                 {
                   class: "crud-base-table__status-custom-text",
+                  ...(noTip ? { "data-no-tooltip": "" } : {}),
                   style: {
                     marginLeft: "8px",
                     fontSize: "14px",
@@ -172,6 +214,7 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
       };
     }
 
+    const noTip = col.showOverflowTooltip === false;
     return {
       key: col.key,
       dataKey: col.key,
@@ -181,7 +224,10 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
       cellRenderer: ({ rowData, rowIndex }) =>
         h(
           "span",
-          { class: "crud-base-table__virtual-cell" },
+          {
+            class: "crud-base-table__virtual-cell",
+            ...(noTip ? { "data-no-tooltip": "" } : {}),
+          },
           formatCell(col, rowData as Record<string, unknown>, rowIndex),
         ),
     };
@@ -190,7 +236,11 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
 </script>
 
 <template>
-  <div class="crud-base-table__virtual">
+  <div
+    class="crud-base-table__virtual"
+    @mouseover="onCellMouseover"
+    @mouseleave="onContainerMouseleave"
+  >
     <ElAutoResizer>
       <template #default="{ height, width }">
         <ElTableV2
@@ -205,6 +255,19 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
         />
       </template>
     </ElAutoResizer>
+    <ElTooltip
+      v-if="virtualTooltipRef"
+      :virtual-ref="virtualTooltipRef"
+      virtual-triggering
+      :visible="tooltipVisible"
+      :content="tooltipContent"
+      placement="top"
+      :teleported="true"
+      :show-arrow="true"
+      :offset="8"
+      :enterable="false"
+      :popper-class="TABLE_TOOLTIP_POPPER_CLASS"
+    />
   </div>
 </template>
 
