@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ElAutoResizer, ElCheckbox, ElSwitch, ElTableV2, ElTooltip } from "element-plus";
 import type { Column } from "element-plus";
-import { defineComponent, h, ref, shallowRef, toRef, watch, PropType } from "vue";
+import { defineComponent, h, ref, shallowRef, toRef, watch } from "vue";
+import type { PropType } from "vue";
 import type { BaseTableColumn } from "../types";
 import { tableLayoutDefaults, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
 import { formatCell, layoutColumnWidths, statusCustomLampColor, visibleColumns } from "../utils/column";
@@ -23,7 +24,7 @@ const VirtualSwitchCell = defineComponent({
     watch(() => props.row[props.colKey], (v) => { localValue.value = v; });
     return () =>
       h(ElSwitch, {
-        modelValue: localValue.value,
+        modelValue: localValue.value as string | number | boolean,
         activeValue: props.activeValue,
         inactiveValue: props.inactiveValue,
         disabled: props.disabled,
