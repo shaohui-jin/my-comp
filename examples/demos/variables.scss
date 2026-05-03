@@ -1,0 +1,58 @@
+// ============================================================
+// 演示站点设计令牌 — 修改此文件即可统一调整全站风格
+// ============================================================
+
+// -- 文字色 --
+$doc-text-heading: #1d2129;
+$doc-text-primary: #303133;
+$doc-text-regular: #606266;
+$doc-text-secondary: #909399;
+
+// -- 背景色 --
+$doc-bg-page: #f5f7fa;
+$doc-bg-card: #fff;
+$doc-bg-subtle: #fafbfc;
+$doc-bg-muted: #f4f4f5;
+$doc-bg-hover: #f9fafc;
+
+// -- 边框色 --
+$doc-border-color: #ebeef5;
+$doc-border-light: #f0f2f5;
+
+// -- 功能色 --
+$doc-color-primary: #409eff;
+$doc-color-success: #67c23a;
+$doc-color-warning: #e6a23c;
+$doc-color-type: #8250df;
+$doc-bg-type: #f3f0ff;
+
+// -- 字体族 --
+$doc-font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+$doc-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+// -- 字号 --
+$doc-fs-xs: 12px;
+$doc-fs-sm: 13px;
+$doc-fs-base: 14px;
+$doc-fs-md: 15px;
+$doc-fs-lg: 17px;
+$doc-fs-xl: 20px;
+
+// -- 间距（用于 padding / margin / gap） --
+$doc-sp-xs: 4px;
+$doc-sp-sm: 8px;
+$doc-sp-md: 12px;
+$doc-sp-lg: 16px;
+$doc-sp-xl: 20px;
+$doc-sp-2xl: 24px;
+
+// -- 圆角 --
+$doc-radius-sm: 3px;
+$doc-radius-md: 6px;
+$doc-radius-lg: 8px;
+$doc-radius-pill: 10px;
+
+// -- 阴影 --
+$doc-shadow-sm: 0 1px 4px rgb(0 0 0 / 4%);
+$doc-shadow-md: 0 1px 6px rgb(0 0 0 / 4%);
+$doc-shadow-lg: 0 2px 12px rgb(0 0 0 / 5%);

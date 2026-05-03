@@ -10,7 +10,7 @@ import { useBaseTableSelection } from "../utils/useBaseTableSelection";
 import { isClickOnSlotText, isClickOnSwitch, useCanvasSlotPopup } from "../utils/useCanvasSlotPopup";
 import { useCanvasTooltip, canvas2DMeasureTextWidth } from "../utils/useCanvasTooltip";
 import { useCanvasScrollbar } from "../utils/useCanvasScrollbar";
-import TableSlotOverlay from "./TableSlotOverlay.vue";
+import TableSlotPopup from "./TableSlotPopup.vue";
 
 defineOptions({ name: "BaseTableCanvas" });
 
@@ -292,7 +292,7 @@ watch(selection.selectedKeys, () => schedulePaint(), { deep: true });
       class="crud-base-table__slot-anchor"
       :style="{ left: slotPopup.x + 'px', top: slotPopup.y + 'px' }"
     />
-    <TableSlotOverlay
+    <TableSlotPopup
       v-model:visible="slotPopup.visible"
       :row="slotPopup.row"
       :column="slotPopup.column"

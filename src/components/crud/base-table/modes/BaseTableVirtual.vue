@@ -1,41 +1,14 @@
 <script setup lang="ts">
-import { ElAutoResizer, ElCheckbox, ElSwitch, ElTableV2, ElTooltip } from "element-plus";
+import { ElAutoResizer, ElCheckbox, ElTableV2, ElTooltip } from "element-plus";
 import type { Column } from "element-plus";
-import { defineComponent, h, ref, shallowRef, toRef, watch } from "vue";
-import type { PropType } from "vue";
+import { h, ref, shallowRef, toRef } from "vue";
 import type { BaseTableColumn } from "../types";
 import { tableLayoutDefaults, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
-import { formatCell, layoutColumnWidths, statusCustomLampColor, visibleColumns } from "../utils/column";
+import { formatCell, layoutColumnWidths, visibleColumns } from "../utils/column";
 import { useBaseTableSelection } from "../utils/useBaseTableSelection";
-import TableSlotPopover from "./TableSlotPopover.vue";
-
-const VirtualSwitchCell = defineComponent({
-  name: "VirtualSwitchCell",
-  props: {
-    row: { type: Object as PropType<Record<string, unknown>>, required: true },
-    colKey: { type: String, required: true },
-    activeValue: { type: [String, Number, Boolean] as PropType<string | number | boolean>, default: true },
-    inactiveValue: { type: [String, Number, Boolean] as PropType<string | number | boolean>, default: false },
-    disabled: { type: Boolean, default: false },
-    beforeChange: { type: Function as PropType<() => boolean | Promise<boolean>>, default: undefined },
-  },
-  setup(props) {
-    const localValue = ref(props.row[props.colKey]);
-    watch(() => props.row[props.colKey], (v) => { localValue.value = v; });
-    return () =>
-      h(ElSwitch, {
-        modelValue: localValue.value as string | number | boolean,
-        activeValue: props.activeValue,
-        inactiveValue: props.inactiveValue,
-        disabled: props.disabled,
-        beforeChange: props.beforeChange,
-        "onUpdate:modelValue": (val: unknown) => {
-          localValue.value = val;
-          props.row[props.colKey] = val;
-        },
-      });
-  },
-});
+import CellSwitch from "./CellSwitch.vue";
+import CellStatusCustom from "./CellStatusCustom.vue";
+import TableSlotPopup from "./TableSlotPopup.vue";
 
 defineOptions({ name: "BaseTableVirtual" });
 
@@ -58,11 +31,11 @@ const virtualTooltipRef = shallowRef<HTMLElement>();
 const tooltipVisible = ref(false);
 const tooltipContent = ref("");
 
-const OVERFLOW_SELECTOR = ".crud-base-table__virtual-cell, .crud-base-table__status-custom-text";
+const OVERFLOW_SELECTOR = ".crud-base-table__virtual-cell, .status-dot__text";
 
 function onCellMouseover(e: MouseEvent) {
   const cellText = (e.target as HTMLElement).closest?.(OVERFLOW_SELECTOR) as HTMLElement | null;
-  if (!cellText || cellText.hasAttribute("data-no-tooltip")) {
+  if (!cellText || cellText.closest("[data-no-tooltip]")) {
     tooltipVisible.value = false;
     return;
   }
@@ -133,11 +106,11 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
         align: "center",
         cellRenderer: ({ rowData }) => {
           const row = rowData as Record<string, unknown>;
-          return h(VirtualSwitchCell, {
+          return h(CellSwitch, {
             row,
             colKey: col.key,
-            activeValue: (col.activeValue as string | number | boolean) ?? true,
-            inactiveValue: (col.inactiveValue as string | number | boolean) ?? false,
+            activeValue: (col.activeValue as string | number | boolean),
+            inactiveValue: (col.inactiveValue as string | number | boolean),
             disabled: Boolean(col.disabled),
             beforeChange: col.beforeChange
               ? () => col.beforeChange!(row, col)
@@ -155,7 +128,7 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
         width: w,
         align,
         cellRenderer: ({ rowData }) =>
-          h(TableSlotPopover, {
+          h(TableSlotPopup, {
             row: rowData as Record<string, unknown>,
             column: col,
           }),
@@ -171,47 +144,12 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
         width: w,
         align: "left",
         cellRenderer: ({ rowData, rowIndex }) =>
-          h(
-            "div",
-            {
-              class: "crud-base-table__status-custom",
-              style: {
-                display: "flex",
-                alignItems: "center",
-                flexDirection: "row",
-                minWidth: "0",
-              },
-            },
-            [
-              h("div", {
-                class: "crud-base-table__status-custom-lamp",
-                style: {
-                  width: "8px",
-                  height: "8px",
-                  borderRadius: "50%",
-                  flexShrink: "0",
-                  backgroundColor: statusCustomLampColor(col, rowData as Record<string, unknown>),
-                },
-              }),
-              h(
-                "div",
-                {
-                  class: "crud-base-table__status-custom-text",
-                  ...(noTip ? { "data-no-tooltip": "" } : {}),
-                  style: {
-                    marginLeft: "8px",
-                    fontSize: "14px",
-                    color: "var(--crud-bt-text, #606266)",
-                    fontWeight: "500",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  },
-                },
-                formatCell(col, rowData as Record<string, unknown>, rowIndex),
-              ),
-            ],
-          ),
+          h(CellStatusCustom, {
+            column: col,
+            row: rowData as Record<string, unknown>,
+            rowIndex,
+            noTooltip: noTip,
+          }),
       };
     }
 
@@ -286,35 +224,4 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
   white-space: nowrap;
 }
 
-.crud-base-table__status-custom {
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  height: auto;
-  min-width: 0;
-}
-
-.crud-base-table__status-custom-lamp {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.crud-base-table__status-custom-content {
-  display: flex;
-  flex-direction: column;
-  margin-left: 8px;
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-.crud-base-table__status-custom-text {
-  font-size: 14px;
-  color: var(--crud-bt-text, #606266);
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 </style>

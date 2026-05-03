@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElLink } from "element-plus";
-import type { TextLinkProps } from "./types";
+import type { TextLinkProps, TextLinkEmits } from "./types";
 
 defineOptions({ name: "TextLink" });
 
@@ -9,9 +9,7 @@ withDefaults(defineProps<TextLinkProps>(), {
   underline: false,
 });
 
-const emit = defineEmits<{
-  click: [event: MouseEvent];
-}>();
+const emit = defineEmits<TextLinkEmits>();
 
 function onClick(e: MouseEvent) {
   emit("click", e);

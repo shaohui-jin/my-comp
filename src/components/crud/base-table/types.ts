@@ -8,6 +8,18 @@
  */
 export type BaseTableMode = "element" | "virtual" | "canvas" | "canvas-tile" | "skia-wasm";
 
+/** 内置列类型 */
+export type BaseTableColumnType =
+  | "default"
+  | "index"
+  | "selection"
+  | "formatter"
+  | "switch"
+  | "image"
+  | "status"
+  | "status-custom"
+  | "tableSlot";
+
 /** 列配置（高性能模式仅使用其中一部分字段） */
 export interface BaseTableColumn {
   key: string;
@@ -20,17 +32,7 @@ export interface BaseTableColumn {
   /** 为 false 时隐藏 */
   show?: boolean;
   /** 列类型（element 模式支持较多；canvas 系仅文本化展示） */
-  type?:
-    | "default"
-    | "index"
-    | "selection"
-    | "formatter"
-    | "switch"
-    | "image"
-    | "status"
-    | "status-custom"
-    | "tableSlot"
-    | string;
+  type?: BaseTableColumnType | (string & {});
   formatter?: (row: Record<string, unknown>, column: BaseTableColumn, cellValue: unknown) => string;
   /**
    * `type === 'status-custom'` 时按单元格值取灯色：`colorMap[row[key]]`
@@ -77,6 +79,12 @@ export interface BaseTableProps {
   emptyText?: string;
   rowHeight?: number;
   headerHeight?: number;
-  tileSize?: number;
+  /** canvas-tile 模式最大预渲染像素数 */
+  maxPrerenderPixels?: number;
   skiaWasmBaseUrl?: string;
+}
+
+export interface BaseTableEmits {
+  /** 选中行变化时触发 */
+  selectionChange: [rows: Record<string, unknown>[]];
 }

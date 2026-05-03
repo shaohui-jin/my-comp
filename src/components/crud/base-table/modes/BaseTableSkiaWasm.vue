@@ -13,7 +13,7 @@ import { useBaseTableSelection } from "../utils/useBaseTableSelection";
 import { isClickOnSlotText, isClickOnSwitch, useCanvasSlotPopup } from "../utils/useCanvasSlotPopup";
 import { useCanvasTooltip } from "../utils/useCanvasTooltip";
 import { useCanvasScrollbar } from "../utils/useCanvasScrollbar";
-import TableSlotOverlay from "./TableSlotOverlay.vue";
+import TableSlotPopup from "./TableSlotPopup.vue";
 
 defineOptions({ name: "BaseTableSkiaWasm" });
 
@@ -676,7 +676,7 @@ watch(selection.selectedKeys, () => schedulePaint());
       class="crud-base-table__slot-anchor"
       :style="{ left: slotPopup.x + 'px', top: slotPopup.y + 'px' }"
     />
-    <TableSlotOverlay
+    <TableSlotPopup
       v-model:visible="slotPopup.visible"
       :row="slotPopup.row"
       :column="slotPopup.column"

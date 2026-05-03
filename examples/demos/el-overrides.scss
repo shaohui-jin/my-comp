@@ -1,0 +1,44 @@
+// ============================================================
+// Element Plus 组件样式覆写（集中管理）
+// 以 mixin 形式提供，各组件按需 @include
+// ============================================================
+@use "variables" as *;
+
+// -- el-menu 侧边栏导航 --
+@mixin el-menu-nav {
+  :deep(.el-menu-item) {
+    height: 40px;
+    line-height: 40px;
+    font-size: $doc-fs-base;
+  }
+
+  :deep(.el-sub-menu .el-menu-item) {
+    height: 36px;
+    line-height: 36px;
+    font-size: $doc-fs-sm;
+    padding-left: 48px !important;
+    color: $doc-text-regular;
+  }
+
+  :deep(.el-sub-menu__title) {
+    height: 40px;
+    line-height: 40px;
+    font-size: $doc-fs-base;
+  }
+}
+
+// -- el-tabs 边框卡片风格 --
+@mixin el-tabs-border-card {
+  border-radius: $doc-radius-lg;
+  overflow: hidden;
+  box-shadow: $doc-shadow-lg;
+
+  :deep(.el-tabs__header) {
+    background: $doc-bg-card;
+    margin: 0;
+  }
+
+  :deep(.el-tabs__content) {
+    padding: 0;
+  }
+}

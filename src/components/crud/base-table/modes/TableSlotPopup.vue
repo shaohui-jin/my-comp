@@ -1,39 +1,95 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch, computed } from "vue";
 import { ElButton, ElInput, ElPopover } from "element-plus";
 import { Search } from "@element-plus/icons-vue";
 import type { BaseTableColumn } from "../types";
 import { tableSurfaceCssVars } from "../theme/tableSurface";
 import BaseTableElement from "./BaseTableElement.vue";
 
-defineOptions({ name: "TableSlotPopover" });
+defineOptions({ name: "TableSlotPopup" });
 
 const props = defineProps<{
-  row: Record<string, unknown>;
-  column: BaseTableColumn;
+  row: Record<string, unknown> | null;
+  column: BaseTableColumn | null;
+  /** virtual-ref 触发模式（Canvas/Tile/Skia），不传则为 click 触发 */
+  triggerRef?: HTMLElement;
+  /** virtual 模式下的可见状态 */
+  visible?: boolean;
 }>();
 
+const emit = defineEmits<{
+  "update:visible": [val: boolean];
+}>();
+
+const isVirtual = computed(() => !!props.triggerRef);
 const filterKeyword = ref("");
 const cssVars = tableSurfaceCssVars();
 
+watch(
+  () => props.visible,
+  (v) => {
+    if (v) filterKeyword.value = "";
+  },
+);
+
+function onBeforeEnter() {
+  filterKeyword.value = "";
+}
+
+function onHide() {
+  emit("update:visible", false);
+}
+
 function getFilteredData(): Record<string, unknown>[] {
+  if (!props.row || !props.column) return [];
   const raw = props.row[props.column.key];
   if (!Array.isArray(raw)) return [];
   if (!props.column.filter || !filterKeyword.value) return raw;
   return raw.filter((item: Record<string, unknown>) =>
-    props.column.filter!(filterKeyword.value, item),
+    props.column!.filter!(filterKeyword.value, item),
   );
 }
 </script>
 
 <template>
+  <!-- virtual-ref 触发（Canvas / Tile / Skia） -->
   <ElPopover
+    v-if="isVirtual && column && triggerRef"
+    :virtual-ref="triggerRef"
+    virtual-triggering
+    :visible="visible"
+    placement="bottom-start"
+    :width="(column.popoverWidth as number) || 430"
+    :teleported="true"
+    popper-class="table-slot-popover"
+    @hide="onHide"
+  >
+    <div class="table-slot-popover__body" :style="cssVars">
+      <div v-if="column.filter" class="table-slot-popover__filter">
+        <ElInput
+          v-model="filterKeyword"
+          :prefix-icon="Search"
+          :placeholder="(column.filterPlaceholder as string) || '请输入'"
+          @keydown.enter.prevent
+        />
+      </div>
+      <BaseTableElement
+        :table-data="getFilteredData()"
+        :columns="(column.columns as BaseTableColumn[]) ?? []"
+        :table-max-height="310"
+      />
+    </div>
+  </ElPopover>
+
+  <!-- click 触发（Element / Virtual） -->
+  <ElPopover
+    v-else-if="!isVirtual && column"
     placement="bottom"
     :width="(column.popoverWidth as number) || 430"
     trigger="click"
     :teleported="true"
     popper-class="table-slot-popover"
-    @before-enter="filterKeyword = ''"
+    @before-enter="onBeforeEnter"
   >
     <template #reference>
       <ElButton type="primary" link>查看</ElButton>

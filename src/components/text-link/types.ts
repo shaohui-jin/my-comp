@@ -6,3 +6,8 @@ export interface TextLinkProps {
   /** 下划线 */
   underline?: boolean;
 }
+
+export interface TextLinkEmits {
+  /** 点击时触发 */
+  click: [event: MouseEvent];
+}

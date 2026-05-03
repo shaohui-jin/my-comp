@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ElImage, ElSwitch, ElTable, ElTableColumn } from "element-plus";
+import { ElImage, ElTable, ElTableColumn } from "element-plus";
 import type { BaseTableColumn } from "../types";
 import { tableLayoutDefaults, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
-import { formatCell, getTableColumnBinds, statusCustomLampColor, visibleColumns } from "../utils/column";
-import TableSlotPopover from "./TableSlotPopover.vue";
+import { formatCell, getTableColumnBinds, visibleColumns } from "../utils/column";
+import CellSwitch from "./CellSwitch.vue";
+import CellStatusCustom from "./CellStatusCustom.vue";
+import TableSlotPopup from "./TableSlotPopup.vue";
 
 const tooltipOptions = { popperClass: TABLE_TOOLTIP_POPPER_CLASS };
 
@@ -63,10 +65,11 @@ function columnFormatter(col: BaseTableColumn) {
           v-bind="getTableColumnBinds(col)"
           #default="scope"
         >
-          <ElSwitch
-            v-model="scope.row[col.key]"
-            :active-value="(col.activeValue as string | number | boolean) ?? true"
-            :inactive-value="(col.inactiveValue as string | number | boolean) ?? false"
+          <CellSwitch
+            :row="scope.row"
+            :col-key="col.key"
+            :active-value="(col.activeValue as string | number | boolean)"
+            :inactive-value="(col.inactiveValue as string | number | boolean)"
             :disabled="Boolean(col.disabled)"
             :before-change="col.beforeChange ? () => col.beforeChange!(scope.row, col) : undefined"
           />
@@ -88,20 +91,16 @@ function columnFormatter(col: BaseTableColumn) {
         <ElTableColumn
           v-else-if="col.type === 'status-custom'"
           v-bind="getTableColumnBinds(col)"
-          class-name="crud-base-table__cell--text"
           #default="scope"
         >
-          <i
-            class="crud-base-table__status-lamp"
-            :style="{ backgroundColor: statusCustomLampColor(col, scope.row) }"
-          />{{ formatCell(col, scope.row, scope.$index) }}
+          <CellStatusCustom :column="col" :row="scope.row" :row-index="scope.$index" />
         </ElTableColumn>
         <ElTableColumn
           v-else-if="col.type === 'tableSlot'"
           v-bind="getTableColumnBinds(col)"
           #default="scope"
         >
-          <TableSlotPopover :row="scope.row" :column="col" />
+          <TableSlotPopup :row="scope.row" :column="col" />
         </ElTableColumn>
         <ElTableColumn
           v-else-if="col.formatter"
@@ -138,16 +137,6 @@ function columnFormatter(col: BaseTableColumn) {
   z-index: 2;
   background: rgb(255 255 255 / 55%);
   pointer-events: none;
-}
-
-:deep(.crud-base-table__status-lamp) {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 6px;
-  vertical-align: middle;
-  flex-shrink: 0;
 }
 
 :deep(.crud-base-table__cell--text .cell) {

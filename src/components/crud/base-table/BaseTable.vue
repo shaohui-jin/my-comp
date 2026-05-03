@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { tableLayoutDefaults, tableSurfaceCssVars } from "./theme/tableSurface";
-import type { BaseTableColumn, BaseTableMode } from "./types";
+import type { BaseTableProps, BaseTableEmits } from "./types";
 import BaseTableCanvas from "./modes/BaseTableCanvas.vue";
 import BaseTableCanvasTile from "./modes/BaseTableCanvasTile.vue";
 import BaseTableElement from "./modes/BaseTableElement.vue";
@@ -10,35 +10,18 @@ import BaseTableVirtual from "./modes/BaseTableVirtual.vue";
 
 defineOptions({ name: "BaseTable" });
 
-const props = withDefaults(
-  defineProps<{
-    mode: BaseTableMode;
-    tableData: Record<string, unknown>[];
-    columns: BaseTableColumn[];
-    height?: string;
-    rowKey?: string;
-    loading?: boolean;
-    emptyText?: string;
-    rowHeight?: number;
-    headerHeight?: number;
-    maxPrerenderPixels?: number;
-    skiaWasmBaseUrl?: string;
-  }>(),
-  {
-    height: "420px",
-    rowKey: "id",
-    loading: false,
-    emptyText: "暂无数据",
-    rowHeight: tableLayoutDefaults.rowHeight,
-    headerHeight: tableLayoutDefaults.headerHeight,
-    maxPrerenderPixels: 12_000_000,
-    skiaWasmBaseUrl: undefined,
-  },
-);
+const props = withDefaults(defineProps<BaseTableProps>(), {
+  height: "420px",
+  rowKey: "id",
+  loading: false,
+  emptyText: "暂无数据",
+  rowHeight: tableLayoutDefaults.rowHeight,
+  headerHeight: tableLayoutDefaults.headerHeight,
+  maxPrerenderPixels: 12_000_000,
+  skiaWasmBaseUrl: undefined,
+});
 
-const emit = defineEmits<{
-  selectionChange: [rows: Record<string, unknown>[]];
-}>();
+const emit = defineEmits<BaseTableEmits>();
 
 function onSelectionChange(rows: Record<string, unknown>[]) {
   emit("selectionChange", rows);

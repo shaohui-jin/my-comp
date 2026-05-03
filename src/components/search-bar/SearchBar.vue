@@ -1,25 +1,18 @@
 <script setup lang="ts">
 import { Search } from "@element-plus/icons-vue";
 import { ElIcon, ElInput } from "element-plus";
+import type { SearchBarProps, SearchBarEmits } from "./types";
 
 defineOptions({ name: "SearchBar" });
 
-withDefaults(
-  defineProps<{
-    placeholder?: string;
-    clearable?: boolean;
-  }>(),
-  {
-    placeholder: "请输入关键词",
-    clearable: true,
-  },
-);
+withDefaults(defineProps<SearchBarProps>(), {
+  placeholder: "请输入关键词",
+  clearable: true,
+});
 
 const model = defineModel<string>({ default: "" });
 
-const emit = defineEmits<{
-  search: [value: string];
-}>();
+const emit = defineEmits<SearchBarEmits>();
 
 function onClear() {
   model.value = "";
