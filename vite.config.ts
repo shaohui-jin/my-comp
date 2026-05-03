@@ -5,6 +5,7 @@ import { fileURLToPath, URL } from "node:url";
 /** 本地示例应用（开发调试组件库） */
 export default defineConfig({
   root: "examples",
+  base: '/my-comp',
   plugins: [vue()],
   resolve: {
     alias: {
