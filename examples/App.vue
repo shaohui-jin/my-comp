@@ -20,23 +20,35 @@ const pageMap: Record<string, Component> = {
 
 const activeName = ref("tables");
 const activePage = computed(() => pageMap[activeName.value] ?? DemoBaseTable);
+
+const navOpen = ref(false);
+
+function handleSelect(key: string) {
+  activeName.value = key;
+  navOpen.value = false;
+}
 </script>
 
 <template>
   <div class="doc">
     <header class="doc-header">
       <div class="doc-header__inner">
+        <button class="doc-header__menu-btn" @click="navOpen = !navOpen">
+          <span class="menu-icon" :class="{ 'menu-icon--open': navOpen }" />
+        </button>
         <h1 class="doc-header__title">Comp Vue Lib</h1>
         <span class="doc-header__badge">组件文档 &amp; 演练场</span>
       </div>
     </header>
 
     <main class="doc-main">
+      <div class="doc-nav-backdrop" :class="{ visible: navOpen }" @click="navOpen = false" />
       <el-menu
         :default-active="activeName"
         class="doc-nav"
+        :class="{ 'doc-nav--open': navOpen }"
         :default-openeds="['basic']"
-        @select="(key: string) => activeName = key"
+        @select="handleSelect"
       >
         <el-menu-item index="tables">
           <el-icon><i class="nav-icon nav-icon--table" /></el-icon>
@@ -94,6 +106,55 @@ const activePage = computed(() => pageMap[activeName.value] ?? DemoBaseTable);
   gap: $doc-sp-md;
 }
 
+.doc-header__menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: $doc-radius-md;
+
+  &:hover {
+    background: $doc-bg-muted;
+  }
+}
+
+.menu-icon {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: $doc-text-primary;
+  border-radius: 1px;
+  transition: background 0.2s;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: $doc-text-primary;
+    border-radius: 1px;
+    transition: transform 0.2s;
+  }
+
+  &::before { top: -6px; }
+  &::after { top: 6px; }
+
+  &--open {
+    background: transparent;
+
+    &::before { top: 0; transform: rotate(45deg); }
+    &::after { top: 0; transform: rotate(-45deg); }
+  }
+}
+
 .doc-header__title {
   margin: 0;
   font-size: $doc-fs-lg;
@@ -114,6 +175,11 @@ const activePage = computed(() => pageMap[activeName.value] ?? DemoBaseTable);
   max-width: 1440px;
   margin: 0 auto;
   min-height: calc(100vh - 56px);
+  position: relative;
+}
+
+.doc-nav-backdrop {
+  display: none;
 }
 
 .doc-nav {
@@ -122,6 +188,7 @@ const activePage = computed(() => pageMap[activeName.value] ?? DemoBaseTable);
   border-right: 1px solid $doc-border-color;
   background: $doc-bg-card;
   padding-top: $doc-sp-sm;
+  transition: transform 0.3s ease;
 
   @include el-menu-nav;
 }
@@ -140,5 +207,71 @@ const activePage = computed(() => pageMap[activeName.value] ?? DemoBaseTable);
   flex: 1;
   min-width: 0;
   padding: 28px 32px 48px;
+}
+
+// ============================================================
+// 平板端 (768px ~ 1024px)
+// ============================================================
+@media (max-width: $doc-bp-tablet) {
+  .doc-nav {
+    width: 200px;
+  }
+
+  .doc-content {
+    padding: 24px 24px 40px;
+  }
+}
+
+// ============================================================
+// 移动端 (< 768px)
+// ============================================================
+@media (max-width: $doc-bp-mobile) {
+  .doc-header__inner {
+    padding: 0 $doc-sp-lg;
+  }
+
+  .doc-header__menu-btn {
+    display: flex;
+  }
+
+  .doc-header__badge {
+    display: none;
+  }
+
+  .doc-nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 98;
+    background: rgb(0 0 0 / 30%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+
+    &.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  .doc-nav {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    bottom: 0;
+    z-index: 99;
+    width: 260px;
+    transform: translateX(-100%);
+    box-shadow: $doc-shadow-lg;
+    overflow-y: auto;
+
+    &--open {
+      transform: translateX(0);
+    }
+  }
+
+  .doc-content {
+    padding: 20px $doc-sp-lg 32px;
+  }
 }
 </style>

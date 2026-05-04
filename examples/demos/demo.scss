@@ -183,3 +183,106 @@
     color: $doc-text-regular;
   }
 }
+
+// ============================================================
+// 响应式适配
+// ============================================================
+
+// -- 平板端 (768px ~ 1024px) --
+@media (max-width: $doc-bp-tablet) {
+  .doc-content__header h2 {
+    font-size: $doc-fs-lg;
+  }
+
+  .widget-card__body {
+    padding: $doc-sp-lg $doc-sp-md;
+  }
+
+  .widget-card__head {
+    padding: $doc-sp-sm $doc-sp-md;
+  }
+
+  .widget-card__api {
+    padding: 0 $doc-sp-md $doc-sp-lg;
+  }
+
+  .api-section {
+    padding: $doc-sp-lg;
+  }
+
+  .api-table {
+    font-size: $doc-fs-xs;
+
+    th,
+    td {
+      padding: $doc-sp-xs $doc-sp-sm;
+    }
+  }
+}
+
+// -- 移动端 (< 768px) --
+@media (max-width: $doc-bp-mobile) {
+  .doc-content__header {
+    margin-bottom: $doc-sp-lg;
+
+    h2 {
+      font-size: $doc-fs-md;
+    }
+
+    p {
+      font-size: $doc-fs-sm;
+    }
+  }
+
+  .widget-card {
+    border-radius: $doc-radius-md;
+    margin-bottom: $doc-sp-lg;
+  }
+
+  .widget-card__head {
+    flex-wrap: wrap;
+    gap: $doc-sp-xs;
+    padding: $doc-sp-sm $doc-sp-md;
+  }
+
+  .widget-card__body {
+    padding: $doc-sp-md;
+  }
+
+  .widget-card__api {
+    padding: 0 $doc-sp-md $doc-sp-md;
+  }
+
+  .widget-row {
+    gap: $doc-sp-xs;
+  }
+
+  .api-section {
+    margin-top: $doc-sp-lg;
+    padding: $doc-sp-md;
+    border-radius: $doc-radius-md;
+  }
+
+  .api-section__title {
+    font-size: $doc-fs-base;
+  }
+
+  .api-table {
+    font-size: $doc-fs-xs;
+
+    th,
+    td {
+      padding: $doc-sp-xs $doc-sp-sm;
+    }
+
+    code {
+      font-size: 11px;
+      padding: 0 4px;
+    }
+  }
+
+  .api-notes-list {
+    padding-left: $doc-sp-lg;
+    font-size: $doc-fs-xs;
+  }
+}
