@@ -42,6 +42,7 @@ function columnFormatter(col: BaseTableColumn) {
       v-bind="tableMaxHeight != null ? { 'max-height': tableMaxHeight } : { height: '100%' }"
       border
       stripe
+      show-overflow-tooltip
       :row-key="rowKey"
       :empty-text="emptyText"
       :tooltip-options="tooltipOptions"
@@ -50,19 +51,24 @@ function columnFormatter(col: BaseTableColumn) {
       <template v-for="(col, ci) in visibleColumns(columns)" :key="`${col.key}-${ci}`">
         <ElTableColumn
           v-if="col.type === 'selection'"
-          type="selection"
-          :width="tableLayoutDefaults.selectionColumnWidth"
           v-bind="getTableColumnBinds(col)"
+          type="selection"
+          :width="col.width ?? tableLayoutDefaults.selectionColumnWidth"
+          align="center"
+          :show-overflow-tooltip="false"
         />
         <ElTableColumn
           v-else-if="col.type === 'index'"
-          type="index"
-          :width="tableLayoutDefaults.indexColumnWidth"
           v-bind="getTableColumnBinds(col)"
+          type="index"
+          :width="col.width ?? tableLayoutDefaults.indexColumnWidth"
+          align="center"
+          :show-overflow-tooltip="false"
         />
         <ElTableColumn
           v-else-if="col.type === 'switch'"
           v-bind="getTableColumnBinds(col)"
+          :show-overflow-tooltip="false"
           #default="scope"
         >
           <CellSwitch
@@ -77,6 +83,7 @@ function columnFormatter(col: BaseTableColumn) {
         <ElTableColumn
           v-else-if="col.type === 'image'"
           v-bind="getTableColumnBinds(col)"
+          :show-overflow-tooltip="false"
           #default="scope"
         >
           <ElImage
@@ -106,13 +113,12 @@ function columnFormatter(col: BaseTableColumn) {
           v-else-if="col.formatter"
           v-bind="getTableColumnBinds(col)"
           :formatter="columnFormatter(col)"
-          class-name="crud-base-table__cell--text"
         />
         <ElTableColumn
           v-else
           v-bind="getTableColumnBinds(col)"
+          :showOverflowTooltip="true"
           :prop="col.key"
-          class-name="crud-base-table__cell--text"
         />
       </template>
     </ElTable>
@@ -139,8 +145,4 @@ function columnFormatter(col: BaseTableColumn) {
   pointer-events: none;
 }
 
-:deep(.crud-base-table__cell--text .cell) {
-  white-space: nowrap;
-  word-break: normal;
-}
 </style>

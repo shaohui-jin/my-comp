@@ -48,7 +48,16 @@ const containerRef = ref<HTMLDivElement | null>(null);
 
 const { slotTriggerRef, slotPopup, openSlotPopup, closeSlotPopup } = useCanvasSlotPopup(containerRef);
 
-const skiaApproxCharW = t.fontSizeCell * 0.52;
+function skiaEstimateTextWidth(text: string): number {
+  const narrowW = t.fontSizeCell * 0.55;
+  const wideW = t.fontSizeCell * 1.0;
+  let w = 0;
+  for (let i = 0; i < text.length; i++) {
+    w += text.charCodeAt(i) > 0x7f ? wideW : narrowW;
+  }
+  return w;
+}
+
 const {
   tooltipAnchorRef,
   tooltipVisible,
@@ -64,7 +73,7 @@ const {
   rowHeight: () => props.rowHeight,
   scrollX: () => scrollX.value,
   scrollY: () => scrollY.value,
-  measureTextWidth: (text: string) => text.length * skiaApproxCharW,
+  measureTextWidth: skiaEstimateTextWidth,
 });
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
@@ -382,7 +391,29 @@ function paintSkia() {
     Math.ceil((scrollY.value + cssH.value - props.headerHeight) / props.rowHeight),
   );
 
-  const approxCharW = t.fontSizeCell * dpr * 0.52;
+  const narrowCharW = t.fontSizeCell * dpr * 0.55;
+  const wideCharW = t.fontSizeCell * dpr * 1.0;
+
+  function estimateTextWidth(text: string): number {
+    let w = 0;
+    for (let i = 0; i < text.length; i++) {
+      w += text.charCodeAt(i) > 0x7f ? wideCharW : narrowCharW;
+    }
+    return w;
+  }
+
+  function truncateToFit(text: string, maxW: number): string {
+    if (estimateTextWidth(text) <= maxW) return text;
+    let w = 0;
+    const ellipsisW = narrowCharW;
+    for (let i = 0; i < text.length; i++) {
+      w += text.charCodeAt(i) > 0x7f ? wideCharW : narrowCharW;
+      if (w + ellipsisW > maxW) {
+        return `${text.slice(0, Math.max(1, i))}…`;
+      }
+    }
+    return text;
+  }
 
   // Body rows: clip to area below header, translate for scroll
   skCanvas.save();
@@ -429,10 +460,15 @@ function paintSkia() {
         skCanvas.drawCircle(cx + 8 * dpr + 4 * dpr, y * dpr + rh / 2, 4 * dpr, lampFillPaint);
         const tx = cx + 8 * dpr + 8 * dpr + 8 * dpr;
         const maxTw = Math.max(4 * dpr, cellW - (tx - cx) - 8 * dpr);
-        const maxChars = Math.max(1, Math.floor(maxTw / approxCharW));
-        const shown =
-          text.length <= maxChars ? text : `${text.slice(0, Math.max(0, maxChars - 1))}…`;
+        const shown = truncateToFit(text, maxTw);
+        skCanvas.save();
+        skCanvas.clipRect(
+          ck!.LTRBRect(cx + 1, yd + 1, cx + cellW - 1, yd + rh - 1),
+          ck!.ClipOp.Intersect,
+          true,
+        );
         skCanvas.drawText(shown, tx, midY, cellTextPaint, fontCell);
+        skCanvas.restore();
       } else {
         const text = formatCell(col, row, r);
         const align =
@@ -445,10 +481,8 @@ function paintSkia() {
                 : "left";
         const padding = 8 * dpr;
         const maxTw = Math.max(4 * dpr, cellW - padding * 2);
-        const maxChars = Math.max(1, Math.floor(maxTw / approxCharW));
-        const shown =
-          text.length <= maxChars ? text : `${text.slice(0, Math.max(0, maxChars - 1))}…`;
-        const shownW = shown.length * approxCharW;
+        const shown = truncateToFit(text, maxTw);
+        const shownW = estimateTextWidth(shown);
         let tx: number;
         if (align === "center") {
           tx = cx + cellW / 2 - shownW / 2;

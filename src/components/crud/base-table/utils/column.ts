@@ -2,6 +2,26 @@ import { omit } from "lodash-es";
 import { tableLayoutDefaults } from "../theme/tableSurface";
 import type { BaseTableColumn } from "../types";
 
+/**
+ * ElTableColumn 相关属性的默认值。
+ * 用户传入的列配置会覆盖此处的默认值。
+ * 注意：showOverflowTooltip 通过 ElTable 组件级 show-overflow-tooltip 设置，
+ * 不在此处注入，以利用 EP 原生的继承机制。
+ */
+export const columnDefaults: Partial<BaseTableColumn> = {};
+
+/**
+ * 将默认配置与用户列配置合并：用户配置优先。
+ */
+export function normalizeColumn(col: BaseTableColumn): BaseTableColumn {
+  return { ...columnDefaults, ...col };
+}
+
+/** 批量标准化列配置 */
+export function normalizeColumns(columns: BaseTableColumn[]): BaseTableColumn[] {
+  return columns.map(normalizeColumn);
+}
+
 /** 这些字段不传给 el-table-column 的 bind */
 const TABLE_BIND_OMIT = [
   "key",
@@ -30,7 +50,6 @@ const TABLE_BIND_OMIT = [
   "tableSlot",
   "slotName",
   "click",
-  "showOverflowTooltip",
 ];
 
 /**
@@ -38,7 +57,8 @@ const TABLE_BIND_OMIT = [
  * Element Plus 表头依赖 `label`，行数据依赖 `prop`（本库列配置使用 `key` 字段）。
  */
 export function getTableColumnBinds(item: BaseTableColumn): Record<string, unknown> {
-  const rest = omit(item as unknown as Record<string, unknown>, TABLE_BIND_OMIT);
+  const normalized = normalizeColumn(item);
+  const rest = omit(normalized as unknown as Record<string, unknown>, TABLE_BIND_OMIT);
   return {
     ...rest,
     label: headerText(item),

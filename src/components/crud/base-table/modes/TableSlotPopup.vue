@@ -161,6 +161,10 @@ function getFilteredData(): Record<string, unknown>[] {
     align-items: center;
   }
 
+  .el-table__body .el-table__cell .cell.el-tooltip {
+    display: block;
+  }
+
   .el-table__border-left-patch,
   .el-table__border-bottom-patch {
     background-color: var(--crud-bt-border);

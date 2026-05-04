@@ -46,6 +46,10 @@
     align-items: center;
   }
 
+  :deep(.el-table__body .el-table__cell .cell.el-tooltip) {
+    display: block;
+  }
+
   :deep(.el-table__border-left-patch),
   :deep(.el-table__border-bottom-patch) {
     background-color: var(--crud-bt-border);

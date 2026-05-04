@@ -25,6 +25,7 @@ export type {
   BaseTableEmits,
 } from "./components/crud/base-table/types";
 export { tableLayoutDefaults } from "./components/crud/base-table/theme/tableSurface";
+export { columnDefaults, normalizeColumns } from "./components/crud/base-table/utils/column";
 
 const components = [HelloButton, StatusDot, StatusTag, EmptyPlaceholder, TextLink, SearchBar, BaseTable];
 

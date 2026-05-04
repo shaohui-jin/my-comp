@@ -4,7 +4,7 @@ import type { Column } from "element-plus";
 import { h, ref, shallowRef, toRef } from "vue";
 import type { BaseTableColumn } from "../types";
 import { tableLayoutDefaults, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
-import { formatCell, layoutColumnWidths, visibleColumns } from "../utils/column";
+import { formatCell, layoutColumnWidths, normalizeColumn, visibleColumns } from "../utils/column";
 import { useBaseTableSelection } from "../utils/useBaseTableSelection";
 import CellSwitch from "./CellSwitch.vue";
 import CellStatusCustom from "./CellStatusCustom.vue";
@@ -136,7 +136,8 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
     }
 
     if (col.type === "status-custom") {
-      const noTip = col.showOverflowTooltip === false;
+      const nc = normalizeColumn(col);
+      const noTip = nc.showOverflowTooltip === false;
       return {
         key: col.key,
         dataKey: col.key,
@@ -153,7 +154,8 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
       };
     }
 
-    const noTip = col.showOverflowTooltip === false;
+    const nc = normalizeColumn(col);
+    const noTip = nc.showOverflowTooltip === false;
     return {
       key: col.key,
       dataKey: col.key,

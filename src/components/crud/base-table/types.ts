@@ -63,6 +63,8 @@ export interface BaseTableColumn {
 
   /** 超长文本省略时是否显示 tooltip，默认 true */
   showOverflowTooltip?: boolean;
+  /** 列是否可拖拽调整宽度，默认 true（仅 element 模式有效） */
+  resizable?: boolean;
 
   /** 透传给 el-table-column / el-table-v2 Column 的额外属性（经 omit 过滤业务字段后） */
   [key: string]: unknown;
