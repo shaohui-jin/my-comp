@@ -69,33 +69,39 @@ export function useCanvasScrollbar(opts: CanvasScrollbarOptions) {
     visible.value = false;
   }
 
-  // --- Drag ---
+  // --- Drag (mouse + touch) ---
   let dragAxis: "v" | "h" = "v";
   let dragStartMouse = 0;
   let dragStartScroll = 0;
 
-  function onDragMove(e: MouseEvent) {
-    if (!dragging.value) return;
+  function applyDragDelta(pos: number) {
     if (dragAxis === "v") {
       const movable = vTrackHeight.value - vThumbHeight.value;
       if (movable <= 0) return;
       const maxScroll = Math.max(0, opts.totalHeight() - opts.cssH.value);
-      const delta = e.clientY - dragStartMouse;
+      const delta = pos - dragStartMouse;
       opts.scrollY.value = Math.max(0, Math.min(maxScroll, dragStartScroll + (delta / movable) * maxScroll));
     } else {
       const movable = hTrackWidth.value - hThumbWidth.value;
       if (movable <= 0) return;
       const maxScroll = Math.max(0, opts.totalWidth() - opts.cssW.value);
-      const delta = e.clientX - dragStartMouse;
+      const delta = pos - dragStartMouse;
       opts.scrollX.value = Math.max(0, Math.min(maxScroll, dragStartScroll + (delta / movable) * maxScroll));
     }
     opts.onScroll();
+  }
+
+  function onDragMove(e: MouseEvent) {
+    if (!dragging.value) return;
+    applyDragDelta(dragAxis === "v" ? e.clientY : e.clientX);
   }
 
   function onDragEnd() {
     dragging.value = false;
     window.removeEventListener("mousemove", onDragMove, true);
     window.removeEventListener("mouseup", onDragEnd, true);
+    window.removeEventListener("touchmove", onTouchDragMove, true);
+    window.removeEventListener("touchend", onTouchDragEnd, true);
     if (!cursorInside) {
       visible.value = false;
     }
@@ -118,6 +124,39 @@ export function useCanvasScrollbar(opts: CanvasScrollbarOptions) {
 
   function onHThumbMousedown(e: MouseEvent) {
     startDrag("h", e);
+  }
+
+  // --- Touch drag for scrollbar thumbs ---
+  function onTouchDragMove(e: TouchEvent) {
+    if (!dragging.value || e.touches.length !== 1) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    applyDragDelta(dragAxis === "v" ? t.clientY : t.clientX);
+  }
+
+  function onTouchDragEnd() {
+    onDragEnd();
+  }
+
+  function startTouchDrag(axis: "v" | "h", e: TouchEvent) {
+    if (e.touches.length !== 1) return;
+    e.preventDefault();
+    e.stopPropagation();
+    dragging.value = true;
+    dragAxis = axis;
+    const t = e.touches[0];
+    dragStartMouse = axis === "v" ? t.clientY : t.clientX;
+    dragStartScroll = axis === "v" ? opts.scrollY.value : opts.scrollX.value;
+    window.addEventListener("touchmove", onTouchDragMove, true);
+    window.addEventListener("touchend", onTouchDragEnd, true);
+  }
+
+  function onVThumbTouchstart(e: TouchEvent) {
+    startTouchDrag("v", e);
+  }
+
+  function onHThumbTouchstart(e: TouchEvent) {
+    startTouchDrag("h", e);
   }
 
   // --- Track click: jump scroll so the viewport centers on the clicked position ---
@@ -148,6 +187,8 @@ export function useCanvasScrollbar(opts: CanvasScrollbarOptions) {
   onUnmounted(() => {
     window.removeEventListener("mousemove", onDragMove, true);
     window.removeEventListener("mouseup", onDragEnd, true);
+    window.removeEventListener("touchmove", onTouchDragMove, true);
+    window.removeEventListener("touchend", onTouchDragEnd, true);
   });
 
   return {
@@ -174,6 +215,8 @@ export function useCanvasScrollbar(opts: CanvasScrollbarOptions) {
     })),
     onVThumbMousedown,
     onHThumbMousedown,
+    onVThumbTouchstart,
+    onHThumbTouchstart,
     onVTrackClick,
     onHTrackClick,
   };

@@ -81,6 +81,8 @@ const {
   hThumbStyle,
   onVThumbMousedown,
   onHThumbMousedown,
+  onVThumbTouchstart,
+  onHThumbTouchstart,
   onVTrackClick,
   onHTrackClick,
 } = useCanvasScrollbar({
@@ -152,6 +154,44 @@ function onWheel(e: WheelEvent) {
     scrollY.value += e.deltaY;
   }
   schedulePaint();
+}
+
+// -- Touch scroll --
+let touchStartX = 0;
+let touchStartY = 0;
+let touchScrollX0 = 0;
+let touchScrollY0 = 0;
+let isTouchDragging = false;
+
+function onTouchStart(e: TouchEvent) {
+  if (e.touches.length !== 1) return;
+  const t = e.touches[0];
+  touchStartX = t.clientX;
+  touchStartY = t.clientY;
+  touchScrollX0 = scrollX.value;
+  touchScrollY0 = scrollY.value;
+  isTouchDragging = false;
+  showScrollbar();
+}
+
+function onTouchMove(e: TouchEvent) {
+  if (e.touches.length !== 1) return;
+  const t = e.touches[0];
+  const dx = touchStartX - t.clientX;
+  const dy = touchStartY - t.clientY;
+
+  if (!isTouchDragging && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+  isTouchDragging = true;
+  e.preventDefault();
+
+  scrollX.value = touchScrollX0 + dx;
+  scrollY.value = touchScrollY0 + dy;
+  schedulePaint();
+}
+
+function onTouchEnd() {
+  isTouchDragging = false;
+  hideScrollbar();
 }
 
 function onCanvasClick(e: MouseEvent) {
@@ -263,6 +303,9 @@ watch(selection.selectedKeys, () => schedulePaint(), { deep: true });
     @mouseenter="showScrollbar"
     @mousemove="onContainerMousemove"
     @mouseleave="() => { onContainerMouseleave(); hideScrollbar(); }"
+    @touchstart.passive="onTouchStart"
+    @touchmove="onTouchMove"
+    @touchend="onTouchEnd"
   >
     <canvas ref="canvasRef" class="crud-base-table__canvas-surface" @click="onCanvasClick" />
     <div
@@ -274,7 +317,7 @@ watch(selection.selectedKeys, () => schedulePaint(), { deep: true });
       @mouseenter="hideTooltip"
       @mousemove.stop
     >
-      <div class="canvas-scrollbar__thumb" :style="vThumbStyle" @mousedown="onVThumbMousedown" />
+      <div class="canvas-scrollbar__thumb" :style="vThumbStyle" @mousedown="onVThumbMousedown" @touchstart="onVThumbTouchstart" />
     </div>
     <div
       v-if="hasHBar"
@@ -285,7 +328,7 @@ watch(selection.selectedKeys, () => schedulePaint(), { deep: true });
       @mouseenter="hideTooltip"
       @mousemove.stop
     >
-      <div class="canvas-scrollbar__thumb" :style="hThumbStyle" @mousedown="onHThumbMousedown" />
+      <div class="canvas-scrollbar__thumb" :style="hThumbStyle" @mousedown="onHThumbMousedown" @touchstart="onHThumbTouchstart" />
     </div>
     <span
       ref="slotTriggerRef"

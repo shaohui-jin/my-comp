@@ -214,12 +214,17 @@ export function drawTable2D(o: DrawTable2DOptions): void {
         if (col.type === "selection") {
           drawCheckbox2D(ctx, cellLeft + cw / 2, headerHeight / 2, headerAll, headerIndeterminate);
         } else {
-          ctx.font = canvasHeaderFont();
-          ctx.fillStyle = t.textHeader;
-          ctx.textAlign = "left";
           const ht = headerText(col);
           if (ht) {
-            ctx.fillText(ht, Math.max(8, cellLeft + 8), headerHeight / 2);
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(cellLeft + 1, 0, cw - 2, headerHeight);
+            ctx.clip();
+            ctx.font = canvasHeaderFont();
+            ctx.fillStyle = t.textHeader;
+            ctx.textAlign = "left";
+            ctx.fillText(ht, cellLeft + 8, headerHeight / 2);
+            ctx.restore();
           }
         }
       }
