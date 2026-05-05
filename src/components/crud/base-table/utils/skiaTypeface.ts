@@ -13,7 +13,7 @@ export async function resolveSkiaTypeface(ck: CanvasKit): Promise<Typeface | nul
           "../../../../../node_modules/@fontsource/noto-sans-sc/files/noto-sans-sc-chinese-simplified-400-normal.woff2",
           import.meta.url,
         ).href
-      : /* @vite-ignore */ new URL("./assets/NotoSansSC-400.woff2", import.meta.url).href;
+      : /* @vite-ignore */ new URL("./NotoSansSC-400.woff2", import.meta.url).href;
     const buf = await fetch(url).then((r) => r.arrayBuffer());
     return ck.Typeface.MakeTypefaceFromData(buf) ?? fallback;
   } catch {
