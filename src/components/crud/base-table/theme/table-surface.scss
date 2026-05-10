@@ -67,6 +67,7 @@
   :deep(.el-table-v2) {
     font-size: var(--crud-bt-font-size);
     color: var(--crud-bt-text);
+    border: 1px solid var(--crud-bt-border);
   }
 
   /* 列总宽小于容器时，内层 .el-table-v2__header 仅等于列宽，右侧留白由 wrapper 铺色 */
@@ -86,6 +87,7 @@
     background-color: var(--crud-bt-header-bg) !important;
     color: var(--crud-bt-header-text);
     font-weight: var(--crud-bt-header-font-weight);
+    border-right: 1px solid var(--crud-bt-border);
   }
 
   :deep(.el-table-v2__row) {
@@ -102,5 +104,6 @@
   :deep(.el-table-v2__row-cell) {
     color: inherit;
     font-weight: var(--crud-bt-cell-font-weight);
+    border-right: 1px solid var(--crud-bt-border);
   }
 }
