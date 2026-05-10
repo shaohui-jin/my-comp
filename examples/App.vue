@@ -7,6 +7,7 @@ import DemoSearchBar from "./demos/DemoSearchBar.vue";
 import DemoTextLink from "./demos/DemoTextLink.vue";
 import DemoEmptyPlaceholder from "./demos/DemoEmptyPlaceholder.vue";
 import DemoStatusDot from "./demos/DemoStatusDot.vue";
+import ChangelogPanel from "./demos/ChangelogPanel.vue";
 
 const pageMap: Record<string, Component> = {
   "tables": DemoBaseTable,
@@ -38,6 +39,7 @@ function handleSelect(key: string) {
         </button>
         <h1 class="doc-header__title">Comp Vue Lib</h1>
         <span class="doc-header__badge">组件文档 &amp; 演练场</span>
+        <ChangelogPanel class="doc-header__changelog" />
       </div>
     </header>
 
@@ -168,6 +170,10 @@ function handleSelect(key: string) {
   padding: 2px $doc-sp-sm;
   background: $doc-bg-muted;
   border-radius: $doc-radius-pill;
+}
+
+.doc-header__changelog {
+  margin-left: auto;
 }
 
 .doc-main {
