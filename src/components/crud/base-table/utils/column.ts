@@ -130,34 +130,30 @@ export function formatCell(
 }
 
 /**
- * 计算每列像素宽度，与 Element Plus 策略对齐：
- * - 设置了 `width` 的列（含 selection/index 默认宽度）为固定列，宽度不变
- * - 未设置 `width` 的列为弹性列，以 `minWidth` 或 `defaultColumnWidth` 为基准，共享剩余空间
+ * 计算每列像素宽度，与 Element Plus `el-table` 策略对齐：
+ * - 设置了 `width` 的列为固定列，直接使用原值（不强制最小宽度）
+ * - 未设置 `width` 的列为弹性列，以 `minWidth` 或 `defaultColumnWidth` 为基准，均分剩余空间
  */
 export function layoutColumnWidths(columns: BaseTableColumn[], innerWidth: number): number[] {
   const vis = visibleColumns(columns);
   if (vis.length === 0) {
     return [];
   }
-  const minW = tableLayoutDefaults.minColumnWidth;
 
-  const meta = vis.map((c) => {
+  const meta = vis.map((c): { fixed: boolean; base: number; minW: number } => {
     if (c.type === "selection") {
-      return {
-        fixed: true,
-        base: Math.max(minW, c.width ?? tableLayoutDefaults.selectionColumnWidth),
-      };
+      const w = c.width ?? tableLayoutDefaults.selectionColumnWidth;
+      return { fixed: true, base: w, minW: w };
     }
     if (c.type === "index") {
-      return { fixed: true, base: Math.max(minW, c.width ?? tableLayoutDefaults.indexColumnWidth) };
+      const w = c.width ?? tableLayoutDefaults.indexColumnWidth;
+      return { fixed: true, base: w, minW: w };
     }
     if (c.width != null) {
-      return { fixed: true, base: Math.max(minW, c.width) };
+      return { fixed: true, base: c.width, minW: c.width };
     }
-    return {
-      fixed: false,
-      base: Math.max(minW, c.minWidth ?? tableLayoutDefaults.defaultColumnWidth),
-    };
+    const base = c.minWidth ?? tableLayoutDefaults.defaultColumnWidth;
+    return { fixed: false, base, minW: c.minWidth ?? tableLayoutDefaults.minColumnWidth };
   });
 
   const fixedTotal = meta.reduce((s, m) => s + (m.fixed ? m.base : 0), 0);
@@ -176,7 +172,7 @@ export function layoutColumnWidths(columns: BaseTableColumn[], innerWidth: numbe
   }
 
   const scale = Math.max(0, remaining / flexBaseTotal);
-  return meta.map((m) => (m.fixed ? m.base : Math.max(minW, Math.floor(m.base * scale))));
+  return meta.map((m) => (m.fixed ? m.base : Math.max(m.minW, Math.floor(m.base * scale))));
 }
 
 /**
