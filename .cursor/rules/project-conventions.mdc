@@ -1,0 +1,47 @@
+---
+description: 项目级通用约定，每次对话自动生效
+alwaysApply: true
+---
+
+# 项目约定
+
+## 语言
+
+始终使用简体中文回复。代码注释也优先使用中文，除非是公共 API 的 JSDoc。
+
+## 代码风格
+
+- Vue 组件使用 `<script setup lang="ts">` + Composition API
+- 组件文件名：PascalCase（如 `ChangelogPanel.vue`）
+- 组合式函数文件名：camelCase，`use` 前缀（如 `useCanvasCheckboxHover.ts`）
+- 工具函数文件名：camelCase（如 `canvasDraw.ts`）
+- SCSS 变量统一定义在 `examples/demos/variables.scss`，组件通过 `@use "./variables" as *` 引入
+- 主题 token 统一定义在 `src/components/crud/base-table/theme/tableSurfaceTokens`
+- 不要自行添加 npm 依赖，除非明确要求
+
+## 三端适配
+
+开发功能时必须同时适配三端，使用项目已有断点变量：
+
+- **PC 端**（> 1024px）：默认布局
+- **平板端**（768px ~ 1024px）：`@media (max-width: $doc-bp-tablet)`
+- **手机端**（< 768px）：`@media (max-width: $doc-bp-mobile)`
+
+确保交互元素在触屏设备上可用（点击区域不小于 32×32px），布局在窄屏下不溢出。
+
+## CHANGELOG 维护
+
+当一次对话中完成了功能开发、bug 修复或重构后，如果用户要求提交或记录变更，按以下格式追加到 `CHANGELOG.md` 顶部（标题行之后）：
+
+```markdown
+## vX.Y.Z（YYYY-MM-DD）
+
+### 变更摘要标题
+
+- **标签**：描述
+```
+
+规则：
+- 版本号递增规则：新功能 minor+1，纯修复 patch+1
+- 如果当天已有版本条目，合并到同一版本中
+- 每条变更用 `**粗体标签**` + 冒号 + 描述
