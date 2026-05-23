@@ -6,6 +6,12 @@
 
 // -- el-menu 侧边栏导航 --
 @mixin el-menu-nav {
+  --el-menu-bg-color: #{$doc-bg-card};
+  --el-menu-text-color: #{$doc-text-regular};
+  --el-menu-hover-bg-color: #{$doc-bg-subtle};
+  --el-menu-hover-text-color: #{$doc-color-primary};
+  --el-menu-active-color: #{$doc-color-primary};
+
   :deep(.el-menu-item) {
     height: 40px;
     line-height: 40px;

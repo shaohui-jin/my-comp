@@ -117,14 +117,14 @@ defineExpose({
         <ElDatePicker
           v-if="DATE_TYPES.has(param.type ?? '')"
           v-model="formData[param.key]"
-          :type="(param.type as any)"
+          :type="param.type as any"
           range-separator="至"
           :clearable="param.clearable !== false"
           v-bind="getBinds(param)"
         />
         <component
-          v-else
           :is="getComponent(param)"
+          v-else
           v-model="formData[param.key]"
           :placeholder="param.placeholder"
           v-bind="getBinds(param)"
@@ -197,7 +197,7 @@ defineExpose({
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .crud-base-search-drawer.el-drawer {
     width: 100% !important;
   }

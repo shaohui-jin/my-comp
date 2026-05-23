@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, reactive, inject, watch } from "vue";
+import { ref, computed, reactive, inject } from "vue";
 import { ConfigProvider, BaseTable, StatusDot } from "../../src";
-import type { LibConfig } from "../../src/config/configTypes";
+import type { LibConfig, ResolvedLibConfig } from "../../src/config/configTypes";
 import { defaultLibConfig } from "../../src/config/configDefaults";
 import type { BaseTableColumn } from "../../src/components/crud/base-table/types";
 
-// --- 获取 lib 实例（含 updateConfig / resetConfig） ---
-const lib = inject<{ updateConfig: (c: LibConfig) => void; resetConfig: () => void; config: any }>("compLib")!;
+const lib = inject<{ saveConfig: (c: LibConfig) => void; config: ResolvedLibConfig }>("compLib")!;
 
 // --- Theme 配置 ---
 const themeForm = reactive({
@@ -41,23 +40,19 @@ const tableForm = reactive({
   defaultColumnWidth: lib.config.table.defaultColumnWidth,
 });
 
-// --- 监听表单变化，自动调用 updateConfig 触发持久化 ---
-watch(
-  [() => ({ ...themeForm }), () => ({ ...tableForm })],
-  ([theme, table]) => {
-    lib.updateConfig({ theme, table });
-  },
-  { deep: true },
+// --- 配置 JSON 预览 ---
+const configJson = computed(() =>
+  JSON.stringify({ theme: { ...themeForm }, table: { ...tableForm } }, null, 2),
 );
 
-// --- 配置 JSON 实时预览 ---
-const configJson = computed(() => JSON.stringify({ theme: { ...themeForm }, table: { ...tableForm } }, null, 2));
-
-// --- 重置 ---
-function handleReset() {
-  lib.resetConfig();
-  Object.assign(themeForm, lib.config.theme);
-  Object.assign(tableForm, lib.config.table);
+// --- 保存到 localStorage（刷新后生效） ---
+const saved = ref(false);
+function handleSave() {
+  lib.saveConfig({ theme: { ...themeForm }, table: { ...tableForm } });
+  saved.value = true;
+  setTimeout(() => {
+    saved.value = false;
+  }, 2000);
 }
 
 // --- 预设方案 ---
@@ -71,27 +66,66 @@ const presets = {
     Object.assign(themeForm, defaultLibConfig.theme);
     Object.assign(tableForm, defaultLibConfig.table);
   },
-  purple: () => applyPreset({
-    colorPrimary: "#6366f1", colorSuccess: "#10b981", colorWarning: "#f59e0b",
-    textHeading: "#1e1b4b", textPrimary: "#312e81", textRegular: "#4338ca", textSecondary: "#6366f1",
-    bgPage: "#f5f3ff", bgCard: "#ffffff", bgSubtle: "#eef2ff", bgMuted: "#e0e7ff",
-    borderColor: "#e0e7ff", borderMedium: "#c7d2fe",
-    fontSizeBase: 14, fontSizeSm: 13, radiusSm: 4, radiusMd: 8,
-  }),
-  green: () => applyPreset({
-    colorPrimary: "#10b981", colorSuccess: "#059669", colorWarning: "#d97706",
-    textHeading: "#064e3b", textPrimary: "#065f46", textRegular: "#047857", textSecondary: "#6ee7b7",
-    bgPage: "#f0fdf4", bgCard: "#ffffff", bgSubtle: "#ecfdf5", bgMuted: "#d1fae5",
-    borderColor: "#d1fae5", borderMedium: "#a7f3d0",
-    fontSizeBase: 14, fontSizeSm: 13, radiusSm: 3, radiusMd: 6,
-  }),
-  dark: () => applyPreset({
-    colorPrimary: "#818cf8", colorSuccess: "#34d399", colorWarning: "#fbbf24",
-    textHeading: "#f1f5f9", textPrimary: "#e2e8f0", textRegular: "#cbd5e1", textSecondary: "#94a3b8",
-    bgPage: "#0f172a", bgCard: "#1e293b", bgSubtle: "#1e293b", bgMuted: "#334155",
-    borderColor: "#334155", borderMedium: "#475569",
-    fontSizeBase: 14, fontSizeSm: 13, radiusSm: 4, radiusMd: 8,
-  }),
+  purple: () =>
+    applyPreset({
+      colorPrimary: "#6366f1",
+      colorSuccess: "#10b981",
+      colorWarning: "#f59e0b",
+      textHeading: "#1e1b4b",
+      textPrimary: "#312e81",
+      textRegular: "#4338ca",
+      textSecondary: "#6366f1",
+      bgPage: "#f5f3ff",
+      bgCard: "#ffffff",
+      bgSubtle: "#eef2ff",
+      bgMuted: "#e0e7ff",
+      borderColor: "#e0e7ff",
+      borderMedium: "#c7d2fe",
+      fontSizeBase: 14,
+      fontSizeSm: 13,
+      radiusSm: 4,
+      radiusMd: 8,
+    }),
+  green: () =>
+    applyPreset({
+      colorPrimary: "#10b981",
+      colorSuccess: "#059669",
+      colorWarning: "#d97706",
+      textHeading: "#064e3b",
+      textPrimary: "#065f46",
+      textRegular: "#047857",
+      textSecondary: "#6ee7b7",
+      bgPage: "#f0fdf4",
+      bgCard: "#ffffff",
+      bgSubtle: "#ecfdf5",
+      bgMuted: "#d1fae5",
+      borderColor: "#d1fae5",
+      borderMedium: "#a7f3d0",
+      fontSizeBase: 14,
+      fontSizeSm: 13,
+      radiusSm: 3,
+      radiusMd: 6,
+    }),
+  dark: () =>
+    applyPreset({
+      colorPrimary: "#7aa2f7",
+      colorSuccess: "#9ece6a",
+      colorWarning: "#e0af68",
+      textHeading: "#a9b1d6",
+      textPrimary: "#9aa5ce",
+      textRegular: "#787c99",
+      textSecondary: "#565a6e",
+      bgPage: "#1a1b26",
+      bgCard: "#24283b",
+      bgSubtle: "#1f2335",
+      bgMuted: "#343a52",
+      borderColor: "#3b4261",
+      borderMedium: "#4e5579",
+      fontSizeBase: 14,
+      fontSizeSm: 13,
+      radiusSm: 4,
+      radiusMd: 8,
+    }),
 };
 
 // --- 当前激活面板 ---
@@ -101,8 +135,13 @@ const activeTab = ref<"theme" | "table">("theme");
 const columns: BaseTableColumn[] = [
   { key: "id", label: "ID", width: 60 },
   { key: "name", label: "姓名", width: 120 },
-  { key: "status", label: "状态", type: "status-custom", width: 100,
-    colorMap: { active: "#67c23a", inactive: "#909399" } },
+  {
+    key: "status",
+    label: "状态",
+    type: "status-custom",
+    width: 100,
+    colorMap: { active: "#67c23a", inactive: "#909399" },
+  },
   { key: "email", label: "邮箱" },
   { key: "dept", label: "部门", width: 100 },
 ];
@@ -167,13 +206,13 @@ const showJson = ref(false);
   <div class="demo-config">
     <header class="demo-config__header">
       <h2>配置注入系统演示</h2>
-      <p>修改后自动持久化到 localStorage，刷新页面保留上次配置。</p>
+      <p>调整配置后点击「保存」写入 localStorage，刷新页面生效。</p>
     </header>
 
     <div class="demo-config__layout">
       <!-- 左侧控制面板 -->
       <aside class="demo-config__panel">
-        <!-- 预设 + 重置 -->
+        <!-- 预设 + 保存 -->
         <div class="demo-config__presets">
           <button
             v-for="(fn, key) in presets"
@@ -183,8 +222,8 @@ const showJson = ref(false);
           >
             {{ key }}
           </button>
-          <button class="demo-config__preset-btn demo-config__preset-btn--reset" @click="handleReset">
-            重置
+          <button class="demo-config__preset-btn demo-config__preset-btn--save" @click="handleSave">
+            {{ saved ? "已保存" : "保存" }}
           </button>
         </div>
 
@@ -257,12 +296,7 @@ const showJson = ref(false);
                 {{ f.label }}
                 <code>{{ themeForm[f.key] }}{{ f.unit }}</code>
               </span>
-              <input
-                v-model.number="themeForm[f.key]"
-                type="range"
-                :min="f.min"
-                :max="f.max"
-              />
+              <input v-model.number="themeForm[f.key]" type="range" :min="f.min" :max="f.max" />
             </label>
           </div>
         </div>
@@ -276,12 +310,7 @@ const showJson = ref(false);
                 {{ f.label }}
                 <code>{{ tableForm[f.key] }}{{ f.unit }}</code>
               </span>
-              <input
-                v-model.number="tableForm[f.key]"
-                type="range"
-                :min="f.min"
-                :max="f.max"
-              />
+              <input v-model.number="tableForm[f.key]" type="range" :min="f.min" :max="f.max" />
             </label>
           </div>
           <p class="demo-config__note">表格颜色从 Theme 统一配置自动派生，无需单独设置。</p>
@@ -292,17 +321,18 @@ const showJson = ref(false);
       <section class="demo-config__main">
         <ConfigProvider :theme="{ ...themeForm }" :table="{ ...tableForm }">
           <div class="demo-config__preview" :style="{ background: themeForm.bgPage }">
-            <div class="demo-config__card" :style="{ background: themeForm.bgCard, borderColor: themeForm.borderColor }">
+            <div
+              class="demo-config__card"
+              :style="{ background: themeForm.bgCard, borderColor: themeForm.borderColor }"
+            >
               <h4 :style="{ color: themeForm.textHeading }">BaseTable 预览</h4>
-              <BaseTable
-                mode="element"
-                :table-data="tableData"
-                :columns="columns"
-                height="240px"
-              />
+              <BaseTable mode="element" :table-data="tableData" :columns="columns" height="240px" />
             </div>
 
-            <div class="demo-config__card" :style="{ background: themeForm.bgCard, borderColor: themeForm.borderColor }">
+            <div
+              class="demo-config__card"
+              :style="{ background: themeForm.bgCard, borderColor: themeForm.borderColor }"
+            >
               <h4 :style="{ color: themeForm.textHeading }">StatusDot 组件</h4>
               <div class="demo-config__dots">
                 <StatusDot :color="themeForm.colorSuccess" text="在线" />
@@ -313,9 +343,18 @@ const showJson = ref(false);
               </div>
             </div>
 
-            <div class="demo-config__card" :style="{ background: themeForm.bgCard, borderColor: themeForm.borderColor }">
+            <div
+              class="demo-config__card"
+              :style="{ background: themeForm.bgCard, borderColor: themeForm.borderColor }"
+            >
               <h4 :style="{ color: themeForm.textHeading }">文字层级预览</h4>
-              <p :style="{ color: themeForm.textHeading, fontSize: themeForm.fontSizeBase + 'px', fontWeight: 600 }">
+              <p
+                :style="{
+                  color: themeForm.textHeading,
+                  fontSize: themeForm.fontSizeBase + 'px',
+                  fontWeight: 600,
+                }"
+              >
                 标题文字 (textHeading)
               </p>
               <p :style="{ color: themeForm.textPrimary, fontSize: themeForm.fontSizeBase + 'px' }">
@@ -349,8 +388,18 @@ const showJson = ref(false);
 .demo-config__header {
   margin-bottom: $doc-sp-lg;
 
-  h2 { margin: 0 0 4px; font-size: $doc-fs-xl; font-weight: 600; color: $doc-text-heading; }
-  p { margin: 0; font-size: $doc-fs-sm; color: $doc-text-secondary; }
+  h2 {
+    margin: 0 0 4px;
+    font-size: $doc-fs-xl;
+    font-weight: 600;
+    color: $doc-text-heading;
+  }
+
+  p {
+    margin: 0;
+    font-size: $doc-fs-sm;
+    color: $doc-text-secondary;
+  }
 }
 
 .demo-config__layout {
@@ -372,7 +421,10 @@ const showJson = ref(false);
 }
 
 .demo-config__presets {
-  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: $doc-sp-md;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: $doc-sp-md;
 }
 
 .demo-config__preset-btn {
@@ -387,12 +439,20 @@ const showJson = ref(false);
   text-transform: capitalize;
   transition: all 0.15s;
 
-  &:hover { border-color: $doc-color-primary; color: $doc-color-primary; }
+  &:hover {
+    border-color: $doc-color-primary;
+    color: $doc-color-primary;
+  }
 
-  &--reset {
-    border-color: $doc-color-warning;
-    color: $doc-color-warning;
-    &:hover { background: $doc-color-warning; color: #fff; }
+  &--save {
+    border-color: $doc-color-primary;
+    color: $doc-color-primary;
+    font-weight: 600;
+
+    &:hover {
+      background: $doc-color-primary;
+      color: #fff;
+    }
   }
 }
 
@@ -414,8 +474,14 @@ const showJson = ref(false);
   border-bottom: 2px solid transparent;
   transition: all 0.15s;
 
-  &.active { color: $doc-color-primary; border-bottom-color: $doc-color-primary; }
-  &:hover:not(.active) { color: $doc-text-primary; }
+  &.active {
+    color: $doc-color-primary;
+    border-bottom-color: $doc-color-primary;
+  }
+
+  &:hover:not(.active) {
+    color: $doc-text-primary;
+  }
 }
 
 .demo-config__form {
@@ -444,10 +510,13 @@ const showJson = ref(false);
   cursor: pointer;
   transition: background 0.1s;
 
-  &:hover { background: $doc-bg-subtle; }
+  &:hover {
+    background: $doc-bg-subtle;
+  }
 
   input[type="color"] {
-    width: 24px; height: 24px;
+    width: 24px;
+    height: 24px;
     border: 1px solid $doc-border-color;
     border-radius: $doc-radius-sm;
     padding: 0;
@@ -488,7 +557,11 @@ const showJson = ref(false);
   flex-direction: column;
   gap: 2px;
 
-  input[type="range"] { width: 100%; height: 16px; cursor: pointer; }
+  input[type="range"] {
+    width: 100%;
+    height: 16px;
+    cursor: pointer;
+  }
 }
 
 .demo-config__slider-label {
@@ -538,12 +611,23 @@ const showJson = ref(false);
   border-radius: $doc-radius-md;
   transition: all 0.3s;
 
-  h4 { margin: 0 0 $doc-sp-sm; font-size: $doc-fs-base; font-weight: 600; }
-  p { margin: 4px 0; line-height: 1.6; }
+  h4 {
+    margin: 0 0 $doc-sp-sm;
+    font-size: $doc-fs-base;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 4px 0;
+    line-height: 1.6;
+  }
 }
 
 .demo-config__dots {
-  display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 // --- JSON ---
@@ -565,7 +649,9 @@ const showJson = ref(false);
   font-weight: 500;
   transition: background 0.15s;
 
-  &:hover { background: $doc-bg-muted; }
+  &:hover {
+    background: $doc-bg-muted;
+  }
 }
 
 .demo-config__json {
@@ -576,20 +662,89 @@ const showJson = ref(false);
   font-family: $doc-font-mono;
   color: $doc-text-regular;
   background: $doc-bg-card;
-  overflow-x: auto;
+  overflow: auto;
   border-top: 1px solid $doc-border-color;
   max-height: 400px;
-  overflow-y: auto;
 }
 
-// --- 响应式 ---
+// --- 平板端 ---
 @media (max-width: $doc-bp-tablet) {
-  .demo-config__layout { grid-template-columns: 1fr; }
-  .demo-config__panel { position: static; max-height: none; }
+  .demo-config__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-config__panel {
+    position: static;
+    max-height: none;
+  }
 }
 
+// --- 移动端 ---
 @media (max-width: $doc-bp-mobile) {
-  .demo-config__panel { padding: $doc-sp-sm; }
-  .demo-config__preview { padding: $doc-sp-sm; }
+  .demo-config__header {
+    margin-bottom: $doc-sp-md;
+
+    h2 {
+      font-size: $doc-fs-lg;
+    }
+  }
+
+  .demo-config__layout {
+    gap: $doc-sp-md;
+  }
+
+  .demo-config__panel {
+    padding: $doc-sp-sm;
+  }
+
+  .demo-config__presets {
+    gap: 4px;
+
+    .demo-config__preset-btn {
+      min-width: 44px;
+      min-height: 32px;
+      padding: 4px 2px;
+    }
+  }
+
+  .demo-config__tab {
+    min-height: 36px;
+  }
+
+  .demo-config__color-field {
+    padding: 6px;
+
+    input[type="color"] {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .demo-config__slider-field {
+    input[type="range"] {
+      height: 24px;
+    }
+  }
+
+  .demo-config__preview {
+    padding: $doc-sp-sm;
+  }
+
+  .demo-config__card {
+    padding: $doc-sp-sm;
+
+    h4 {
+      font-size: $doc-fs-sm;
+    }
+  }
+
+  .demo-config__dots {
+    gap: 12px;
+  }
+
+  .demo-config__json {
+    max-height: 240px;
+    font-size: 11px;
+  }
 }
 </style>

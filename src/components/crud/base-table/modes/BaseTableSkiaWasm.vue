@@ -3,14 +3,31 @@ import { onActivated, onDeactivated, onMounted, onUnmounted, ref, toRef, watch }
 import { ElTooltip } from "element-plus";
 import type { Canvas, CanvasKit, Font, Paint, Surface, Typeface } from "canvaskit-wasm";
 import type { BaseTableColumn } from "../types";
-import { cssRgbOrRgbaToRgb, hexToRgb, tableLayoutDefaults, tableSurfaceConfig, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
+import {
+  cssRgbOrRgbaToRgb,
+  hexToRgb,
+  tableLayoutDefaults,
+  tableSurfaceConfig,
+  TABLE_TOOLTIP_POPPER_CLASS,
+} from "../theme/tableSurface";
 import { canvaskitLocateFile } from "../utils/canvaskitLocate";
-import { formatCell, headerText, layoutColumnWidths, statusCustomLampColor, trySwitchToggle, visibleColumns } from "../utils/column";
+import {
+  formatCell,
+  headerText,
+  layoutColumnWidths,
+  statusCustomLampColor,
+  trySwitchToggle,
+  visibleColumns,
+} from "../utils/column";
 import { keyString, rowKeyValue } from "../utils/selectionKeys";
 import { hitTestTable } from "../utils/tableHitTest";
 import { resolveSkiaTypeface } from "../utils/skiaTypeface";
 import { useBaseTableSelection } from "../utils/useBaseTableSelection";
-import { isClickOnSlotText, isClickOnSwitch, useCanvasSlotPopup } from "../utils/useCanvasSlotPopup";
+import {
+  isClickOnSlotText,
+  isClickOnSwitch,
+  useCanvasSlotPopup,
+} from "../utils/useCanvasSlotPopup";
 import { useCanvasTooltip } from "../utils/useCanvasTooltip";
 import { useCanvasScrollbar } from "../utils/useCanvasScrollbar";
 import { useCanvasCheckboxHover } from "../utils/useCanvasCheckboxHover";
@@ -47,7 +64,8 @@ const selection = useBaseTableSelection(props.rowKey, tableDataRef);
 
 const containerRef = ref<HTMLDivElement | null>(null);
 
-const { slotTriggerRef, slotPopup, openSlotPopup, closeSlotPopup } = useCanvasSlotPopup(containerRef);
+const { slotTriggerRef, slotPopup, openSlotPopup, closeSlotPopup } =
+  useCanvasSlotPopup(containerRef);
 const { hoverSelCol, hoverSelRow, updateHover, clearHover } = useCanvasCheckboxHover();
 
 function skiaEstimateTextWidth(text: string): number {
@@ -80,7 +98,20 @@ const {
 
 function onContainerMousemove(e: MouseEvent) {
   _tooltipMousemove(e);
-  if (updateHover(e, containerRef.value, canvasRef.value, props.columns, colWidths(), props.headerHeight, props.rowHeight, props.tableData.length, scrollX.value, scrollY.value)) {
+  if (
+    updateHover(
+      e,
+      containerRef.value,
+      canvasRef.value,
+      props.columns,
+      colWidths(),
+      props.headerHeight,
+      props.rowHeight,
+      props.tableData.length,
+      scrollX.value,
+      scrollY.value,
+    )
+  ) {
     schedulePaint();
   }
 }
@@ -211,8 +242,20 @@ function drawSkiaCheckbox(
     } else {
       checkStroke.setColor(skColor({ r: 255, g: 255, b: 255 }));
       checkStroke.setStrokeWidth(1.5 * dpr);
-      skCanvas.drawLine(x + 3 * dpr, y + CB / 2, x + CB / 2 - 0.5 * dpr, y + CB - 4 * dpr, checkStroke);
-      skCanvas.drawLine(x + CB / 2 - 0.5 * dpr, y + CB - 4 * dpr, x + CB - 3 * dpr, y + 3 * dpr, checkStroke);
+      skCanvas.drawLine(
+        x + 3 * dpr,
+        y + CB / 2,
+        x + CB / 2 - 0.5 * dpr,
+        y + CB - 4 * dpr,
+        checkStroke,
+      );
+      skCanvas.drawLine(
+        x + CB / 2 - 0.5 * dpr,
+        y + CB - 4 * dpr,
+        x + CB - 3 * dpr,
+        y + 3 * dpr,
+        checkStroke,
+      );
     }
   } else {
     const borderRgb = hover ? checkedRgb : hexToRgb(t.checkboxBorder);
@@ -278,7 +321,11 @@ function disposeSurface() {
   surface = null;
 }
 
-function ensureCanvasSurface(canvas: HTMLCanvasElement, cssWidth: number, cssHeight: number): Surface | null {
+function ensureCanvasSurface(
+  canvas: HTMLCanvasElement,
+  cssWidth: number,
+  cssHeight: number,
+): Surface | null {
   if (!ck) {
     return null;
   }
@@ -295,7 +342,9 @@ function ensureCanvasSurface(canvas: HTMLCanvasElement, cssWidth: number, cssHei
   lastPixelW = w;
   lastPixelH = h;
   const s =
-    ck.MakeWebGLCanvasSurface(canvas) ?? ck.MakeSWCanvasSurface(canvas) ?? ck.MakeCanvasSurface(canvas);
+    ck.MakeWebGLCanvasSurface(canvas) ??
+    ck.MakeSWCanvasSurface(canvas) ??
+    ck.MakeCanvasSurface(canvas);
   surface = s;
   return s;
 }
@@ -353,7 +402,13 @@ function paintSkia() {
     emptyPaint.setColor(skColor(hexToRgb(t.textEmpty)));
     const txt = props.emptyText;
     const approxHalf = txt.length * t.fontSizeEmpty * dpr * 0.32;
-    skCanvas.drawText(txt, wPx / 2 - approxHalf, hPx / 2 + t.fontSizeEmpty * dpr * 0.35, emptyPaint, fontEmpty);
+    skCanvas.drawText(
+      txt,
+      wPx / 2 - approxHalf,
+      hPx / 2 + t.fontSizeEmpty * dpr * 0.35,
+      emptyPaint,
+      fontEmpty,
+    );
     strokePaint.setColor(skColor(borderRgb));
     skCanvas.drawRect(ck.LTRBRect(0.5, 0.5, wPx - 0.5, hPx - 0.5), strokePaint);
     surf.flush();
@@ -389,7 +444,13 @@ function paintSkia() {
       if (col.type !== "selection") {
         const ht = headerText(col);
         if (ht) {
-          skCanvas.drawText(ht, hx2 + 8 * dpr, (props.headerHeight / 2 + 5) * dpr, headerTextPaint, fontHeader);
+          skCanvas.drawText(
+            ht,
+            hx2 + 8 * dpr,
+            (props.headerHeight / 2 + 5) * dpr,
+            headerTextPaint,
+            fontHeader,
+          );
         }
       }
       hx2 += cw;
@@ -402,7 +463,13 @@ function paintSkia() {
     const txt = props.emptyText;
     const approxHalf = txt.length * t.fontSizeEmpty * dpr * 0.32;
     const ey = (props.headerHeight + Math.max(0, (cssH.value - props.headerHeight) / 2)) * dpr;
-    skCanvas.drawText(txt, (cssW.value / 2) * dpr - approxHalf, ey + t.fontSizeEmpty * dpr * 0.35, emptyPaint, fontEmpty);
+    skCanvas.drawText(
+      txt,
+      (cssW.value / 2) * dpr - approxHalf,
+      ey + t.fontSizeEmpty * dpr * 0.35,
+      emptyPaint,
+      fontEmpty,
+    );
     strokePaint.setColor(skColor(borderRgb));
     skCanvas.drawRect(ck.LTRBRect(0.5, 0.5, wPx - 0.5, hPx - 0.5), strokePaint);
     surf.flush();
@@ -466,7 +533,17 @@ function paintSkia() {
       if (col.type === "selection") {
         const checked = selectedKeys.has(keyString(rowKeyValue(row, props.rowKey)));
         const hoverB = c === hoverSelCol.value && r === hoverSelRow.value;
-        drawSkiaCheckbox(skCanvas, cx + cellW / 2, y * dpr + rh / 2, checked, false, strokePaint, fillPaint, checkStroke, hoverB);
+        drawSkiaCheckbox(
+          skCanvas,
+          cx + cellW / 2,
+          y * dpr + rh / 2,
+          checked,
+          false,
+          strokePaint,
+          fillPaint,
+          checkStroke,
+          hoverB,
+        );
       } else if (col.type === "switch") {
         const activeVal = (col.activeValue as string | number | boolean) ?? true;
         const isOn = row[col.key] === activeVal;
@@ -477,9 +554,16 @@ function paintSkia() {
         const gap = 3 * dpr;
         const trackX = cx + cellW / 2 - tW / 2;
         const trackY = y * dpr + rh / 2 - tH / 2;
-        const trackColor = isDisabled ? { r: 168, g: 171, b: 178 } : isOn ? { r: 64, g: 158, b: 255 } : { r: 220, g: 223, b: 230 };
+        const trackColor = isDisabled
+          ? { r: 168, g: 171, b: 178 }
+          : isOn
+            ? { r: 64, g: 158, b: 255 }
+            : { r: 220, g: 223, b: 230 };
         fillPaint.setColor(skColor(trackColor));
-        skCanvas.drawRRect(ck.RRectXY(ck.LTRBRect(trackX, trackY, trackX + tW, trackY + tH), tH / 2, tH / 2), fillPaint);
+        skCanvas.drawRRect(
+          ck.RRectXY(ck.LTRBRect(trackX, trackY, trackX + tW, trackY + tH), tH / 2, tH / 2),
+          fillPaint,
+        );
         const thumbX = isOn ? trackX + tW - gap - tR : trackX + gap + tR;
         fillPaint.setColor(skColor({ r: 255, g: 255, b: 255 }));
         skCanvas.drawCircle(thumbX, y * dpr + rh / 2, tR, fillPaint);
@@ -565,7 +649,13 @@ function paintSkia() {
     } else {
       const ht = headerText(col);
       if (ht) {
-        skCanvas.drawText(ht, hx + 8 * dpr, (props.headerHeight / 2 + 5) * dpr, headerTextPaint, fontHeader);
+        skCanvas.drawText(
+          ht,
+          hx + 8 * dpr,
+          (props.headerHeight / 2 + 5) * dpr,
+          headerTextPaint,
+          fontHeader,
+        );
       }
     }
     hx += cw;
@@ -672,7 +762,17 @@ function onCanvasClick(e: MouseEvent) {
   }
   closeSlotPopup();
   if (col?.type === "switch" && hit.kind === "body") {
-    if (isClickOnSwitch(docX, docY, colWidths(), hit.colIndex, props.headerHeight, props.rowHeight, hit.rowIndex)) {
+    if (
+      isClickOnSwitch(
+        docX,
+        docY,
+        colWidths(),
+        hit.colIndex,
+        props.headerHeight,
+        props.rowHeight,
+        hit.rowIndex,
+      )
+    ) {
       const row = props.tableData[hit.rowIndex];
       if (row) {
         trySwitchToggle(row, col).then((newVal) => {
@@ -735,7 +835,14 @@ onUnmounted(() => {
 });
 
 watch(
-  () => [props.tableData, props.columns, props.emptyText, props.rowHeight, props.headerHeight, props.rowKey],
+  () => [
+    props.tableData,
+    props.columns,
+    props.emptyText,
+    props.rowHeight,
+    props.headerHeight,
+    props.rowKey,
+  ],
   () => schedulePaint(),
   { deep: true },
 );
@@ -751,14 +858,24 @@ watch(selection.selectedKeys, () => schedulePaint());
     @wheel="onWheel"
     @mouseenter="showScrollbar"
     @mousemove="onContainerMousemove"
-    @mouseleave="() => { onContainerMouseleave(); hideScrollbar(); }"
+    @mouseleave="
+      () => {
+        onContainerMouseleave();
+        hideScrollbar();
+      }
+    "
     @touchstart.passive="onTouchStart"
     @touchmove="onTouchMove"
     @touchend="onTouchEnd"
   >
     <div v-if="loadError" class="crud-base-table__skia-message">{{ loadError }}</div>
     <div v-else-if="surfaceError" class="crud-base-table__skia-message">{{ surfaceError }}</div>
-    <canvas v-show="!loadError" ref="canvasRef" class="crud-base-table__skia-surface" @click="onCanvasClick" />
+    <canvas
+      v-show="!loadError"
+      ref="canvasRef"
+      class="crud-base-table__skia-surface"
+      @click="onCanvasClick"
+    />
     <div
       v-if="hasVBar"
       class="canvas-scrollbar is-vertical"
@@ -768,7 +885,12 @@ watch(selection.selectedKeys, () => schedulePaint());
       @mouseenter="hideTooltip"
       @mousemove.stop
     >
-      <div class="canvas-scrollbar__thumb" :style="vThumbStyle" @mousedown="onVThumbMousedown" @touchstart="onVThumbTouchstart" />
+      <div
+        class="canvas-scrollbar__thumb"
+        :style="vThumbStyle"
+        @mousedown="onVThumbMousedown"
+        @touchstart="onVThumbTouchstart"
+      />
     </div>
     <div
       v-if="hasHBar"
@@ -779,7 +901,12 @@ watch(selection.selectedKeys, () => schedulePaint());
       @mouseenter="hideTooltip"
       @mousemove.stop
     >
-      <div class="canvas-scrollbar__thumb" :style="hThumbStyle" @mousedown="onHThumbMousedown" @touchstart="onHThumbTouchstart" />
+      <div
+        class="canvas-scrollbar__thumb"
+        :style="hThumbStyle"
+        @mousedown="onHThumbMousedown"
+        @touchstart="onHThumbTouchstart"
+      />
     </div>
     <span
       ref="slotTriggerRef"

@@ -191,7 +191,7 @@ defineExpose({ open });
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .crud-base-column-setting.el-drawer {
     width: 100% !important;
   }
@@ -202,8 +202,7 @@ defineExpose({ open });
 @use "../../../styles/variables" as *;
 
 .crud-base-column-setting__body {
-  overflow-x: auto;
-  overflow-y: auto;
+  overflow: auto;
   max-height: 760px;
 }
 

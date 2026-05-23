@@ -49,12 +49,22 @@ function onConfirm(cols: BaseColumnSettingColumn[]) {
 
 const api: ComponentApi = {
   props: [
-    { name: "columns", type: "BaseColumnSettingColumn[]", default: "—", required: true, desc: "列配置数组（v-model:columns）" },
+    {
+      name: "columns",
+      type: "BaseColumnSettingColumn[]",
+      default: "—",
+      required: true,
+      desc: "列配置数组（v-model:columns）",
+    },
     { name: "title", type: "string", default: '"表格设置"', required: false, desc: "抽屉标题" },
     { name: "drawerWidth", type: "string", default: '"592px"', required: false, desc: "抽屉宽度" },
   ],
   events: [
-    { name: "update:columns", payload: "BaseColumnSettingColumn[]", desc: "确认后触发，参数为更新后的列配置" },
+    {
+      name: "update:columns",
+      payload: "BaseColumnSettingColumn[]",
+      desc: "确认后触发，参数为更新后的列配置",
+    },
     { name: "confirm", payload: "BaseColumnSettingColumn[]", desc: "点击确定时触发" },
   ],
   notes: [
@@ -82,14 +92,10 @@ const api: ComponentApi = {
       <BaseTable
         mode="element"
         :table-data="tableData"
-        :columns="(columns as BaseTableColumn[])"
+        :columns="columns as BaseTableColumn[]"
         height="360px"
       />
-      <BaseColumnSetting
-        ref="settingRef"
-        v-model:columns="columns"
-        @confirm="onConfirm"
-      />
+      <BaseColumnSetting ref="settingRef" v-model:columns="columns" @confirm="onConfirm" />
     </div>
     <div class="widget-card__api">
       <p class="widget-hint" style="margin: 12px 0 0">最近事件：{{ lastEvent }}</p>

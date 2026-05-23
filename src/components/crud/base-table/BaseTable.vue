@@ -32,7 +32,9 @@ function onSelectionChange(rows: Record<string, unknown>[]) {
   emit("selectionChange", rows);
 }
 
-const surfaceStyle = computed(() => tableSurfaceCssVars(config.value, props.rowHeight, props.headerHeight));
+const surfaceStyle = computed(() =>
+  tableSurfaceCssVars(config.value, props.rowHeight, props.headerHeight),
+);
 </script>
 
 <template>
@@ -98,7 +100,7 @@ const surfaceStyle = computed(() => tableSurfaceCssVars(config.value, props.rowH
 </template>
 
 <style scoped lang="scss">
-@import "./theme/table-surface.scss";
+@use "./theme/table-surface";
 
 .crud-base-table {
   display: flex;

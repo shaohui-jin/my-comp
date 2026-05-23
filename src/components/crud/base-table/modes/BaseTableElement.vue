@@ -36,7 +36,12 @@ function columnFormatter(col: BaseTableColumn) {
 </script>
 
 <template>
-  <div :class="['crud-base-table__element', { 'crud-base-table__element--nested': tableMaxHeight != null }]">
+  <div
+    :class="[
+      'crud-base-table__element',
+      { 'crud-base-table__element--nested': tableMaxHeight != null },
+    ]"
+  >
     <ElTable
       :data="tableData"
       v-bind="tableMaxHeight != null ? { 'max-height': tableMaxHeight } : { height: '100%' }"
@@ -67,24 +72,24 @@ function columnFormatter(col: BaseTableColumn) {
         />
         <ElTableColumn
           v-else-if="col.type === 'switch'"
+          v-slot="scope"
           v-bind="getTableColumnBinds(col)"
           :show-overflow-tooltip="false"
-          #default="scope"
         >
           <CellSwitch
             :row="scope.row"
             :col-key="col.key"
-            :active-value="(col.activeValue as string | number | boolean)"
-            :inactive-value="(col.inactiveValue as string | number | boolean)"
+            :active-value="col.activeValue as string | number | boolean"
+            :inactive-value="col.inactiveValue as string | number | boolean"
             :disabled="Boolean(col.disabled)"
             :before-change="col.beforeChange ? () => col.beforeChange!(scope.row, col) : undefined"
           />
         </ElTableColumn>
         <ElTableColumn
           v-else-if="col.type === 'image'"
+          v-slot="scope"
           v-bind="getTableColumnBinds(col)"
           :show-overflow-tooltip="false"
-          #default="scope"
         >
           <ElImage
             :src="String(scope.row[col.key] ?? '')"
@@ -97,15 +102,15 @@ function columnFormatter(col: BaseTableColumn) {
         </ElTableColumn>
         <ElTableColumn
           v-else-if="col.type === 'status-custom'"
+          v-slot="scope"
           v-bind="getTableColumnBinds(col)"
-          #default="scope"
         >
           <CellStatusCustom :column="col" :row="scope.row" :row-index="scope.$index" />
         </ElTableColumn>
         <ElTableColumn
           v-else-if="col.type === 'tableSlot'"
+          v-slot="scope"
           v-bind="getTableColumnBinds(col)"
-          #default="scope"
         >
           <TableSlotPopup :row="scope.row" :column="col" />
         </ElTableColumn>
@@ -117,7 +122,7 @@ function columnFormatter(col: BaseTableColumn) {
         <ElTableColumn
           v-else
           v-bind="getTableColumnBinds(col)"
-          :showOverflowTooltip="true"
+          :show-overflow-tooltip="true"
           :prop="col.key"
         />
       </template>
@@ -146,5 +151,4 @@ function columnFormatter(col: BaseTableColumn) {
   background: $lib-mask-light;
   pointer-events: none;
 }
-
 </style>

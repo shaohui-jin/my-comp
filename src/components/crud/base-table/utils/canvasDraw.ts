@@ -238,7 +238,14 @@ export function drawTable2D(o: DrawTable2DOptions): void {
         ctx.strokeRect(cellLeft, 0, cw, headerHeight);
         if (col.type === "selection") {
           const hoverH = i === o.hoverSelCol && o.hoverSelRow === -1;
-          drawCheckbox2D(ctx, cellLeft + cw / 2, headerHeight / 2, headerAll, headerIndeterminate, hoverH);
+          drawCheckbox2D(
+            ctx,
+            cellLeft + cw / 2,
+            headerHeight / 2,
+            headerAll,
+            headerIndeterminate,
+            hoverH,
+          );
         } else {
           const ht = headerText(col);
           if (ht) {

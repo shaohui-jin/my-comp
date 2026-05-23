@@ -14,11 +14,31 @@ import ApiTable from "./ApiTable.vue";
 // ==================== 演示数据 ====================
 
 const modes: { label: string; value: BaseTableMode; desc: string; rows: number }[] = [
-  { label: "Element Plus", value: "element", desc: "el-table 封装，能力最全，适合常规数据量", rows: 50 },
-  { label: "Virtual Scroll", value: "virtual", desc: "el-table-v2 虚拟滚动，适合万级行", rows: 10_000 },
+  {
+    label: "Element Plus",
+    value: "element",
+    desc: "el-table 封装，能力最全，适合常规数据量",
+    rows: 50,
+  },
+  {
+    label: "Virtual Scroll",
+    value: "virtual",
+    desc: "el-table-v2 虚拟滚动，适合万级行",
+    rows: 10_000,
+  },
   { label: "Canvas 2D", value: "canvas", desc: "单 Canvas 视口重绘，适合超大数据", rows: 100_000 },
-  { label: "Canvas Tile", value: "canvas-tile", desc: "整表预渲染 + 视口裁切，小数据集更流畅", rows: 5_000 },
-  { label: "Skia WASM", value: "skia-wasm", desc: "CanvasKit (Skia) 渲染，GPU 加速", rows: 100_000 },
+  {
+    label: "Canvas Tile",
+    value: "canvas-tile",
+    desc: "整表预渲染 + 视口裁切，小数据集更流畅",
+    rows: 5_000,
+  },
+  {
+    label: "Skia WASM",
+    value: "skia-wasm",
+    desc: "CanvasKit (Skia) 渲染，GPU 加速",
+    rows: 100_000,
+  },
 ];
 
 const activeMode = ref<BaseTableMode>("element");
@@ -96,18 +116,88 @@ const columns: BaseTableColumn[] = [
 const baseTableApi: ComponentApi = {
   props: [
     { name: "mode", type: "BaseTableMode", default: "—", required: true, desc: "渲染模式" },
-    { name: "tableData", type: "Record<string, unknown>[]", default: "—", required: true, desc: "表格数据" },
-    { name: "columns", type: "BaseTableColumn[]", default: "—", required: true, desc: "列配置数组" },
-    { name: "height", type: "string", default: '"420px"', required: false, desc: "容器高度，如 400px、60vh、100%" },
-    { name: "rowKey", type: "string", default: '"id"', required: false, desc: "行数据唯一标识字段名" },
-    { name: "loading", type: "boolean", default: "false", required: false, desc: "是否显示加载状态" },
-    { name: "emptyText", type: "string", default: '"暂无数据"', required: false, desc: "数据为空时的提示文案" },
-    { name: "rowHeight", type: "number", default: "36", required: false, desc: "行高（px）", note: "来自 tableLayoutDefaults" },
-    { name: "headerHeight", type: "number", default: "40", required: false, desc: "表头高度（px）", note: "来自 tableLayoutDefaults" },
-    { name: "maxPrerenderPixels", type: "number", default: "12000000", required: false, desc: "canvas-tile 模式最大预渲染像素数", note: "仅 canvas-tile 模式有效" },
-    { name: "skiaWasmBaseUrl", type: "string", default: "undefined", required: false, desc: "CanvasKit WASM 资源 base URL", note: "仅 skia-wasm 模式需要" },
+    {
+      name: "tableData",
+      type: "Record<string, unknown>[]",
+      default: "—",
+      required: true,
+      desc: "表格数据",
+    },
+    {
+      name: "columns",
+      type: "BaseTableColumn[]",
+      default: "—",
+      required: true,
+      desc: "列配置数组",
+    },
+    {
+      name: "height",
+      type: "string",
+      default: '"420px"',
+      required: false,
+      desc: "容器高度，如 400px、60vh、100%",
+    },
+    {
+      name: "rowKey",
+      type: "string",
+      default: '"id"',
+      required: false,
+      desc: "行数据唯一标识字段名",
+    },
+    {
+      name: "loading",
+      type: "boolean",
+      default: "false",
+      required: false,
+      desc: "是否显示加载状态",
+    },
+    {
+      name: "emptyText",
+      type: "string",
+      default: '"暂无数据"',
+      required: false,
+      desc: "数据为空时的提示文案",
+    },
+    {
+      name: "rowHeight",
+      type: "number",
+      default: "36",
+      required: false,
+      desc: "行高（px）",
+      note: "来自 tableLayoutDefaults",
+    },
+    {
+      name: "headerHeight",
+      type: "number",
+      default: "40",
+      required: false,
+      desc: "表头高度（px）",
+      note: "来自 tableLayoutDefaults",
+    },
+    {
+      name: "maxPrerenderPixels",
+      type: "number",
+      default: "12000000",
+      required: false,
+      desc: "canvas-tile 模式最大预渲染像素数",
+      note: "仅 canvas-tile 模式有效",
+    },
+    {
+      name: "skiaWasmBaseUrl",
+      type: "string",
+      default: "undefined",
+      required: false,
+      desc: "CanvasKit WASM 资源 base URL",
+      note: "仅 skia-wasm 模式需要",
+    },
   ],
-  events: [{ name: "selectionChange", payload: "Record<string, unknown>[]", desc: "选中行变化时触发，参数为当前选中行数组" }],
+  events: [
+    {
+      name: "selectionChange",
+      payload: "Record<string, unknown>[]",
+      desc: "选中行变化时触发，参数为当前选中行数组",
+    },
+  ],
   slots: [{ name: "toolbar", desc: "表格上方工具栏区域" }],
   notes: [
     "五种渲染模式共享同一套列配置（BaseTableColumn），但高性能模式（canvas/canvas-tile/skia-wasm）仅支持文本化展示，type 字段中的 switch、tableSlot 等交互类型不会生效",
@@ -125,34 +215,125 @@ const baseTableModeApi = [
 ];
 
 const baseTableColumnApi: ApiRow[] = [
-  { name: "key", type: "string", default: "—", required: true, desc: "列字段名，取 row[key] 作为单元格值" },
+  {
+    name: "key",
+    type: "string",
+    default: "—",
+    required: true,
+    desc: "列字段名，取 row[key] 作为单元格值",
+  },
   { name: "label", type: "string", default: "—", required: false, desc: "表头文案" },
-  { name: "title", type: "string", default: "—", required: false, desc: "表头文案（兼容 Table-V2 的 title 字段）" },
+  {
+    name: "title",
+    type: "string",
+    default: "—",
+    required: false,
+    desc: "表头文案（兼容 Table-V2 的 title 字段）",
+  },
   { name: "width", type: "number", default: "120", required: false, desc: "列宽（px）" },
-  { name: "minWidth", type: "number", default: "—", required: false, desc: "最小列宽（px），仅 element 模式" },
-  { name: "align", type: '"left" | "center" | "right"', default: '"left"', required: false, desc: "对齐方式" },
-  { name: "show", type: "boolean", default: "true", required: false, desc: "是否显示，设为 false 时隐藏该列" },
-  { name: "type", type: "BaseTableColumnType | string", default: '"default"', required: false, desc: "列类型（BaseTableColumnType 为内置联合类型）", note: "高性能模式（canvas 系）仅支持文本化展示" },
-  { name: "formatter", type: "(row, column, cellValue) => string", default: "—", required: false, desc: "自定义单元格格式化函数" },
-  { name: "showOverflowTooltip", type: "boolean", default: "true", required: false, desc: "超长文本省略时显示 tooltip" },
+  {
+    name: "minWidth",
+    type: "number",
+    default: "—",
+    required: false,
+    desc: "最小列宽（px），仅 element 模式",
+  },
+  {
+    name: "align",
+    type: '"left" | "center" | "right"',
+    default: '"left"',
+    required: false,
+    desc: "对齐方式",
+  },
+  {
+    name: "show",
+    type: "boolean",
+    default: "true",
+    required: false,
+    desc: "是否显示，设为 false 时隐藏该列",
+  },
+  {
+    name: "type",
+    type: "BaseTableColumnType | string",
+    default: '"default"',
+    required: false,
+    desc: "列类型（BaseTableColumnType 为内置联合类型）",
+    note: "高性能模式（canvas 系）仅支持文本化展示",
+  },
+  {
+    name: "formatter",
+    type: "(row, column, cellValue) => string",
+    default: "—",
+    required: false,
+    desc: "自定义单元格格式化函数",
+  },
+  {
+    name: "showOverflowTooltip",
+    type: "boolean",
+    default: "true",
+    required: false,
+    desc: "超长文本省略时显示 tooltip",
+  },
 ];
 
 const baseTableColumnSwitchApi: ApiRow[] = [
-  { name: "activeValue", type: "string | number | boolean", default: "true", required: false, desc: "激活时的值" },
-  { name: "inactiveValue", type: "string | number | boolean", default: "false", required: false, desc: "非激活时的值" },
+  {
+    name: "activeValue",
+    type: "string | number | boolean",
+    default: "true",
+    required: false,
+    desc: "激活时的值",
+  },
+  {
+    name: "inactiveValue",
+    type: "string | number | boolean",
+    default: "false",
+    required: false,
+    desc: "非激活时的值",
+  },
   { name: "disabled", type: "boolean", default: "false", required: false, desc: "是否禁用开关" },
-  { name: "beforeChange", type: "(row, col) => boolean | Promise<boolean>", default: "—", required: false, desc: "切换前的拦截钩子，返回 false 或 reject 时阻止切换" },
+  {
+    name: "beforeChange",
+    type: "(row, col) => boolean | Promise<boolean>",
+    default: "—",
+    required: false,
+    desc: "切换前的拦截钩子，返回 false 或 reject 时阻止切换",
+  },
 ];
 
 const baseTableColumnStatusCustomApi: ApiRow[] = [
-  { name: "colorMap", type: "Record<string, string>", default: "—", required: false, desc: "按单元格值映射灯色，如 { 0: 'rgba(0,85,255,1)', 1: '#67c23a' }" },
+  {
+    name: "colorMap",
+    type: "Record<string, string>",
+    default: "—",
+    required: false,
+    desc: "按单元格值映射灯色，如 { 0: 'rgba(0,85,255,1)', 1: '#67c23a' }",
+  },
 ];
 
 const baseTableColumnTableSlotApi: ApiRow[] = [
-  { name: "columns", type: "BaseTableColumn[]", default: "—", required: false, desc: "弹窗内嵌子表格的列配置" },
+  {
+    name: "columns",
+    type: "BaseTableColumn[]",
+    default: "—",
+    required: false,
+    desc: "弹窗内嵌子表格的列配置",
+  },
   { name: "popoverWidth", type: "number", default: "430", required: false, desc: "弹窗宽度（px）" },
-  { name: "filter", type: "(keyword, item) => boolean", default: "—", required: false, desc: "弹窗内搜索过滤函数" },
-  { name: "filterPlaceholder", type: "string", default: "—", required: false, desc: "弹窗内搜索框 placeholder" },
+  {
+    name: "filter",
+    type: "(keyword, item) => boolean",
+    default: "—",
+    required: false,
+    desc: "弹窗内搜索过滤函数",
+  },
+  {
+    name: "filterPlaceholder",
+    type: "string",
+    default: "—",
+    required: false,
+    desc: "弹窗内搜索框 placeholder",
+  },
 ];
 </script>
 
@@ -164,13 +345,7 @@ const baseTableColumnTableSlotApi: ApiRow[] = [
 
   <!-- Mode tabs -->
   <el-tabs v-model="activeMode" type="border-card" class="doc-tabs">
-    <el-tab-pane
-      v-for="m in modes"
-      :key="m.value"
-      :label="m.label"
-      :name="m.value"
-      lazy
-    >
+    <el-tab-pane v-for="m in modes" :key="m.value" :label="m.label" :name="m.value" lazy>
       <div class="mode-pane">
         <div class="mode-pane__meta">
           <el-tag type="info" size="small" effect="plain">{{ m.value }}</el-tag>
@@ -208,7 +383,7 @@ const baseTableColumnTableSlotApi: ApiRow[] = [
 
   <div class="api-section">
     <h3 class="api-section__title">BaseTableMode 渲染模式</h3>
-    <ApiTable type="slots" :rows="baseTableModeApi.map(m => ({ name: m.value, desc: m.desc }))" />
+    <ApiTable type="slots" :rows="baseTableModeApi.map((m) => ({ name: m.value, desc: m.desc }))" />
   </div>
 
   <div class="api-section">

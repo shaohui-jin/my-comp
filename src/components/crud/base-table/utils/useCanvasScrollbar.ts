@@ -80,13 +80,19 @@ export function useCanvasScrollbar(opts: CanvasScrollbarOptions) {
       if (movable <= 0) return;
       const maxScroll = Math.max(0, opts.totalHeight() - opts.cssH.value);
       const delta = pos - dragStartMouse;
-      opts.scrollY.value = Math.max(0, Math.min(maxScroll, dragStartScroll + (delta / movable) * maxScroll));
+      opts.scrollY.value = Math.max(
+        0,
+        Math.min(maxScroll, dragStartScroll + (delta / movable) * maxScroll),
+      );
     } else {
       const movable = hTrackWidth.value - hThumbWidth.value;
       if (movable <= 0) return;
       const maxScroll = Math.max(0, opts.totalWidth() - opts.cssW.value);
       const delta = pos - dragStartMouse;
-      opts.scrollX.value = Math.max(0, Math.min(maxScroll, dragStartScroll + (delta / movable) * maxScroll));
+      opts.scrollX.value = Math.max(
+        0,
+        Math.min(maxScroll, dragStartScroll + (delta / movable) * maxScroll),
+      );
     }
     opts.onScroll();
   }

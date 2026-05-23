@@ -29,7 +29,7 @@ function onUpdate(val: string | number | boolean) {
 
 <template>
   <ElSwitch
-    :model-value="(localValue as string | number | boolean)"
+    :model-value="localValue as string | number | boolean"
     :active-value="activeValue ?? true"
     :inactive-value="inactiveValue ?? false"
     :disabled="disabled ?? false"

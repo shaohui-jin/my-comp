@@ -63,9 +63,27 @@ function onReset() {
 
 const api: ComponentApi = {
   props: [
-    { name: "params", type: "BaseSearchField[]", default: "—", required: true, desc: "搜索字段配置数组" },
-    { name: "modelValue / v-model", type: "Record<string, unknown>", default: "—", required: true, desc: "表单数据双向绑定" },
-    { name: "paramOptions", type: "Record<string, BaseSearchFieldOption[]>", default: "{}", required: false, desc: "异步加载的选项" },
+    {
+      name: "params",
+      type: "BaseSearchField[]",
+      default: "—",
+      required: true,
+      desc: "搜索字段配置数组",
+    },
+    {
+      name: "modelValue / v-model",
+      type: "Record<string, unknown>",
+      default: "—",
+      required: true,
+      desc: "表单数据双向绑定",
+    },
+    {
+      name: "paramOptions",
+      type: "Record<string, BaseSearchFieldOption[]>",
+      default: "{}",
+      required: false,
+      desc: "异步加载的选项",
+    },
     { name: "title", type: "string", default: '"高级筛选"', required: false, desc: "抽屉标题" },
     { name: "drawerWidth", type: "string", default: '"500px"', required: false, desc: "抽屉宽度" },
   ],

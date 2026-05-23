@@ -31,11 +31,7 @@ export function isClickOnSwitch(
 }
 
 /** 判断点击坐标是否落在 tableSlot 单元格的"查看"文字区域内 */
-export function isClickOnSlotText(
-  docX: number,
-  colWidths: number[],
-  colIndex: number,
-): boolean {
+export function isClickOnSlotText(docX: number, colWidths: number[], colIndex: number): boolean {
   let cellLeft = 0;
   for (let i = 0; i < colIndex; i++) {
     cellLeft += colWidths[i];
@@ -69,12 +65,7 @@ export function useCanvasSlotPopup(containerRef: Ref<HTMLElement | null>) {
     y: 0,
   });
 
-  function openSlotPopup(
-    row: Record<string, unknown>,
-    col: BaseTableColumn,
-    x: number,
-    y: number,
-  ) {
+  function openSlotPopup(row: Record<string, unknown>, col: BaseTableColumn, x: number, y: number) {
     slotPopup.row = row;
     slotPopup.column = col;
     slotPopup.x = x;

@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { computed, onActivated, onDeactivated, onMounted, onUnmounted, ref, toRef, watch } from "vue";
+import {
+  computed,
+  onActivated,
+  onDeactivated,
+  onMounted,
+  onUnmounted,
+  ref,
+  toRef,
+  watch,
+} from "vue";
 import { ElTooltip } from "element-plus";
 import type { BaseTableColumn } from "../types";
 import { TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
@@ -7,7 +16,11 @@ import { layoutColumnWidths, trySwitchToggle, visibleColumns } from "../utils/co
 import { drawTable2D } from "../utils/canvasDraw";
 import { hitTestTable } from "../utils/tableHitTest";
 import { useBaseTableSelection } from "../utils/useBaseTableSelection";
-import { isClickOnSlotText, isClickOnSwitch, useCanvasSlotPopup } from "../utils/useCanvasSlotPopup";
+import {
+  isClickOnSlotText,
+  isClickOnSwitch,
+  useCanvasSlotPopup,
+} from "../utils/useCanvasSlotPopup";
 import { useCanvasTooltip, canvas2DMeasureTextWidth } from "../utils/useCanvasTooltip";
 import { useCanvasScrollbar } from "../utils/useCanvasScrollbar";
 import { useCanvasCheckboxHover } from "../utils/useCanvasCheckboxHover";
@@ -50,7 +63,8 @@ const totalHeight = computed(() => props.headerHeight + props.tableData.length *
 const tableDataRef = toRef(props, "tableData");
 const selection = useBaseTableSelection(props.rowKey, tableDataRef);
 
-const { slotTriggerRef, slotPopup, openSlotPopup, closeSlotPopup } = useCanvasSlotPopup(containerRef);
+const { slotTriggerRef, slotPopup, openSlotPopup, closeSlotPopup } =
+  useCanvasSlotPopup(containerRef);
 const { hoverSelCol, hoverSelRow, updateHover, clearHover } = useCanvasCheckboxHover();
 
 const {
@@ -73,7 +87,20 @@ const {
 
 function onContainerMousemove(e: MouseEvent) {
   _tooltipMousemove(e);
-  if (updateHover(e, containerRef.value, canvasRef.value, props.columns, colWidths.value, props.headerHeight, props.rowHeight, props.tableData.length, scrollX.value, scrollY.value)) {
+  if (
+    updateHover(
+      e,
+      containerRef.value,
+      canvasRef.value,
+      props.columns,
+      colWidths.value,
+      props.headerHeight,
+      props.rowHeight,
+      props.tableData.length,
+      scrollX.value,
+      scrollY.value,
+    )
+  ) {
     schedulePaint();
   }
 }
@@ -244,7 +271,17 @@ function onCanvasClick(e: MouseEvent) {
   }
   closeSlotPopup();
   if (col?.type === "switch" && hit.kind === "body") {
-    if (isClickOnSwitch(docX, docY, colWidths.value, hit.colIndex, props.headerHeight, props.rowHeight, hit.rowIndex)) {
+    if (
+      isClickOnSwitch(
+        docX,
+        docY,
+        colWidths.value,
+        hit.colIndex,
+        props.headerHeight,
+        props.rowHeight,
+        hit.rowIndex,
+      )
+    ) {
       const row = props.tableData[hit.rowIndex];
       if (row) {
         trySwitchToggle(row, col).then((newVal) => {
@@ -301,7 +338,14 @@ onUnmounted(() => {
 });
 
 watch(
-  () => [props.tableData, props.columns, props.emptyText, props.rowHeight, props.headerHeight, props.rowKey],
+  () => [
+    props.tableData,
+    props.columns,
+    props.emptyText,
+    props.rowHeight,
+    props.headerHeight,
+    props.rowKey,
+  ],
   () => schedulePaint(),
   { deep: true },
 );
@@ -319,7 +363,12 @@ watch(selection.selectedKeys, () => schedulePaint(), { deep: true });
     @wheel="onWheel"
     @mouseenter="showScrollbar"
     @mousemove="onContainerMousemove"
-    @mouseleave="() => { onContainerMouseleave(); hideScrollbar(); }"
+    @mouseleave="
+      () => {
+        onContainerMouseleave();
+        hideScrollbar();
+      }
+    "
     @touchstart.passive="onTouchStart"
     @touchmove="onTouchMove"
     @touchend="onTouchEnd"
@@ -334,7 +383,12 @@ watch(selection.selectedKeys, () => schedulePaint(), { deep: true });
       @mouseenter="hideTooltip"
       @mousemove.stop
     >
-      <div class="canvas-scrollbar__thumb" :style="vThumbStyle" @mousedown="onVThumbMousedown" @touchstart="onVThumbTouchstart" />
+      <div
+        class="canvas-scrollbar__thumb"
+        :style="vThumbStyle"
+        @mousedown="onVThumbMousedown"
+        @touchstart="onVThumbTouchstart"
+      />
     </div>
     <div
       v-if="hasHBar"
@@ -345,7 +399,12 @@ watch(selection.selectedKeys, () => schedulePaint(), { deep: true });
       @mouseenter="hideTooltip"
       @mousemove.stop
     >
-      <div class="canvas-scrollbar__thumb" :style="hThumbStyle" @mousedown="onHThumbMousedown" @touchstart="onHThumbTouchstart" />
+      <div
+        class="canvas-scrollbar__thumb"
+        :style="hThumbStyle"
+        @mousedown="onHThumbMousedown"
+        @touchstart="onHThumbTouchstart"
+      />
     </div>
     <span
       ref="slotTriggerRef"

@@ -7,6 +7,10 @@ export default {
   ],
   rules: {
     "selector-class-pattern": null,
+    "selector-pseudo-class-no-unknown": [
+      true,
+      { ignorePseudoClasses: ["deep", "slotted", "global"] },
+    ],
     "scss/at-rule-no-unknown": [
       true,
       {

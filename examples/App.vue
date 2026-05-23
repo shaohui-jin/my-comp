@@ -10,7 +10,7 @@ import DemoConfigProvider from "./demos/DemoConfigProvider.vue";
 import ChangelogPanel from "./demos/ChangelogPanel.vue";
 
 const pageMap: Record<string, Component> = {
-  "tables": DemoBaseTable,
+  tables: DemoBaseTable,
   "base-search": DemoBaseSearch,
   "base-search-drawer": DemoBaseSearchDrawer,
   "base-column-setting": DemoBaseColumnSetting,
@@ -176,14 +176,26 @@ function handleSelect(key: string) {
     transition: transform 0.2s;
   }
 
-  &::before { top: -6px; }
-  &::after { top: 6px; }
+  &::before {
+    top: -6px;
+  }
+
+  &::after {
+    top: 6px;
+  }
 
   &--open {
     background: transparent;
 
-    &::before { top: 0; transform: rotate(45deg); }
-    &::after { top: 0; transform: rotate(-45deg); }
+    &::before {
+      top: 0;
+      transform: rotate(45deg);
+    }
+
+    &::after {
+      top: 0;
+      transform: rotate(-45deg);
+    }
   }
 }
 
@@ -241,9 +253,17 @@ function handleSelect(key: string) {
   height: 16px;
   border-radius: $doc-radius-sm;
 
-  &--crud { background: $doc-color-warning; }
-  &--widget { background: $doc-color-success; }
-  &--config { background: $doc-color-primary; }
+  &--crud {
+    background: $doc-color-warning;
+  }
+
+  &--widget {
+    background: $doc-color-success;
+  }
+
+  &--config {
+    background: $doc-color-primary;
+  }
 }
 
 .nav-item__name {

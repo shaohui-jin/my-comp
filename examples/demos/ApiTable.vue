@@ -36,9 +36,13 @@ const tableType = props.type ?? "props";
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in (rows as ApiRow[])" :key="row.name">
-          <td><code>{{ row.name }}</code></td>
-          <td><code class="api-type">{{ row.type }}</code></td>
+        <tr v-for="row in rows as ApiRow[]" :key="row.name">
+          <td>
+            <code>{{ row.name }}</code>
+          </td>
+          <td>
+            <code class="api-type">{{ row.type }}</code>
+          </td>
           <td>
             <code v-if="row.default !== '—'">{{ row.default }}</code>
             <span v-else>—</span>
@@ -58,9 +62,13 @@ const tableType = props.type ?? "props";
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in (rows as EventRow[])" :key="row.name">
-          <td><code>{{ row.name }}</code></td>
-          <td><code class="api-type">{{ row.payload }}</code></td>
+        <tr v-for="row in rows as EventRow[]" :key="row.name">
+          <td>
+            <code>{{ row.name }}</code>
+          </td>
+          <td>
+            <code class="api-type">{{ row.payload }}</code>
+          </td>
           <td>{{ row.desc }}</td>
         </tr>
       </tbody>
@@ -74,8 +82,10 @@ const tableType = props.type ?? "props";
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in (rows as SlotRow[])" :key="row.name">
-          <td><code>{{ row.name }}</code></td>
+        <tr v-for="row in rows as SlotRow[]" :key="row.name">
+          <td>
+            <code>{{ row.name }}</code>
+          </td>
           <td>{{ row.desc }}</td>
         </tr>
       </tbody>
@@ -92,7 +102,7 @@ const tableType = props.type ?? "props";
         </tr>
       </thead>
       <tbody>
-        <template v-for="(row, idx) in (rows as ApiRow[])" :key="row.name">
+        <template v-for="(row, idx) in rows as ApiRow[]" :key="row.name">
           <tr
             class="api-table-c__row"
             :class="{ 'api-table-c__row--open': expandedRows.has(idx) }"
@@ -125,13 +135,15 @@ const tableType = props.type ?? "props";
         </tr>
       </thead>
       <tbody>
-        <template v-for="(row, idx) in (rows as EventRow[])" :key="row.name">
+        <template v-for="(row, idx) in rows as EventRow[]" :key="row.name">
           <tr
             class="api-table-c__row"
             :class="{ 'api-table-c__row--open': expandedRows.has(idx) }"
             @click="toggleRow(idx)"
           >
-            <td><code>{{ row.name }}</code></td>
+            <td>
+              <code>{{ row.name }}</code>
+            </td>
             <td>{{ row.desc }}</td>
           </tr>
           <tr v-show="expandedRows.has(idx)" class="api-table-c__detail">
@@ -152,8 +164,10 @@ const tableType = props.type ?? "props";
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in (rows as SlotRow[])" :key="row.name">
-          <td><code>{{ row.name }}</code></td>
+        <tr v-for="row in rows as SlotRow[]" :key="row.name">
+          <td>
+            <code>{{ row.name }}</code>
+          </td>
           <td>{{ row.desc }}</td>
         </tr>
       </tbody>

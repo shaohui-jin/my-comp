@@ -11,10 +11,7 @@ export function canvaskitLocateFile(file: string, customBaseUrl?: string): strin
     return `${customBaseUrl.replace(/\/$/, "")}/${file}`;
   }
   if (import.meta.env?.DEV) {
-    return new URL(
-      "../../../../../node_modules/canvaskit-wasm/bin/" + file,
-      import.meta.url,
-    ).href;
+    return new URL("../../../../../node_modules/canvaskit-wasm/bin/" + file, import.meta.url).href;
   }
   return new URL("./" + file, import.meta.url).href;
 }

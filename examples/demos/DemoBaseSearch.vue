@@ -72,10 +72,34 @@ function onChange(payload: { field?: string; value: unknown }) {
 
 const api: ComponentApi = {
   props: [
-    { name: "params", type: "BaseSearchField[]", default: "—", required: true, desc: "搜索字段配置数组" },
-    { name: "modelValue / v-model", type: "Record<string, unknown>", default: "—", required: true, desc: "表单数据双向绑定" },
-    { name: "loading", type: "boolean", default: "false", required: false, desc: "查询按钮加载状态" },
-    { name: "paramOptions", type: "Record<string, BaseSearchFieldOption[]>", default: "{}", required: false, desc: "异步加载的选项（key 为字段 key）" },
+    {
+      name: "params",
+      type: "BaseSearchField[]",
+      default: "—",
+      required: true,
+      desc: "搜索字段配置数组",
+    },
+    {
+      name: "modelValue / v-model",
+      type: "Record<string, unknown>",
+      default: "—",
+      required: true,
+      desc: "表单数据双向绑定",
+    },
+    {
+      name: "loading",
+      type: "boolean",
+      default: "false",
+      required: false,
+      desc: "查询按钮加载状态",
+    },
+    {
+      name: "paramOptions",
+      type: "Record<string, BaseSearchFieldOption[]>",
+      default: "{}",
+      required: false,
+      desc: "异步加载的选项（key 为字段 key）",
+    },
   ],
   events: [
     { name: "search", payload: "Record<string, unknown>", desc: "点击查询时触发，参数为表单数据" },
@@ -94,11 +118,35 @@ const fieldApi: ApiRow[] = [
   { name: "label", type: "string", default: "—", required: true, desc: "标签文本" },
   { name: "labelWidth", type: "string", default: '"70px"', required: false, desc: "标签宽度" },
   { name: "placeholder", type: "string", default: "—", required: false, desc: "占位文本" },
-  { name: "fixed", type: "boolean", default: "false", required: false, desc: "是否固定显示（不折叠）" },
-  { name: "type", type: "BaseSearchFieldType", default: '"input"', required: false, desc: "表单项类型" },
-  { name: "options", type: "{ name, value }[]", default: "—", required: false, desc: "select 类型的选项列表" },
+  {
+    name: "fixed",
+    type: "boolean",
+    default: "false",
+    required: false,
+    desc: "是否固定显示（不折叠）",
+  },
+  {
+    name: "type",
+    type: "BaseSearchFieldType",
+    default: '"input"',
+    required: false,
+    desc: "表单项类型",
+  },
+  {
+    name: "options",
+    type: "{ name, value }[]",
+    default: "—",
+    required: false,
+    desc: "select 类型的选项列表",
+  },
   { name: "clearable", type: "boolean", default: "true", required: false, desc: "是否可清空" },
-  { name: "keydownSearch", type: "boolean", default: "true", required: false, desc: "按下回车时是否触发搜索" },
+  {
+    name: "keydownSearch",
+    type: "boolean",
+    default: "true",
+    required: false,
+    desc: "按下回车时是否触发搜索",
+  },
 ];
 </script>
 

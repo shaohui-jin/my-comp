@@ -12,7 +12,7 @@ $lib-text-secondary: var(--comp-text-secondary, #909399);
 
 // -- 背景色 --
 $lib-bg-page: var(--comp-bg-page, #f5f7fa);
-$lib-bg-card: var(--comp-bg-card, #ffffff);
+$lib-bg-card: var(--comp-bg-card, #fff);
 $lib-bg-subtle: var(--comp-bg-subtle, #fafbfc);
 $lib-bg-muted: var(--comp-bg-muted, #f4f4f5);
 
@@ -27,7 +27,7 @@ $lib-color-warning: var(--comp-color-warning, #e6a23c);
 
 // -- 中性色（图标、占位等） --
 $lib-neutral-icon: #5b5b5e;
-$lib-neutral-lamp: rgba(203, 206, 212, 1);
+$lib-neutral-lamp: rgb(203 206 212 / 100%);
 
 // -- 遮罩 --
 $lib-mask-light: rgb(255 255 255 / 55%);

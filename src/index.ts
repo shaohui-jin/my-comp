@@ -31,7 +31,12 @@ export {
 export { createCompLib, ConfigProvider };
 export { useLibConfig } from "./config/useLibConfig";
 export { defaultLibConfig } from "./config/configDefaults";
-export type { LibConfig, LibThemeConfig, LibTableConfig, ResolvedLibConfig } from "./config/configTypes";
+export type {
+  LibConfig,
+  LibThemeConfig,
+  LibTableConfig,
+  ResolvedLibConfig,
+} from "./config/configTypes";
 export type { PersistOptions } from "./config/configInjection";
 
 export type { HelloButtonProps } from "./components/hello-button/types";
@@ -64,7 +69,10 @@ export type {
   BaseColumnSettingEmits,
 } from "./components/crud/base-column-setting/types";
 /** @deprecated 使用 createCompLib 配置代替 */
-export { tableLayoutDefaults, tableSurfaceConfig } from "./components/crud/base-table/theme/tableSurface";
+export {
+  tableLayoutDefaults,
+  tableSurfaceConfig,
+} from "./components/crud/base-table/theme/tableSurface";
 export { columnDefaults, normalizeColumns } from "./components/crud/base-table/utils/column";
 
 const components = [

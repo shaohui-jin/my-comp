@@ -162,11 +162,7 @@ onBeforeUnmount(() => {
     <Transition name="cl-slide">
       <div v-show="visible" class="cl__panel">
         <div class="cl__list">
-          <div
-            v-for="(v, idx) in versions"
-            :key="v.version"
-            class="cl__ver"
-          >
+          <div v-for="(v, idx) in versions" :key="v.version" class="cl__ver">
             <div class="cl__ver-head" @click="toggleVersion(idx)">
               <span class="cl__dot" :class="{ 'is-latest': idx === 0 }" />
               <span class="cl__ver-tag">{{ v.version }}</span>
@@ -185,7 +181,10 @@ onBeforeUnmount(() => {
                     </div>
                     <div class="cl__items">
                       <div v-for="(item, i) in g.items" :key="i" class="cl__item">
-                        <span class="cl__item-bullet" :style="{ background: getGroupColor(g.type) }" />
+                        <span
+                          class="cl__item-bullet"
+                          :style="{ background: getGroupColor(g.type) }"
+                        />
                         <div class="cl__item-content">
                           <code v-if="item.label" class="cl__tag">{{ item.label }}</code>
                           <span>{{ item.text }}</span>
@@ -254,7 +253,7 @@ onBeforeUnmount(() => {
   height: 0;
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
-  border-top: 5px solid currentColor;
+  border-top: 5px solid currentcolor;
   transition: transform 0.25s;
   margin-left: 2px;
 
@@ -528,7 +527,9 @@ onBeforeUnmount(() => {
 // --- Transitions ---
 .cl-slide-enter-active,
 .cl-slide-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .cl-slide-enter-from,

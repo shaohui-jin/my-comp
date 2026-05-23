@@ -52,21 +52,66 @@ alwaysApply: true
 ### 组件模块
 
 #### 新增组件
-- **ChangelogPanel**：变更记录面板，支持版本折叠展开
+- **ChangelogPanel**：变更记录时间线面板，支持版本折叠展开
 
 #### 组件调整
-- **BaseTable**：统一五种模式列宽计算；checkbox 样式对齐 Element Plus；新增 hover 交互
+- **BaseTable**：统一五种模式列宽计算；新增 hover 交互
 - **SearchBar**：修复清空按钮不触发事件的问题
 
 ### 配置模块
 
 #### 新增配置
-- **Cursor 规则**：新增 project-conventions.mdc，统一项目开发约定
+- **Cursor 规则**：新增项目约定规则文件
 ```
+
+条目精简规则：
+- 只记录"做了什么"，不记录"怎么实现的"
+- 不写括号内的实现细节、技术手段、具体参数
+- 同类变更合并为一句话，避免子列表展开
 
 版本规则：
 - 新功能 minor+1，纯修复 patch+1
 - 如果当天已有版本条目，合并到同一版本中
+
+## Git 提交规范
+
+提交人固定为 `jsh <1051131737@qq.com>`。提交信息使用中文，不得出现 AI / Cursor / 自动生成等字样。
+
+格式：
+
+```
+type(scope): 一句话概括
+
+模块分类A
+- 具体变更条目
+
+模块分类B
+- 具体变更条目
+```
+
+**type** 取值：`feat` 新功能、`fix` 修复、`refactor` 重构、`style` 格式/样式、`docs` 文档、`chore` 工程化
+
+**scope** 取值：模块名（如 `config`、`table`、`search`、`demo`、`build`），可省略
+
+**body** 按模块分类组织（组件模块、配置模块、工程化等），每条以 `- ` 开头，同类合并。遵循 CHANGELOG 精简规则——只记录做了什么，不记录怎么实现的。
+
+示例：
+
+```
+feat(config): 配置系统重构为保存模式，全局主题适配
+
+配置模块
+- 移除 updateConfig/resetConfig，新增 saveConfig
+- 配置页改为手动保存，移除 watch 自动生效
+
+组件调整
+- 侧边栏菜单跟随主题变化
+- 配置页新增移动端适配
+
+工程化
+- Stylelint 新增 Vue 伪类白名单
+- 代码格式化
+```
 
 ## 架构文档维护
 

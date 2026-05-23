@@ -5,12 +5,16 @@ import ApiTable from "./ApiTable.vue";
 
 const api: ComponentApi = {
   props: [
-    { name: "color", type: "string", default: '"rgba(203,206,212,1)"', required: false, desc: "圆点颜色，任意 CSS 颜色值" },
+    {
+      name: "color",
+      type: "string",
+      default: '"rgba(203,206,212,1)"',
+      required: false,
+      desc: "圆点颜色，任意 CSS 颜色值",
+    },
     { name: "text", type: "string", default: '""', required: false, desc: "显示文本" },
   ],
-  slots: [
-    { name: "default", desc: "未传 text 时，使用默认插槽自定义右侧内容" },
-  ],
+  slots: [{ name: "default", desc: "未传 text 时，使用默认插槽自定义右侧内容" }],
   notes: [
     "与 StatusTag 的区别：StatusTag 使用 Element Plus 的 ElTag 以标签形式展示预设状态类型（success / warning / info / danger）；StatusDot 使用纯色圆点 + 文字，颜色完全自定义，适用于表格行状态、列表指示器等场景。",
     "BaseTable 的 status-custom 列类型内部已使用 StatusDot 渲染。",

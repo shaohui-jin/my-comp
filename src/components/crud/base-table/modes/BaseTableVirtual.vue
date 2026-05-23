@@ -62,7 +62,7 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
   return vis.map((col, i) => {
     const w = widths[i] ?? tableLayoutDefaults.defaultColumnWidth;
     const align =
-      col.type === "selection" ? "center" : col.type === "index" ? "center" : col.align ?? "left";
+      col.type === "selection" ? "center" : col.type === "index" ? "center" : (col.align ?? "left");
 
     if (col.type === "selection") {
       return {
@@ -80,7 +80,8 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
         cellRenderer: ({ rowData }) =>
           h(ElCheckbox, {
             modelValue: selection.isRowSelected(rowData as Record<string, unknown>),
-            onChange: () => emit("selectionChange", selection.toggleRow(rowData as Record<string, unknown>)),
+            onChange: () =>
+              emit("selectionChange", selection.toggleRow(rowData as Record<string, unknown>)),
           }),
       };
     }
@@ -109,12 +110,10 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
           return h(CellSwitch, {
             row,
             colKey: col.key,
-            activeValue: (col.activeValue as string | number | boolean),
-            inactiveValue: (col.inactiveValue as string | number | boolean),
+            activeValue: col.activeValue as string | number | boolean,
+            inactiveValue: col.inactiveValue as string | number | boolean,
             disabled: Boolean(col.disabled),
-            beforeChange: col.beforeChange
-              ? () => col.beforeChange!(row, col)
-              : undefined,
+            beforeChange: col.beforeChange ? () => col.beforeChange!(row, col) : undefined,
           });
         },
       };
@@ -225,5 +224,4 @@ function v2columnsAt(innerWidth: number): Column<Record<string, unknown>>[] {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 </style>

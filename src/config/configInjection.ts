@@ -32,12 +32,9 @@ function writeToStorage(config: LibConfig, key?: string): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(key ?? DEFAULT_STORAGE_KEY, JSON.stringify(config));
-  } catch { /* quota exceeded 等异常静默 */ }
-}
-
-function clearStorage(key?: string): void {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(key ?? DEFAULT_STORAGE_KEY);
+  } catch {
+    /* quota exceeded 等异常静默 */
+  }
 }
 
 // ─── 核心逻辑 ────────────────────────────────────────────────
@@ -98,24 +95,13 @@ function applyCssVars(config: ResolvedLibConfig, el?: HTMLElement): void {
 /**
  * 创建组件库插件（工厂模式）
  *
- * @param userConfig - 用户初始配置（代码级别，优先级低于 localStorage）
- * @param persist - 持久化选项，启用后配置变更自动存入 localStorage
- *
- * @example
- * ```ts
- * import { createCompLib } from "comp-vue-lib";
- * const lib = createCompLib(
- *   { theme: { colorPrimary: "#6366f1" } },
- *   { enabled: true }
- * );
- * app.use(lib);
- * ```
+ * 配置在初始化时固化：代码默认值 → localStorage 覆盖 → 注入 provide + CSS 变量。
+ * 运行时不做实时修改，通过 saveConfig 写入 localStorage 在下次加载时生效。
  */
 export function createCompLib(userConfig?: LibConfig, persist?: PersistOptions) {
   const storageKey = persist?.key ?? DEFAULT_STORAGE_KEY;
   const base = resolveConfig(userConfig);
 
-  // 如果启用持久化，从 localStorage 读取覆盖
   const stored = persist?.enabled ? readFromStorage(storageKey) : undefined;
   const initial: ResolvedLibConfig = stored
     ? { theme: { ...base.theme, ...stored.theme }, table: { ...base.table, ...stored.table } }
@@ -134,8 +120,8 @@ export function createCompLib(userConfig?: LibConfig, persist?: PersistOptions) 
       app.config.globalProperties.$compLibConfig = resolved;
     },
 
-    /** 运行时更新配置（响应式更新 + CSS 变量同步 + 可选持久化） */
-    updateConfig(newConfig: LibConfig) {
+    /** 保存配置：同步更新内存 + localStorage + CSS 变量，切换页面即可见 */
+    saveConfig(newConfig: LibConfig) {
       if (newConfig.theme) Object.assign(resolved.theme, newConfig.theme);
       if (newConfig.table) Object.assign(resolved.table, newConfig.table);
 
@@ -144,24 +130,7 @@ export function createCompLib(userConfig?: LibConfig, persist?: PersistOptions) 
       }
 
       if (persist?.enabled) {
-        writeToStorage(
-          { theme: { ...resolved.theme }, table: { ...resolved.table } },
-          storageKey,
-        );
-      }
-    },
-
-    /** 重置配置：将默认配置写入 localStorage，还原为 defaults + userConfig */
-    resetConfig() {
-      Object.assign(resolved.theme, base.theme);
-      Object.assign(resolved.table, base.table);
-
-      if (persist?.enabled) {
-        writeToStorage({ theme: base.theme, table: base.table }, storageKey);
-      }
-
-      if (typeof document !== "undefined") {
-        applyCssVars(resolved);
+        writeToStorage({ theme: { ...resolved.theme }, table: { ...resolved.table } }, storageKey);
       }
     },
 

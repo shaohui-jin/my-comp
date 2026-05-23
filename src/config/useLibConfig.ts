@@ -10,13 +10,14 @@ import { LIB_CONFIG_KEY } from "./configInjection";
  *
  * @param componentOverrides - 组件级 props 中的 theme 覆盖（可选，响应式）
  */
-export function useLibConfig(componentOverrides?: Ref<LibConfig | undefined> | (() => LibConfig | undefined)) {
+export function useLibConfig(
+  componentOverrides?: Ref<LibConfig | undefined> | (() => LibConfig | undefined),
+) {
   const injected = inject(LIB_CONFIG_KEY, defaultLibConfig);
 
   const resolved = computed<ResolvedLibConfig>(() => {
-    const overrides = typeof componentOverrides === "function"
-      ? componentOverrides()
-      : componentOverrides?.value;
+    const overrides =
+      typeof componentOverrides === "function" ? componentOverrides() : componentOverrides?.value;
 
     const base = injected;
 

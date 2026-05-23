@@ -16,11 +16,11 @@ $doc-bg-page: lib.$lib-bg-page;
 $doc-bg-card: lib.$lib-bg-card;
 $doc-bg-subtle: lib.$lib-bg-subtle;
 $doc-bg-muted: lib.$lib-bg-muted;
-$doc-bg-hover: #f9fafc;
+$doc-bg-hover: lib.$lib-bg-subtle;
 
 // -- 边框色（继承组件库） --
 $doc-border-color: lib.$lib-border-color;
-$doc-border-light: #f0f2f5;
+$doc-border-light: lib.$lib-border-color;
 
 // -- 功能色（继承组件库） --
 $doc-color-primary: lib.$lib-color-primary;
@@ -31,7 +31,7 @@ $doc-bg-type: #f3f0ff;
 
 // -- 字体族（继承组件库） --
 $doc-font-family: lib.$lib-font-family;
-$doc-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+$doc-font-mono: "SFMono-Regular", consolas, "Liberation Mono", menlo, monospace;
 
 // -- 字号 --
 $doc-fs-xs: 12px;
