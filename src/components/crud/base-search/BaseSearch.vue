@@ -237,6 +237,8 @@ defineExpose({
 </template>
 
 <style scoped lang="scss">
+@use "../../../styles/variables" as *;
+
 .crud-base-search {
   padding: 12px 16px 0;
   border-radius: 4px;
@@ -290,7 +292,7 @@ defineExpose({
 
 :deep(.el-form-item__label) {
   font-weight: 500;
-  color: #606266;
+  color: $lib-text-regular;
 }
 
 :deep(.el-input),

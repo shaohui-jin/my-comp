@@ -184,13 +184,15 @@ defineExpose({
 </template>
 
 <style lang="scss">
+@use "../../../styles/variables" as *;
+
 .crud-base-search-drawer {
   .el-drawer__header {
     padding: 20px 20px 10px;
     margin-bottom: 0;
 
     span {
-      color: rgba(28, 26, 39, 1);
+      color: $lib-text-heading;
     }
   }
 }
@@ -203,6 +205,8 @@ defineExpose({
 </style>
 
 <style lang="scss" scoped>
+@use "../../../styles/variables" as *;
+
 .crud-base-search-drawer__footer {
   display: flex;
   justify-content: flex-end;
@@ -215,6 +219,6 @@ defineExpose({
 
 :deep(.el-form-item__label) {
   font-weight: 500;
-  color: rgba(28, 26, 39, 1);
+  color: $lib-text-heading;
 }
 </style>

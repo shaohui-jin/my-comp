@@ -1,5 +1,40 @@
 # 版本变更记录
 
+## v0.7.0（2026-05-23）
+
+### 组件模块
+
+#### 新增组件
+- **ConfigProvider**：运行时主题切换组件，支持嵌套覆盖，CSS 变量自动同步
+
+#### 组件调整
+- **BaseTable**：集成 `useLibConfig` 读取全局/局部配置，表格颜色从 Theme 统一配置自动派生
+- **StatusDot**：默认颜色引用 `libColorDefaults` 替代硬编码
+- **BaseColumnSetting**：硬编码颜色替换为 SCSS 变量（`$lib-*`）
+- **BaseSearch / BaseSearchDrawer**：硬编码颜色替换为全局变量
+- **BaseTableElement**：遮罩背景色引用 `$lib-mask-light`
+- **BaseTableSkiaWasm**：滚动条颜色引用全局变量
+
+### 配置模块
+
+#### 新增配置
+- **配置注入系统**：`createCompLib()` 工厂函数，支持全局主题 + 表格布局配置，通过 `provide/inject` + CSS 变量双通道注入
+- **localStorage 持久化**：`createCompLib(config, { enabled: true })` 开启配置自动持久化，提供 `resetConfig()` 方法重置
+- **useLibConfig**：组件内消费配置的 composable，支持组件级 props 覆盖
+
+#### 配置调整
+- **SCSS 变量**：`src/styles/variables.scss` 重构为 CSS 变量消费模式（`var(--comp-*, fallback)`），支持运行时动态覆盖
+- **Demo 站样式继承**：`examples/demos/variables.scss` 通过 `@use` 继承组件库变量
+- **构建输出**：Demo 站构建产物从 `examples/dist` 移至根目录 `dist-playground`
+- **侧边栏菜单**：新增「配置系统」分组，采用方案 C 样式（名称 + tag）
+
+### 工程化
+
+- **命名规范**：`.cursor/rules` 新增文件命名语义化规则
+- **文件重命名**：`blank.yml` → `deploy-pages.yml`；`tokens.ts` → `colorDefaults.ts`
+- **Token → Config 统一**：所有对外接口中 `token` 命名替换为 `config`（`LibThemeConfig` / `LibTableConfig` / `tableSurfaceConfig` 等）
+- **业务型配置移除**：`LibTableConfig` 仅保留 8 项布局字段，颜色自动从 `theme` 派生
+
 ## v0.6.0（2026-05-21）
 
 ### 组件模块

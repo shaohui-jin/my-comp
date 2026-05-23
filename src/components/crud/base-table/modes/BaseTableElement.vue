@@ -127,6 +127,8 @@ function columnFormatter(col: BaseTableColumn) {
 </template>
 
 <style scoped lang="scss">
+@use "../../../../styles/variables" as *;
+
 .crud-base-table__element {
   position: relative;
   height: 100%;
@@ -141,7 +143,7 @@ function columnFormatter(col: BaseTableColumn) {
   position: absolute;
   inset: 0;
   z-index: 2;
-  background: rgb(255 255 255 / 55%);
+  background: $lib-mask-light;
   pointer-events: none;
 }
 

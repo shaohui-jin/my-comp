@@ -15,9 +15,16 @@ alwaysApply: true
 - 组件文件名：PascalCase（如 `ChangelogPanel.vue`）
 - 组合式函数文件名：camelCase，`use` 前缀（如 `useCanvasCheckboxHover.ts`）
 - 工具函数文件名：camelCase（如 `canvasDraw.ts`）
-- SCSS 变量统一定义在 `examples/demos/variables.scss`，组件通过 `@use "./variables" as *` 引入
-- 主题 token 统一定义在 `src/components/crud/base-table/theme/tableSurfaceTokens`
+- SCSS 变量统一定义在 `src/styles/variables.scss`（组件库公共变量源头），Demo 页通过 `@use` 继承
+- 主题 token 统一定义在 `src/components/crud/base-table/theme/tableSurface.ts`
 - 不要自行添加 npm 依赖，除非明确要求
+
+## 文件命名
+
+- 新增或修改文件时，文件名必须语义化，能准确反映文件内容或职责
+- 禁止使用泛化/无意义命名，如 `blank`、`temp`、`test1`、`utils` 单独作为文件名
+- 类型定义文件：若为某组件/模块专用，可用 `types.ts`；若跨模块共享，需加前缀说明（如 `apiDocTypes.ts`）
+- 常量文件：以内容类别命名（如 `colorDefaults.ts`），不用 `constants`、`tokens` 等泛化词
 
 ## 三端适配
 

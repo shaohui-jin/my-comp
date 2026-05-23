@@ -10,7 +10,7 @@ function copySkiaAssets(): import("vite").Plugin {
     name: "copy-skia-assets",
     closeBundle() {
       const root = fileURLToPath(new URL(".", import.meta.url));
-      const destDir = resolve(root, "examples/dist/assets");
+      const destDir = resolve(root, "dist-playground/assets");
       mkdirSync(destDir, { recursive: true });
       copyFileSync(
         resolve(root, "node_modules/canvaskit-wasm/bin/canvaskit.wasm"),
@@ -35,6 +35,10 @@ function copySkiaAssets(): import("vite").Plugin {
 export default defineConfig({
   root: "examples",
   base: '/my-comp',
+  build: {
+    outDir: "../dist-playground",
+    emptyOutDir: true,
+  },
   plugins: [vue(), copySkiaAssets()],
   resolve: {
     alias: {

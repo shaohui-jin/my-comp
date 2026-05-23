@@ -2,7 +2,7 @@
 import { computed, onActivated, onDeactivated, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { ElTooltip } from "element-plus";
 import type { BaseTableColumn } from "../types";
-import { tableSurfaceTokens, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
+import { tableSurfaceConfig, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
 import { layoutColumnWidths, trySwitchToggle, visibleColumns } from "../utils/column";
 import { drawTable2D } from "../utils/canvasDraw";
 import { hitTestTable } from "../utils/tableHitTest";
@@ -13,7 +13,7 @@ import { useCanvasScrollbar } from "../utils/useCanvasScrollbar";
 import { useCanvasCheckboxHover } from "../utils/useCanvasCheckboxHover";
 import TableSlotPopup from "./TableSlotPopup.vue";
 
-const t = tableSurfaceTokens;
+const t = tableSurfaceConfig;
 
 defineOptions({ name: "BaseTableCanvasTile" });
 

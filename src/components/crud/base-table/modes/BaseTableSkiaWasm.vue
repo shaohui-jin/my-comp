@@ -3,7 +3,7 @@ import { onActivated, onDeactivated, onMounted, onUnmounted, ref, toRef, watch }
 import { ElTooltip } from "element-plus";
 import type { Canvas, CanvasKit, Font, Paint, Surface, Typeface } from "canvaskit-wasm";
 import type { BaseTableColumn } from "../types";
-import { cssRgbOrRgbaToRgb, hexToRgb, tableLayoutDefaults, tableSurfaceTokens, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
+import { cssRgbOrRgbaToRgb, hexToRgb, tableLayoutDefaults, tableSurfaceConfig, TABLE_TOOLTIP_POPPER_CLASS } from "../theme/tableSurface";
 import { canvaskitLocateFile } from "../utils/canvaskitLocate";
 import { formatCell, headerText, layoutColumnWidths, statusCustomLampColor, trySwitchToggle, visibleColumns } from "../utils/column";
 import { keyString, rowKeyValue } from "../utils/selectionKeys";
@@ -18,7 +18,7 @@ import TableSlotPopup from "./TableSlotPopup.vue";
 
 defineOptions({ name: "BaseTableSkiaWasm" });
 
-const t = tableSurfaceTokens;
+const t = tableSurfaceConfig;
 
 const props = withDefaults(
   defineProps<{
@@ -810,6 +810,8 @@ watch(selection.selectedKeys, () => schedulePaint());
 </template>
 
 <style scoped lang="scss">
+@use "../../../../styles/variables" as *;
+
 .crud-base-table__skia {
   position: relative;
   height: 100%;
@@ -864,7 +866,7 @@ watch(selection.selectedKeys, () => schedulePaint());
 .canvas-scrollbar__thumb {
   position: absolute;
   border-radius: inherit;
-  background-color: #909399;
+  background-color: $lib-text-secondary;
   opacity: 0.3;
   cursor: pointer;
   transition: opacity 0.3s;

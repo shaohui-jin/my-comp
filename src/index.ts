@@ -11,6 +11,8 @@ import {
   StatusTag,
   TextLink,
 } from "./components";
+import { createCompLib } from "./config/configInjection";
+import ConfigProvider from "./config/ConfigProvider.vue";
 
 export {
   BaseTable,
@@ -24,6 +26,13 @@ export {
   StatusTag,
   TextLink,
 };
+
+// 配置系统
+export { createCompLib, ConfigProvider };
+export { useLibConfig } from "./config/useLibConfig";
+export { defaultLibConfig } from "./config/configDefaults";
+export type { LibConfig, LibThemeConfig, LibTableConfig, ResolvedLibConfig } from "./config/configTypes";
+export type { PersistOptions } from "./config/configInjection";
 
 export type { HelloButtonProps } from "./components/hello-button/types";
 export type { EmptyPlaceholderProps } from "./components/empty-placeholder/types";
@@ -54,7 +63,8 @@ export type {
   BaseColumnSettingProps,
   BaseColumnSettingEmits,
 } from "./components/crud/base-column-setting/types";
-export { tableLayoutDefaults } from "./components/crud/base-table/theme/tableSurface";
+/** @deprecated 使用 createCompLib 配置代替 */
+export { tableLayoutDefaults, tableSurfaceConfig } from "./components/crud/base-table/theme/tableSurface";
 export { columnDefaults, normalizeColumns } from "./components/crud/base-table/utils/column";
 
 const components = [
@@ -70,8 +80,14 @@ const components = [
   BaseColumnSetting,
 ];
 
+/**
+ * 默认插件（向后兼容），不带自定义配置。
+ * 推荐使用 createCompLib() 替代。
+ */
 export default {
   install(app: App) {
+    const lib = createCompLib();
+    lib.install(app);
     components.forEach((c) => {
       app.component(c.name ?? "AnonymousComponent", c);
     });

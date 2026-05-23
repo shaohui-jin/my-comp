@@ -150,7 +150,7 @@ defineExpose({ open });
                 <svg viewBox="0 0 12 20" width="12" height="20" fill="none">
                   <path
                     d="M5 3V5H3V3H5ZM9 3V5H7V3H9ZM5 7V9H3V7H5ZM9 7V9H7V7H9ZM5 11V13H3V11H5ZM9 11V13H7V11H9ZM5 15V17H3V15H5ZM9 15V17H7V15H9Z"
-                    fill="rgb(91,91,94)"
+                    fill="currentColor"
                     fill-rule="evenodd"
                   />
                 </svg>
@@ -199,6 +199,8 @@ defineExpose({ open });
 </style>
 
 <style lang="scss" scoped>
+@use "../../../styles/variables" as *;
+
 .crud-base-column-setting__body {
   overflow-x: auto;
   overflow-y: auto;
@@ -216,20 +218,20 @@ defineExpose({ open });
     height: 40px;
     padding: 0 8px;
     text-align: left;
-    border-bottom: 1px solid #ebeef5;
+    border-bottom: 1px solid $lib-border-color;
   }
 
   thead th {
     font-weight: 600;
-    color: #606266;
-    background: #f5f7fa;
+    color: $lib-text-regular;
+    background: $lib-bg-page;
   }
 
   tbody tr {
     transition: background-color 0.15s;
 
     &:hover {
-      background: #f5f7fa;
+      background: $lib-bg-page;
     }
 
     &.is-dragging {
@@ -237,7 +239,7 @@ defineExpose({ open });
     }
 
     &.is-drop-target {
-      border-top: 2px solid #409eff;
+      border-top: 2px solid $lib-color-primary;
     }
   }
 }
@@ -261,6 +263,7 @@ defineExpose({ open });
 
 .crud-base-column-setting__drag-handle {
   cursor: move;
+  color: $lib-neutral-icon;
 }
 
 .crud-base-column-setting__footer {

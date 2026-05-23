@@ -14,14 +14,14 @@
 
   :deep(.el-sub-menu .el-menu-item) {
     height: 36px;
-    line-height: 36px;
     font-size: $doc-fs-sm;
     padding-left: 48px !important;
+    padding-right: 12px;
     color: $doc-text-regular;
-    display: block;
+    display: flex;
+    align-items: center;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1;
   }
 
   :deep(.el-sub-menu__title) {

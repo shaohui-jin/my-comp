@@ -1,5 +1,5 @@
 import { omit } from "lodash-es";
-import { tableLayoutDefaults } from "../theme/tableSurface";
+import { tableLayoutDefaults, tableSurfaceConfig } from "../theme/tableSurface";
 import type { BaseTableColumn } from "../types";
 
 /**
@@ -78,7 +78,7 @@ export function headerText(col: BaseTableColumn): string {
 }
 
 /** 无匹配或未配置 colorMap 时的圆点底色（与历史 status-custom 样式一致） */
-export const statusCustomLampDefaultColor = "rgba(203, 206, 212, 1)";
+export const statusCustomLampDefaultColor = tableSurfaceConfig.neutralLamp;
 
 /** `status-custom` 列：根据 `row[col.key]` 在 colorMap 中取灯色 */
 export function statusCustomLampColor(col: BaseTableColumn, row: Record<string, unknown>): string {

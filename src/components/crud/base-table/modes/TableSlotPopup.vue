@@ -4,6 +4,7 @@ import { ElButton, ElInput, ElPopover } from "element-plus";
 import { Search } from "@element-plus/icons-vue";
 import type { BaseTableColumn } from "../types";
 import { tableSurfaceCssVars } from "../theme/tableSurface";
+import { useLibConfig } from "../../../../config/useLibConfig";
 import BaseTableElement from "./BaseTableElement.vue";
 
 defineOptions({ name: "TableSlotPopup" });
@@ -21,9 +22,10 @@ const emit = defineEmits<{
   "update:visible": [val: boolean];
 }>();
 
+const config = useLibConfig();
 const isVirtual = computed(() => !!props.triggerRef);
 const filterKeyword = ref("");
-const cssVars = tableSurfaceCssVars();
+const cssVars = computed(() => tableSurfaceCssVars(config.value));
 
 watch(
   () => props.visible,

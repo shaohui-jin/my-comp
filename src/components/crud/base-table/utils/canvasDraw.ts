@@ -4,7 +4,8 @@ import {
   canvasEmptyFont,
   canvasHeaderFont,
   tableLayoutDefaults,
-  tableSurfaceTokens,
+  tableSurfaceConfig,
+  type TableSurfaceConfig,
 } from "../theme/tableSurface";
 import { keyString, rowKeyValue } from "./selectionKeys";
 import { formatCell, headerText, statusCustomLampColor, visibleColumns } from "./column";
@@ -31,9 +32,11 @@ export interface DrawTable2DOptions {
   hoverSelCol?: number;
   /** Hover 状态的行索引，-2=无, -1=header, >=0=body 行 */
   hoverSelRow?: number;
+  /** 可选的 surface 配置，用于动态主题 */
+  surfaceConfig?: TableSurfaceConfig;
 }
 
-const t = tableSurfaceTokens;
+const t = tableSurfaceConfig;
 const CB = 14;
 
 function drawCheckbox2D(
@@ -190,6 +193,8 @@ export function drawTable2D(o: DrawTable2DOptions): void {
     rowKey,
     selectedKeys,
   } = o;
+
+  const t = o.surfaceConfig ?? tableSurfaceConfig;
 
   const vis = visibleColumns(columns);
   ctx.save();

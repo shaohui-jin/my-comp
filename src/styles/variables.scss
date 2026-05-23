@@ -1,0 +1,44 @@
+// ============================================================
+// 组件库公共设计令牌
+// 所有组件通过 @use 引入此文件，禁止硬编码颜色值
+// 运行时由 JS 注入 --comp-* CSS 变量覆盖，编译时使用 fallback 兜底
+// ============================================================
+
+// -- 文字色 --
+$lib-text-heading: var(--comp-text-heading, #1d2129);
+$lib-text-primary: var(--comp-text-primary, #303133);
+$lib-text-regular: var(--comp-text-regular, #606266);
+$lib-text-secondary: var(--comp-text-secondary, #909399);
+
+// -- 背景色 --
+$lib-bg-page: var(--comp-bg-page, #f5f7fa);
+$lib-bg-card: var(--comp-bg-card, #ffffff);
+$lib-bg-subtle: var(--comp-bg-subtle, #fafbfc);
+$lib-bg-muted: var(--comp-bg-muted, #f4f4f5);
+
+// -- 边框色 --
+$lib-border-color: var(--comp-border-color, #ebeef5);
+$lib-border-medium: var(--comp-border-medium, #dcdfe6);
+
+// -- 功能色 --
+$lib-color-primary: var(--comp-color-primary, #409eff);
+$lib-color-success: var(--comp-color-success, #67c23a);
+$lib-color-warning: var(--comp-color-warning, #e6a23c);
+
+// -- 中性色（图标、占位等） --
+$lib-neutral-icon: #5b5b5e;
+$lib-neutral-lamp: rgba(203, 206, 212, 1);
+
+// -- 遮罩 --
+$lib-mask-light: rgb(255 255 255 / 55%);
+
+// -- 字体族 --
+$lib-font-family: var(--comp-font-family, system-ui, -apple-system, "Segoe UI", sans-serif);
+
+// -- 字号 --
+$lib-font-size-base: var(--comp-font-size-base, 14px);
+$lib-font-size-sm: var(--comp-font-size-sm, 13px);
+
+// -- 圆角 --
+$lib-radius-sm: var(--comp-radius-sm, 3px);
+$lib-radius-md: var(--comp-radius-md, 6px);

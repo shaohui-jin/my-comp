@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { tableLayoutDefaults, tableSurfaceCssVars } from "./theme/tableSurface";
+import { useLibConfig } from "../../../config/useLibConfig";
+import type { LibConfig } from "../../../config/configTypes";
 import type { BaseTableProps, BaseTableEmits } from "./types";
 import BaseTableCanvas from "./modes/BaseTableCanvas.vue";
 import BaseTableCanvasTile from "./modes/BaseTableCanvasTile.vue";
@@ -10,7 +12,7 @@ import BaseTableVirtual from "./modes/BaseTableVirtual.vue";
 
 defineOptions({ name: "BaseTable" });
 
-const props = withDefaults(defineProps<BaseTableProps>(), {
+const props = withDefaults(defineProps<BaseTableProps & { theme?: LibConfig }>(), {
   height: "420px",
   rowKey: "id",
   loading: false,
@@ -19,15 +21,18 @@ const props = withDefaults(defineProps<BaseTableProps>(), {
   headerHeight: tableLayoutDefaults.headerHeight,
   maxPrerenderPixels: 12_000_000,
   skiaWasmBaseUrl: undefined,
+  theme: undefined,
 });
 
 const emit = defineEmits<BaseTableEmits>();
+
+const config = useLibConfig(() => props.theme);
 
 function onSelectionChange(rows: Record<string, unknown>[]) {
   emit("selectionChange", rows);
 }
 
-const surfaceStyle = computed(() => tableSurfaceCssVars(props.rowHeight, props.headerHeight));
+const surfaceStyle = computed(() => tableSurfaceCssVars(config.value, props.rowHeight, props.headerHeight));
 </script>
 
 <template>

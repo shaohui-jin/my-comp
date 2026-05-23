@@ -1,6 +1,6 @@
 import { onMounted, onUnmounted, reactive, ref, type Ref } from "vue";
 import type { BaseTableColumn } from "../types";
-import { tableSurfaceTokens } from "../theme/tableSurface";
+import { tableSurfaceConfig } from "../theme/tableSurface";
 
 /** 判断点击坐标是否落在 switch 图形区域内（40×20 居中绘制） */
 export function isClickOnSwitch(
@@ -41,7 +41,7 @@ export function isClickOnSlotText(
     cellLeft += colWidths[i];
   }
   const padding = 8;
-  const charWidth = tableSurfaceTokens.fontSizeCell;
+  const charWidth = tableSurfaceConfig.fontSizeCell;
   const textWidth = 2 * charWidth + 6;
   return docX >= cellLeft + padding - 2 && docX <= cellLeft + padding + textWidth;
 }

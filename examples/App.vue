@@ -6,6 +6,7 @@ import DemoBaseSearchDrawer from "./demos/DemoBaseSearchDrawer.vue";
 import DemoBaseColumnSetting from "./demos/DemoBaseColumnSetting.vue";
 import DemoStatusTag from "./demos/DemoStatusTag.vue";
 import DemoStatusDot from "./demos/DemoStatusDot.vue";
+import DemoConfigProvider from "./demos/DemoConfigProvider.vue";
 import ChangelogPanel from "./demos/ChangelogPanel.vue";
 
 const pageMap: Record<string, Component> = {
@@ -15,6 +16,7 @@ const pageMap: Record<string, Component> = {
   "base-column-setting": DemoBaseColumnSetting,
   "status-tag": DemoStatusTag,
   "status-dot": DemoStatusDot,
+  "config-provider": DemoConfigProvider,
 };
 
 const activeName = ref("tables");
@@ -47,7 +49,7 @@ function handleSelect(key: string) {
         :default-active="activeName"
         class="doc-nav"
         :class="{ 'doc-nav--open': navOpen }"
-        :default-openeds="['basic', 'crud']"
+        :default-openeds="['basic', 'crud', 'config']"
         @select="handleSelect"
       >
         <el-sub-menu index="crud">
@@ -55,18 +57,46 @@ function handleSelect(key: string) {
             <el-icon><i class="nav-icon nav-icon--crud" /></el-icon>
             <span>CRUD 组件</span>
           </template>
-          <el-menu-item index="tables">BaseTable 多模式表格</el-menu-item>
-          <el-menu-item index="base-search">BaseSearch 搜索栏</el-menu-item>
-          <el-menu-item index="base-search-drawer">BaseSearchDrawer 搜索抽屉</el-menu-item>
-          <el-menu-item index="base-column-setting">BaseColumnSetting 列设置</el-menu-item>
+          <el-menu-item index="tables">
+            <span class="nav-item__name">BaseTable</span>
+            <span class="nav-item__tag">表格</span>
+          </el-menu-item>
+          <el-menu-item index="base-search">
+            <span class="nav-item__name">BaseSearch</span>
+            <span class="nav-item__tag">搜索</span>
+          </el-menu-item>
+          <el-menu-item index="base-search-drawer">
+            <span class="nav-item__name">BaseSearchDrawer</span>
+            <span class="nav-item__tag">抽屉</span>
+          </el-menu-item>
+          <el-menu-item index="base-column-setting">
+            <span class="nav-item__name">BaseColumnSetting</span>
+            <span class="nav-item__tag">列设置</span>
+          </el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="basic">
           <template #title>
             <el-icon><i class="nav-icon nav-icon--widget" /></el-icon>
             <span>基础组件</span>
           </template>
-          <el-menu-item index="status-tag">StatusTag</el-menu-item>
-          <el-menu-item index="status-dot">StatusDot</el-menu-item>
+          <el-menu-item index="status-tag">
+            <span class="nav-item__name">StatusTag</span>
+            <span class="nav-item__tag">标签</span>
+          </el-menu-item>
+          <el-menu-item index="status-dot">
+            <span class="nav-item__name">StatusDot</span>
+            <span class="nav-item__tag">圆点</span>
+          </el-menu-item>
+        </el-sub-menu>
+        <el-sub-menu index="config">
+          <template #title>
+            <el-icon><i class="nav-icon nav-icon--config" /></el-icon>
+            <span>配置系统</span>
+          </template>
+          <el-menu-item index="config-provider">
+            <span class="nav-item__name">ConfigProvider</span>
+            <span class="nav-item__tag">主题</span>
+          </el-menu-item>
         </el-sub-menu>
       </el-menu>
 
@@ -189,7 +219,7 @@ function handleSelect(key: string) {
 }
 
 .doc-nav {
-  width: 220px;
+  width: 240px;
   flex-shrink: 0;
   border-right: 1px solid $doc-border-color;
   background: $doc-bg-card;
@@ -213,6 +243,27 @@ function handleSelect(key: string) {
 
   &--crud { background: $doc-color-warning; }
   &--widget { background: $doc-color-success; }
+  &--config { background: $doc-color-primary; }
+}
+
+.nav-item__name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: $doc-font-mono;
+  font-size: $doc-fs-sm;
+}
+
+.nav-item__tag {
+  flex-shrink: 0;
+  margin-left: $doc-sp-xs;
+  font-size: 11px;
+  line-height: 1;
+  color: $doc-text-secondary;
+  background: $doc-bg-muted;
+  padding: 3px 6px;
+  border-radius: $doc-radius-sm;
 }
 
 .doc-content {

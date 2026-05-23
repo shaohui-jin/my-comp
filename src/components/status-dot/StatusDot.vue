@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { libColorDefaults } from "../../styles/colorDefaults";
 import type { StatusDotProps } from "./types";
 
 defineOptions({ name: "StatusDot" });
 
 withDefaults(defineProps<StatusDotProps>(), {
-  color: "rgba(203, 206, 212, 1)",
+  color: libColorDefaults.neutralLamp,
   text: "",
 });
 </script>

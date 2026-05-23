@@ -1,33 +1,36 @@
 // ============================================================
-// 演示站点设计令牌 — 修改此文件即可统一调整全站风格
+// 演示站点设计令牌
+// 颜色继承自组件库公共变量（src/styles/variables.scss）
+// 此文件仅补充 Demo 页面特有的布局、字体、间距等变量
 // ============================================================
+@use "../../src/styles/variables" as lib;
 
-// -- 文字色 --
-$doc-text-heading: #1d2129;
-$doc-text-primary: #303133;
-$doc-text-regular: #606266;
-$doc-text-secondary: #909399;
+// -- 文字色（继承组件库） --
+$doc-text-heading: lib.$lib-text-heading;
+$doc-text-primary: lib.$lib-text-primary;
+$doc-text-regular: lib.$lib-text-regular;
+$doc-text-secondary: lib.$lib-text-secondary;
 
-// -- 背景色 --
-$doc-bg-page: #f5f7fa;
-$doc-bg-card: #fff;
-$doc-bg-subtle: #fafbfc;
-$doc-bg-muted: #f4f4f5;
+// -- 背景色（继承组件库） --
+$doc-bg-page: lib.$lib-bg-page;
+$doc-bg-card: lib.$lib-bg-card;
+$doc-bg-subtle: lib.$lib-bg-subtle;
+$doc-bg-muted: lib.$lib-bg-muted;
 $doc-bg-hover: #f9fafc;
 
-// -- 边框色 --
-$doc-border-color: #ebeef5;
+// -- 边框色（继承组件库） --
+$doc-border-color: lib.$lib-border-color;
 $doc-border-light: #f0f2f5;
 
-// -- 功能色 --
-$doc-color-primary: #409eff;
-$doc-color-success: #67c23a;
-$doc-color-warning: #e6a23c;
+// -- 功能色（继承组件库） --
+$doc-color-primary: lib.$lib-color-primary;
+$doc-color-success: lib.$lib-color-success;
+$doc-color-warning: lib.$lib-color-warning;
 $doc-color-type: #8250df;
 $doc-bg-type: #f3f0ff;
 
-// -- 字体族 --
-$doc-font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+// -- 字体族（继承组件库） --
+$doc-font-family: lib.$lib-font-family;
 $doc-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 
 // -- 字号 --
