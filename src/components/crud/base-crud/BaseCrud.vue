@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useSlots } from "vue";
+import { computed, ref } from "vue";
 import { ElButton } from "element-plus";
 import BaseSearch from "../base-search/BaseSearch.vue";
 import BaseSearchDrawer from "../base-search-drawer/BaseSearchDrawer.vue";
@@ -22,7 +22,6 @@ const props = withDefaults(defineProps<BaseCrudProps>(), {
 });
 
 const emit = defineEmits<BaseCrudEmits>();
-const slots = useSlots();
 
 const columnSettingRef = ref<InstanceType<typeof BaseColumnSetting>>();
 const searchDrawerRef = ref<InstanceType<typeof BaseSearchDrawer>>();
@@ -40,8 +39,6 @@ const columnsModel = computed({
 const tableColumns = computed(() =>
   withEditColumn(columnsModel.value, props.showColumnSetting && props.mode === "element"),
 );
-
-const showToolbar = computed(() => props.drawerParams.length > 0 || Boolean(slots.toolbar));
 
 function handleSearch(formData: Record<string, unknown>) {
   emit("search", formData);
@@ -94,7 +91,7 @@ defineExpose({
         @selection-change="emit('selectionChange', $event)"
         @edit-column="openColumnSetting"
       >
-        <template v-if="showToolbar" #toolbar>
+        <template v-if="drawerParams.length > 0 || $slots.toolbar" #toolbar>
           <div class="crud-base-crud__toolbar">
             <ElButton v-if="drawerParams.length > 0" @click="openSearchDrawer">高级筛选</ElButton>
             <slot name="toolbar" />

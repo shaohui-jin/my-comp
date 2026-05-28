@@ -31,17 +31,34 @@ const activeName = ref(FIRST_LEAF_KEY);
 const activePage = computed(() => pageMap[activeName.value] ?? DemoBaseTable);
 
 const navOpen = ref(false);
+const compListOpen = ref(false);
 
 function handleSelect(key: string) {
   activeName.value = key;
   navOpen.value = false;
+  compListOpen.value = false;
 }
 
 function switchTopTab(tab: TopTab) {
   topTab.value = tab;
   navOpen.value = false;
+  compListOpen.value = false;
   if (tab === "docs") {
     activeName.value = FIRST_LEAF_KEY;
+  }
+}
+
+function handleBottomTab(tab: TopTab) {
+  if (tab === "docs") {
+    if (topTab.value === "docs") {
+      compListOpen.value = !compListOpen.value;
+    } else {
+      topTab.value = "docs";
+      compListOpen.value = true;
+    }
+  } else {
+    topTab.value = tab;
+    compListOpen.value = false;
   }
 }
 
@@ -158,6 +175,97 @@ watch(topTab, () => {
         </div>
       </template>
     </main>
+
+    <!-- 底部 Tab 栏（平板/移动端） -->
+    <nav class="doc-bottom-bar">
+      <button
+        :class="['doc-bottom-tab', { active: topTab === 'docs' }]"
+        @click="handleBottomTab('docs')"
+      >
+        <svg class="doc-bottom-tab__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
+        <span>组件</span>
+      </button>
+      <button
+        :class="['doc-bottom-tab', { active: topTab === 'config' }]"
+        @click="handleBottomTab('config')"
+      >
+        <svg class="doc-bottom-tab__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+        <span>配置</span>
+      </button>
+      <button
+        :class="['doc-bottom-tab', { active: topTab === 'changelog' }]"
+        @click="handleBottomTab('changelog')"
+      >
+        <svg class="doc-bottom-tab__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <polyline points="10 9 9 9 8 9" />
+        </svg>
+        <span>变更</span>
+      </button>
+    </nav>
+
+    <!-- 组件列表面板（平板端：侧边浮层 / 移动端：底部弹出） -->
+    <Transition name="doc-complist">
+      <div
+        v-if="compListOpen && topTab === 'docs'"
+        class="doc-complist"
+      >
+        <div class="doc-complist__header">
+          <span>选择组件</span>
+          <button class="doc-complist__close" @click="compListOpen = false">✕</button>
+        </div>
+        <div class="doc-complist__body">
+          <div class="doc-complist__group-title">CRUD 组件</div>
+          <button
+            v-for="item in [
+              { key: 'tables', name: 'BaseTable', tag: '表格' },
+              { key: 'base-search', name: 'BaseSearch', tag: '搜索' },
+              { key: 'base-search-field', name: 'BaseSearchField', tag: '字段' },
+              { key: 'base-search-drawer', name: 'BaseSearchDrawer', tag: '抽屉' },
+              { key: 'base-column-setting', name: 'BaseColumnSetting', tag: '列设置' },
+              { key: 'base-crud', name: 'BaseCrud', tag: '联动' },
+            ]"
+            :key="item.key"
+            :class="['doc-complist__item', { active: activeName === item.key }]"
+            @click="handleSelect(item.key)"
+          >
+            <span class="doc-complist__name">{{ item.name }}</span>
+            <span class="doc-complist__tag">{{ item.tag }}</span>
+          </button>
+          <div class="doc-complist__group-title">基础组件</div>
+          <button
+            v-for="item in [
+              { key: 'status-tag', name: 'StatusTag', tag: '标签' },
+              { key: 'status-dot', name: 'StatusDot', tag: '圆点' },
+            ]"
+            :key="item.key"
+            :class="['doc-complist__item', { active: activeName === item.key }]"
+            @click="handleSelect(item.key)"
+          >
+            <span class="doc-complist__name">{{ item.name }}</span>
+            <span class="doc-complist__tag">{{ item.tag }}</span>
+          </button>
+        </div>
+      </div>
+    </Transition>
+    <Transition name="doc-complist-backdrop">
+      <div
+        v-if="compListOpen && topTab === 'docs'"
+        class="doc-complist-backdrop"
+        @click="compListOpen = false"
+      />
+    </Transition>
   </div>
 </template>
 
@@ -401,6 +509,128 @@ watch(topTab, () => {
 }
 
 // ============================================================
+// 底部 Tab 栏（平板/移动端专用，PC 端隐藏）
+// ============================================================
+$bottom-bar-height: 52px;
+
+.doc-bottom-bar {
+  display: none;
+}
+
+.doc-bottom-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 0 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: $doc-text-secondary;
+  font-size: 11px;
+  font-weight: 500;
+  transition: color 0.15s;
+
+  &.active {
+    color: $doc-color-primary;
+  }
+}
+
+.doc-bottom-tab__icon {
+  width: 20px;
+  height: 20px;
+}
+
+// ============================================================
+// 组件列表面板（平板/移动端专用）
+// ============================================================
+.doc-complist {
+  display: none;
+}
+
+.doc-complist-backdrop {
+  display: none;
+}
+
+.doc-complist__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 10px;
+  font-size: $doc-fs-base;
+  font-weight: 600;
+  color: $doc-text-heading;
+  border-bottom: 1px solid $doc-border-color;
+}
+
+.doc-complist__close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: $doc-bg-muted;
+  border-radius: 50%;
+  font-size: 13px;
+  cursor: pointer;
+  color: $doc-text-regular;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doc-complist__body {
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.doc-complist__group-title {
+  padding: 12px 16px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: $doc-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.doc-complist__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: $doc-fs-sm;
+  color: $doc-text-primary;
+  min-height: 44px;
+  transition: background 0.1s;
+
+  &:active {
+    background: $doc-bg-subtle;
+  }
+
+  &.active {
+    color: $doc-color-primary;
+    font-weight: 600;
+    background: color-mix(in srgb, $doc-color-primary 6%, transparent);
+  }
+}
+
+.doc-complist__name {
+  font-family: $doc-font-mono;
+}
+
+.doc-complist__tag {
+  font-size: 11px;
+  color: $doc-text-secondary;
+  background: $doc-bg-muted;
+  padding: 2px 6px;
+  border-radius: $doc-radius-sm;
+}
+
+// ============================================================
 // 平板端 (768px ~ 1024px)
 // ============================================================
 @media (max-width: $doc-bp-tablet) {
@@ -412,20 +642,73 @@ watch(topTab, () => {
     margin-right: $doc-sp-lg;
   }
 
-  .doc-header__tab {
-    padding: 0 12px;
+  .doc-header__tabs {
+    display: none;
   }
 
   .doc-nav {
-    width: 200px;
+    display: none !important;
   }
 
   .doc-content {
-    padding: 24px 24px 40px;
+    padding: 24px 24px 16px;
   }
 
   .doc-panel {
     padding: $doc-sp-xl $doc-sp-2xl;
+  }
+
+  .doc-bottom-bar {
+    display: flex;
+    flex-shrink: 0;
+    background: $doc-bg-card;
+    border-top: 1px solid $doc-border-color;
+    z-index: 100;
+  }
+
+  .doc-complist {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    bottom: $bottom-bar-height;
+    width: 260px;
+    background: $doc-bg-card;
+    border-right: 1px solid $doc-border-color;
+    box-shadow: 2px 0 12px rgb(0 0 0 / 8%);
+    z-index: 101;
+  }
+
+  .doc-complist-backdrop {
+    display: block;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    bottom: $bottom-bar-height;
+    background: rgb(0 0 0 / 20%);
+    z-index: 100;
+  }
+
+  .doc-complist-enter-active,
+  .doc-complist-leave-active {
+    transition: transform 0.3s ease;
+  }
+
+  .doc-complist-enter-from,
+  .doc-complist-leave-to {
+    transform: translateX(-100%);
+  }
+
+  .doc-complist-backdrop-enter-active,
+  .doc-complist-backdrop-leave-active {
+    transition: opacity 0.3s;
+  }
+
+  .doc-complist-backdrop-enter-from,
+  .doc-complist-backdrop-leave-to {
+    opacity: 0;
   }
 }
 
@@ -434,18 +717,15 @@ watch(topTab, () => {
 // ============================================================
 @media (max-width: $doc-bp-mobile) {
   .doc-header {
-    height: auto;
-    min-height: 48px;
+    height: 48px;
   }
 
   .doc-header__inner {
-    flex-wrap: wrap;
     padding: 0 $doc-sp-lg;
-    height: auto;
   }
 
   .doc-header__menu-btn {
-    display: flex;
+    display: none;
   }
 
   .doc-header__title {
@@ -454,59 +734,80 @@ watch(topTab, () => {
   }
 
   .doc-header__tabs {
-    width: 100%;
-    height: 40px;
-    border-top: 1px solid $doc-border-color;
-    gap: 0;
-  }
-
-  .doc-header__tab {
-    flex: 1;
-    height: 100%;
-    padding: 0 8px;
-    font-size: $doc-fs-xs;
-    text-align: center;
-  }
-
-  .doc-nav-backdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 98;
-    background: rgb(0 0 0 / 30%);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-
-    &.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    display: none;
   }
 
   .doc-nav {
-    position: fixed;
-    top: 88px;
-    left: 0;
-    bottom: 0;
-    z-index: 99;
-    width: 260px;
-    transform: translateX(-100%);
-    box-shadow: $doc-shadow-lg;
-    overflow-y: auto;
+    display: none !important;
+  }
 
-    &--open {
-      transform: translateX(0);
-    }
+  .doc-nav-backdrop {
+    display: none;
   }
 
   .doc-content {
-    padding: 20px $doc-sp-lg 32px;
+    padding: 16px $doc-sp-lg 16px;
   }
 
   .doc-panel {
     padding: $doc-sp-lg;
     border-radius: $doc-radius-md;
+  }
+
+  .doc-bottom-bar {
+    display: flex;
+    flex-shrink: 0;
+    background: $doc-bg-card;
+    border-top: 1px solid $doc-border-color;
+    z-index: 100;
+  }
+
+  .doc-complist {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: $bottom-bar-height;
+    width: auto;
+    max-height: 55vh;
+    background: $doc-bg-card;
+    border-radius: 16px 16px 0 0;
+    border-right: none;
+    box-shadow: 0 -4px 20px rgb(0 0 0 / 10%);
+    z-index: 101;
+  }
+
+  .doc-complist-backdrop {
+    display: block;
+    position: fixed;
+    top: 48px;
+    left: 0;
+    right: 0;
+    bottom: $bottom-bar-height;
+    background: rgb(0 0 0 / 20%);
+    z-index: 100;
+  }
+
+  .doc-complist-enter-active,
+  .doc-complist-leave-active {
+    transition: transform 0.3s ease;
+  }
+
+  .doc-complist-enter-from,
+  .doc-complist-leave-to {
+    transform: translateY(100%);
+  }
+
+  .doc-complist-backdrop-enter-active,
+  .doc-complist-backdrop-leave-active {
+    transition: opacity 0.3s;
+  }
+
+  .doc-complist-backdrop-enter-from,
+  .doc-complist-backdrop-leave-to {
+    opacity: 0;
   }
 }
 </style>

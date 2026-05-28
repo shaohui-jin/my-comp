@@ -46,7 +46,7 @@ export type {
   BaseTableEmits,
 } from "./components/crud/base-table/types";
 export type {
-  BaseSearchField,
+  BaseSearchField as SearchFieldConfig,
   BaseSearchFieldType,
   BaseSearchFieldOption,
   BaseSearchProps,

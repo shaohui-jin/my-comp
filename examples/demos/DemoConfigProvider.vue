@@ -68,9 +68,9 @@ const presets = {
   },
   light: () =>
     applyPreset({
-      colorPrimary: "#409eff",
-      colorSuccess: "#67c23a",
-      colorWarning: "#e6a23c",
+      colorPrimary: "#3370ff",
+      colorSuccess: "#00b42a",
+      colorWarning: "#ff7d00",
       textHeading: "#1d2129",
       textPrimary: "#303133",
       textRegular: "#606266",
@@ -83,8 +83,8 @@ const presets = {
       borderMedium: "#dcdfe6",
       fontSizeBase: 14,
       fontSizeSm: 13,
-      radiusSm: 3,
-      radiusMd: 6,
+      radiusSm: 4,
+      radiusMd: 8,
     }),
   purple: () =>
     applyPreset({

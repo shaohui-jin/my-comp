@@ -5,9 +5,9 @@ import type { ResolvedLibConfig } from "./configTypes";
  */
 export const defaultLibConfig: ResolvedLibConfig = {
   theme: {
-    colorPrimary: "#3370ff",
-    colorSuccess: "#00b42a",
-    colorWarning: "#ff7d00",
+    colorPrimary: "#409eff",
+    colorSuccess: "#67c23a",
+    colorWarning: "#e6a23c",
 
     textHeading: "#1d2129",
     textPrimary: "#303133",
@@ -16,7 +16,7 @@ export const defaultLibConfig: ResolvedLibConfig = {
 
     bgPage: "#f5f7fa",
     bgCard: "#ffffff",
-    bgSubtle: "#fafbfc",
+    bgSubtle: "#fafafa",
     bgMuted: "#f4f4f5",
 
     borderColor: "#ebeef5",
@@ -26,8 +26,8 @@ export const defaultLibConfig: ResolvedLibConfig = {
     fontSizeBase: 14,
     fontSizeSm: 13,
 
-    radiusSm: 4,
-    radiusMd: 8,
+    radiusSm: 3,
+    radiusMd: 6,
   },
 
   table: {

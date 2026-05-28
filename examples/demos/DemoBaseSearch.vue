@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import {
   BaseSearch,
-  type BaseSearchField,
+  type SearchFieldConfig,
   type BaseSearchProps,
   type BaseSearchEmits,
 } from "comp-vue-lib";
@@ -13,7 +13,7 @@ import { demoCodes } from "./demoCodes";
 
 // ==================== 演示数据 ====================
 
-const searchParams: BaseSearchField[] = [
+const searchParams: SearchFieldConfig[] = [
   {
     key: "searchKeyword",
     label: "关键词",

@@ -54,7 +54,7 @@ alwaysApply: true
 如果某个层级没有内容则不展示。示例：
 
 ```markdown
-## vX.Y.Z（YYYY-MM-DD）
+## vX.Y.Z（YYYY-MM-DD 或 YYYY-MM-DD ~ YYYY-MM-DD）
 
 ### 组件模块
 
@@ -79,6 +79,8 @@ alwaysApply: true
 版本规则：
 - 新功能 minor+1，纯修复 patch+1
 - 如果当天已有版本条目，合并到同一版本中
+- 连续多天的改动合并为同一版本，日期标注为范围格式：`vX.Y.Z（YYYY-MM-DD ~ YYYY-MM-DD）`
+- 新增或更新版本条目时，必须先执行 `git log` 查看提交记录，根据该版本首次和最后一次提交的时间确定日期范围，不得凭假设填写日期
 
 ## Git 提交规范
 

@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import {
   BaseSearchDrawer,
-  type BaseSearchField,
+  type SearchFieldConfig,
   type BaseSearchDrawerProps,
   type BaseSearchDrawerEmits,
 } from "comp-vue-lib";
@@ -13,7 +13,7 @@ import { demoCodes } from "./demoCodes";
 
 // ==================== 演示数据 ====================
 
-const drawerParams: BaseSearchField[] = [
+const drawerParams: SearchFieldConfig[] = [
   { key: "searchKeyword", label: "关键词", placeholder: "请输入" },
   { key: "serialNo", label: "编号", placeholder: "请输入" },
   {

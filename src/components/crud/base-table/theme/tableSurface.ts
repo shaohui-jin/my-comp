@@ -49,10 +49,10 @@ export function getTableSurface(config: ResolvedLibConfig = defaultLibConfig): T
   const { theme, table } = config;
   return {
     surfaceBg: theme.bgCard,
-    headerBg: theme.bgSubtle,
+    headerBg: theme.bgPage,
     borderColor: theme.borderColor,
     textPrimary: theme.textRegular,
-    textHeader: theme.textPrimary,
+    textHeader: theme.textSecondary,
     textEmpty: theme.textRegular,
     rowStripe: theme.bgSubtle,
     rowBase: theme.bgCard,

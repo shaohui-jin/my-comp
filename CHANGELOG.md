@@ -1,6 +1,6 @@
 # 版本变更记录
 
-## v0.8.0（2026-05-27）
+## v0.8.0（2026-05-27 ~ 2026-05-28）
 
 ### 组件模块
 
@@ -12,7 +12,7 @@
 
 - **BaseSearchField**：独立搜索字段组件，供 BaseSearch 系列复用
 - **BaseSearch**：容器查询响应式布局；空字符串字段自动移出 v-model
-- **BaseTable**：新增 editColumn 列类型，表头 Setting 图标打开列设置
+- **BaseTable**：新增 editColumn 列类型；表格 surface 配色对齐 Element Plus 原生表格
 - **BaseColumnSetting / BaseCrud**：列设置入口改为表格最右 editColumn 列
 - **ApiTable**：类型列颜色跟随主题主色；类型提示问号居中与尺寸统一
 
@@ -20,15 +20,18 @@
 
 #### 配置调整
 
-- **default 主题**：表格 surface 文字/背景/边框色与 light 预设对齐
+- **default 主题**：主色 / 功能色 / 圆角对齐 Element Plus 默认风格；表格表头背景、文字色派生自 bgPage / textSecondary
+- **light 预设**：使用原 default 的飞书蓝配色方案
 - **Element Plus 国际化**：默认中文语言包；ConfigProvider 包裹 ElConfigProvider
 - **主题注入**：saveConfig 同步 Element Plus `--el-*` CSS 变量
 
 ### 工程化
 
+- **演示站菜单适配**：平板 / 移动端改为底部 Tab 栏 + 组件列表浮层，替代侧边栏
 - **DemoWidgetTabs**：演示区预览/代码 Tab（border-card）、highlight.js 高亮、复制按钮
 - **Demo 规范**：特殊说明、最近事件 footer、代码 Tab 约定写入 Cursor 规则
 - **组件目录**：StatusTag / StatusDot 归入 basic；移除无 Demo 的历史组件
+- **类型导出**：字段配置接口重命名为 SearchFieldConfig，避免与组件同名冲突
 
 ## v0.7.0（2026-05-23）
 

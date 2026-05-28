@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { ElForm, ElFormItem } from "element-plus";
 import {
   BaseSearchField,
-  type BaseSearchField as SearchFieldConfig,
+  type SearchFieldConfig,
 } from "comp-vue-lib";
 import type { ApiRow, ComponentApi } from "./types";
 import ApiTable from "./ApiTable.vue";

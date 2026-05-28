@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import {
   BaseCrud,
-  type BaseSearchField,
+  type SearchFieldConfig,
   type BaseColumnSettingColumn,
 } from "comp-vue-lib";
 import type { ApiRow, ComponentApi } from "./types";
@@ -26,7 +26,7 @@ const searchModel = ref<Record<string, unknown>>({});
 const loading = ref(false);
 const lastEvent = ref("—");
 
-const searchParams: BaseSearchField[] = [
+const searchParams: SearchFieldConfig[] = [
   { key: "searchKeyword", label: "关键词", placeholder: "请输入", labelWidth: "80px", fixed: true },
   { key: "category", label: "分类", placeholder: "请输入", labelWidth: "70px", fixed: true },
   {
@@ -42,7 +42,7 @@ const searchParams: BaseSearchField[] = [
   },
 ];
 
-const drawerParams: BaseSearchField[] = [
+const drawerParams: SearchFieldConfig[] = [
   { key: "amountMin", label: "最小金额", placeholder: "请输入", labelWidth: "80px" },
   { key: "remark", label: "备注", placeholder: "请输入", labelWidth: "70px" },
 ];
@@ -229,12 +229,12 @@ const api: ComponentApi = {
 
   <div class="api-section">
     <h3 class="api-section__title">BaseCrud Events</h3>
-    <ApiTable type="events" :rows="api.events" />
+    <ApiTable type="events" :rows="api.events!" />
   </div>
 
   <div class="api-section">
     <h3 class="api-section__title">BaseCrud Slots</h3>
-    <ApiTable type="slots" :rows="api.slots" />
+    <ApiTable type="slots" :rows="api.slots!" />
   </div>
 
   <div v-if="api.notes?.length" class="api-section">

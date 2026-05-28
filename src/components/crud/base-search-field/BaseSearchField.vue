@@ -80,7 +80,7 @@ function handleEnter() {
 <template>
   <ElDatePicker
     v-if="DATE_TYPES.has(field.type ?? '')"
-    :model-value="modelValue"
+    :model-value="(modelValue as any)"
     :type="field.type as any"
     range-separator="至"
     :clearable="field.clearable !== false"
