@@ -16,6 +16,15 @@ import {
   CanvasTime,
   CodeBlock,
   WidgetTabs,
+  SplitPane,
+  DragSortList,
+  FloatingToolbar,
+  TreeTransfer,
+  StepWizard,
+  ContextMenu,
+  CountUp,
+  HeatmapCalendar,
+  LightboxGallery,
 } from "@/component";
 import { createCompLib } from "@/config/configInjection";
 import ConfigProvider from "@/config/ConfigProvider.vue";
@@ -37,6 +46,15 @@ export {
   CanvasTime,
   CodeBlock,
   WidgetTabs,
+  SplitPane,
+  DragSortList,
+  FloatingToolbar,
+  TreeTransfer,
+  StepWizard,
+  ContextMenu,
+  CountUp,
+  HeatmapCalendar,
+  LightboxGallery,
 };
 
 // 配置系统
@@ -60,6 +78,9 @@ export type {
   ImageCarouselProps,
   ImagePointerProps,
   TextEraseAreaProps,
+  ImageCarouselEmits,
+  ImagePointerEmits,
+  TextEraseAreaEmits,
   TextOverflowAreaProps,
   CanvasTimeProps,
   CodeBlockProps,
@@ -86,6 +107,22 @@ export type {
   BaseCrudProps,
   BaseCrudEmits,
 } from "@/type/crud";
+export type {
+  SplitPaneProps,
+  DragSortListProps,
+  DragSortItem,
+  FloatingToolbarProps,
+  TreeTransferProps,
+  TreeTransferNode,
+  StepWizardProps,
+  StepWizardStep,
+  ContextMenuProps,
+  ContextMenuItem,
+  CountUpProps,
+  HeatmapCalendarProps,
+  HeatmapCell,
+  LightboxGalleryProps,
+} from "@/type/interaction";
 /** @deprecated 使用 createCompLib 配置代替 */
 export {
   tableLayoutDefaults,
@@ -104,6 +141,15 @@ const components = [
   CanvasTime,
   CodeBlock,
   WidgetTabs,
+  SplitPane,
+  DragSortList,
+  FloatingToolbar,
+  TreeTransfer,
+  StepWizard,
+  ContextMenu,
+  CountUp,
+  HeatmapCalendar,
+  LightboxGallery,
   BaseTable,
   BaseSearch,
   BaseSearchField,

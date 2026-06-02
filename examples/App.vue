@@ -17,6 +17,15 @@ const DemoTextOverflowArea = defineAsyncComponent(() => import("./demo/text-over
 const DemoCanvasTime = defineAsyncComponent(() => import("./demo/canvas-time/DemoCanvasTime.vue"));
 const DemoCodeBlock = defineAsyncComponent(() => import("./demo/code-block/DemoCodeBlock.vue"));
 const DemoWidgetTabs = defineAsyncComponent(() => import("./demo/widget-tabs/DemoWidgetTabs.vue"));
+const DemoSplitPane = defineAsyncComponent(() => import("./demo/split-pane/DemoSplitPane.vue"));
+const DemoDragSortList = defineAsyncComponent(() => import("./demo/drag-sort-list/DemoDragSortList.vue"));
+const DemoFloatingToolbar = defineAsyncComponent(() => import("./demo/floating-toolbar/DemoFloatingToolbar.vue"));
+const DemoTreeTransfer = defineAsyncComponent(() => import("./demo/tree-transfer/DemoTreeTransfer.vue"));
+const DemoStepWizard = defineAsyncComponent(() => import("./demo/step-wizard/DemoStepWizard.vue"));
+const DemoContextMenu = defineAsyncComponent(() => import("./demo/context-menu/DemoContextMenu.vue"));
+const DemoCountUp = defineAsyncComponent(() => import("./demo/count-up/DemoCountUp.vue"));
+const DemoHeatmapCalendar = defineAsyncComponent(() => import("./demo/heatmap-calendar/DemoHeatmapCalendar.vue"));
+const DemoLightboxGallery = defineAsyncComponent(() => import("./demo/lightbox-gallery/DemoLightboxGallery.vue"));
 const DemoUtils = defineAsyncComponent(() => import("./demo/utils/DemoUtils.vue"));
 const DemoConfigProvider = defineAsyncComponent(() => import("./demo/config-provider/DemoConfigProvider.vue"));
 const ChangelogPanel = defineAsyncComponent(() => import("./demo/changelog/ChangelogPanel.vue"));
@@ -40,6 +49,15 @@ const pageMap: Record<string, Component> = {
   "canvas-time": DemoCanvasTime,
   "code-block": DemoCodeBlock,
   "widget-tabs": DemoWidgetTabs,
+  "split-pane": DemoSplitPane,
+  "drag-sort-list": DemoDragSortList,
+  "floating-toolbar": DemoFloatingToolbar,
+  "tree-transfer": DemoTreeTransfer,
+  "step-wizard": DemoStepWizard,
+  "context-menu": DemoContextMenu,
+  "count-up": DemoCountUp,
+  "heatmap-calendar": DemoHeatmapCalendar,
+  "lightbox-gallery": DemoLightboxGallery,
 };
 
 const FIRST_LEAF_KEY = "tables";
@@ -140,7 +158,7 @@ watch(topTab, () => {
           :default-active="activeName"
           class="doc-nav"
           :class="{ 'doc-nav--open': navOpen }"
-          :default-openeds="['crud', 'basic', 'visual']"
+          :default-openeds="['crud', 'basic', 'visual', 'interaction']"
           @select="handleSelect"
         >
           <el-sub-menu index="crud">
@@ -223,6 +241,48 @@ watch(topTab, () => {
             <el-menu-item index="widget-tabs">
               <span class="nav-item__name">WidgetTabs</span>
               <span class="nav-item__tag">预览切换</span>
+            </el-menu-item>
+          </el-sub-menu>
+          <el-sub-menu index="interaction">
+            <template #title>
+              <el-icon><i class="nav-icon nav-icon--widget" /></el-icon>
+              <span>交互组件</span>
+            </template>
+            <el-menu-item index="split-pane">
+              <span class="nav-item__name">SplitPane</span>
+              <span class="nav-item__tag">分割</span>
+            </el-menu-item>
+            <el-menu-item index="drag-sort-list">
+              <span class="nav-item__name">DragSortList</span>
+              <span class="nav-item__tag">排序</span>
+            </el-menu-item>
+            <el-menu-item index="floating-toolbar">
+              <span class="nav-item__name">FloatingToolbar</span>
+              <span class="nav-item__tag">工具栏</span>
+            </el-menu-item>
+            <el-menu-item index="tree-transfer">
+              <span class="nav-item__name">TreeTransfer</span>
+              <span class="nav-item__tag">穿梭</span>
+            </el-menu-item>
+            <el-menu-item index="step-wizard">
+              <span class="nav-item__name">StepWizard</span>
+              <span class="nav-item__tag">向导</span>
+            </el-menu-item>
+            <el-menu-item index="context-menu">
+              <span class="nav-item__name">ContextMenu</span>
+              <span class="nav-item__tag">右键</span>
+            </el-menu-item>
+            <el-menu-item index="count-up">
+              <span class="nav-item__name">CountUp</span>
+              <span class="nav-item__tag">数字</span>
+            </el-menu-item>
+            <el-menu-item index="heatmap-calendar">
+              <span class="nav-item__name">HeatmapCalendar</span>
+              <span class="nav-item__tag">热力</span>
+            </el-menu-item>
+            <el-menu-item index="lightbox-gallery">
+              <span class="nav-item__name">LightboxGallery</span>
+              <span class="nav-item__tag">灯箱</span>
             </el-menu-item>
           </el-sub-menu>
         </el-menu>
@@ -375,7 +435,7 @@ watch(topTab, () => {
         </div>
       </template>
 
-      <template v-else>
+      <template v-else-if="topTab === 'changelog'">
         <div class="doc-content doc-content--full">
           <div class="doc-panel">
             <ChangelogPanel />
@@ -484,6 +544,26 @@ watch(topTab, () => {
               { key: 'canvas-time', name: 'CanvasTime', tag: '时钟' },
               { key: 'code-block', name: 'CodeBlock', tag: '代码块' },
               { key: 'widget-tabs', name: 'WidgetTabs', tag: '预览切换' },
+            ]"
+            :key="item.key"
+            :class="['doc-complist__item', { active: activeName === item.key }]"
+            @click="handleSelect(item.key)"
+          >
+            <span class="doc-complist__name">{{ item.name }}</span>
+            <span class="doc-complist__tag">{{ item.tag }}</span>
+          </button>
+          <div class="doc-complist__group-title">交互组件</div>
+          <button
+            v-for="item in [
+              { key: 'split-pane', name: 'SplitPane', tag: '分割' },
+              { key: 'drag-sort-list', name: 'DragSortList', tag: '排序' },
+              { key: 'floating-toolbar', name: 'FloatingToolbar', tag: '工具栏' },
+              { key: 'tree-transfer', name: 'TreeTransfer', tag: '穿梭' },
+              { key: 'step-wizard', name: 'StepWizard', tag: '向导' },
+              { key: 'context-menu', name: 'ContextMenu', tag: '右键' },
+              { key: 'count-up', name: 'CountUp', tag: '数字' },
+              { key: 'heatmap-calendar', name: 'HeatmapCalendar', tag: '热力' },
+              { key: 'lightbox-gallery', name: 'LightboxGallery', tag: '灯箱' },
             ]"
             :key="item.key"
             :class="['doc-complist__item', { active: activeName === item.key }]"

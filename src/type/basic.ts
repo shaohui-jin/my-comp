@@ -30,20 +30,85 @@ export interface Image3DProps {
 export interface ImageCarouselProps {
   /** 图片地址列表 */
   imageUrls: string[];
-  /** 默认选中下标 */
+  /** 当前选中下标（v-model:index） */
+  index?: number;
+  /** 默认选中下标（非受控模式） */
   defaultIndex?: number;
+  /** 首尾循环 */
+  loop?: boolean;
+  /** 自动轮播 */
+  autoplay?: boolean;
+  /** 自动轮播间隔（ms） */
+  interval?: number;
+  /** 显示左右箭头 */
+  showArrows?: boolean;
+}
+
+export interface ImageCarouselEmits {
+  /** 当前下标变化 */
+  (e: "change", index: number): void;
+  /** 更新 v-model:index */
+  (e: "update:index", index: number): void;
+  /** 点击图片 */
+  (e: "click-item", index: number): void;
+}
+
+export interface ImageCarouselExpose {
+  /** 上一张 */
+  prev: () => void;
+  /** 下一张 */
+  next: () => void;
+  /** 跳转到指定下标 */
+  goTo: (index: number) => void;
 }
 
 // --- ImagePointer ---
 export interface ImagePointerProps {
   /** 图片地址列表 */
   imageUrls: string[];
+  /** 当前高亮下标（v-model:index） */
+  index?: number;
+  /** 图片间距（px） */
+  gap?: number;
+  /** 指针边框颜色 */
+  pointerColor?: string;
+}
+
+export interface ImagePointerEmits {
+  /** 鼠标悬停某张图 */
+  (e: "hover", index: number): void;
+  /** 点击图片 */
+  (e: "click", index: number): void;
+  /** 鼠标离开容器 */
+  (e: "leave"): void;
+  /** 更新 v-model:index */
+  (e: "update:index", index: number): void;
 }
 
 // --- TextEraseArea ---
 export interface TextEraseAreaProps {
   /** 文本内容 */
   content: string;
+  /** 动画时长（秒） */
+  duration?: number;
+  /** 延迟开始（秒） */
+  delay?: number;
+  /** 是否自动播放 */
+  autoStart?: boolean;
+}
+
+export interface TextEraseAreaEmits {
+  /** 动画开始 */
+  (e: "start"): void;
+  /** 动画结束 */
+  (e: "end"): void;
+}
+
+export interface TextEraseAreaExpose {
+  /** 开始/重播动画 */
+  play: () => void;
+  /** 重置动画 */
+  reset: () => void;
 }
 
 // --- TextOverflowArea ---

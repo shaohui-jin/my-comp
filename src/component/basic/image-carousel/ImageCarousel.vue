@@ -1,81 +1,144 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from "vue";
-import type { ImageCarouselProps } from "@/type/basic";
+import { ref, watch, onMounted, onBeforeUnmount, nextTick, type CSSProperties } from "vue";
+import type { ImageCarouselProps, ImageCarouselEmits, ImageCarouselExpose } from "@/type/basic";
 
 defineOptions({ name: "ImageCarousel" });
 
 const props = withDefaults(defineProps<ImageCarouselProps>(), {
   defaultIndex: 0,
+  loop: false,
+  autoplay: false,
+  interval: 3000,
+  showArrows: true,
 });
 
-const index = ref(0);
-const listRef = ref<HTMLDivElement>();
+const emit = defineEmits<ImageCarouselEmits>();
 
-function layout() {
-  const container = listRef.value;
-  if (!container) return;
-  const items = container.querySelectorAll<HTMLImageElement>(".carousel-item");
+const innerIndex = ref(props.index ?? props.defaultIndex);
+
+function getItemStyle(i: number): CSSProperties {
+  const dis = i - innerIndex.value;
+  const sign = Math.sign(dis) || 1;
   const offsetStep = 100;
   const scaleStep = 0.6;
   const opacityStep = 0.6;
+  let xOffset = dis * offsetStep;
+  let rotate = 0;
+  if (dis !== 0) {
+    xOffset += sign * 100;
+    rotate = -sign * 45;
+  }
+  return {
+    transform: `translateX(${xOffset}px) scale(${scaleStep ** Math.abs(dis)}) rotateY(${rotate}deg)`,
+    zIndex: props.imageUrls.length - Math.abs(dis),
+    opacity: opacityStep ** Math.abs(dis),
+  };
+}
 
-  items.forEach((item, i) => {
-    const dis = i - index.value;
-    const sign = Math.sign(dis);
-    let xOffset = dis * offsetStep;
-    let rotate = 0;
-    if (i !== index.value) {
-      xOffset += sign * 100;
-      rotate = -sign * 45;
-    }
-    const scale = scaleStep ** Math.abs(dis);
-    const opacity = opacityStep ** Math.abs(dis);
-    const zIndex = props.imageUrls.length - Math.abs(dis);
-    item.style.transform = `translateX(${xOffset}px) scale(${scale}) rotateY(${rotate}deg)`;
-    item.style.zIndex = String(zIndex);
-    item.style.opacity = String(opacity);
-  });
+function setIndex(i: number) {
+  if (i === innerIndex.value) return;
+  innerIndex.value = i;
+  emit("update:index", i);
+  emit("change", i);
 }
 
 function prev() {
-  if (index.value > 0) {
-    index.value--;
-    layout();
+  if (innerIndex.value > 0) {
+    setIndex(innerIndex.value - 1);
+  } else if (props.loop && props.imageUrls.length > 0) {
+    setIndex(props.imageUrls.length - 1);
   }
 }
 
 function next() {
-  if (index.value < props.imageUrls.length - 1) {
-    index.value++;
-    layout();
+  if (innerIndex.value < props.imageUrls.length - 1) {
+    setIndex(innerIndex.value + 1);
+  } else if (props.loop && props.imageUrls.length > 0) {
+    setIndex(0);
+  }
+}
+
+function goTo(i: number) {
+  if (i >= 0 && i < props.imageUrls.length) {
+    setIndex(i);
   }
 }
 
 function clickItem(i: number) {
-  index.value = i;
-  layout();
+  setIndex(i);
+  emit("click-item", i);
 }
 
+let timer: ReturnType<typeof setInterval> | null = null;
+
+function startAutoplay() {
+  stopAutoplay();
+  if (!props.autoplay || props.imageUrls.length <= 1 || document.hidden) return;
+  timer = setInterval(next, props.interval);
+}
+
+function stopAutoplay() {
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+}
+
+function onVisibilityChange() {
+  if (document.hidden) stopAutoplay();
+  else startAutoplay();
+}
+
+watch(() => props.index, (val) => {
+  if (val !== undefined && val !== innerIndex.value) {
+    innerIndex.value = val;
+  }
+});
+
+watch(() => props.imageUrls.length, () => {
+  if (innerIndex.value >= props.imageUrls.length) {
+    innerIndex.value = Math.max(0, props.imageUrls.length - 1);
+  }
+  startAutoplay();
+});
+
+watch(() => props.autoplay, (val) => {
+  if (val) startAutoplay();
+  else stopAutoplay();
+});
+
+watch(() => props.interval, () => {
+  if (props.autoplay) startAutoplay();
+});
+
+defineExpose<ImageCarouselExpose>({ prev, next, goTo });
+
 onMounted(() => {
-  index.value = props.defaultIndex;
-  nextTick(layout);
+  nextTick(startAutoplay);
+  document.addEventListener("visibilitychange", onVisibilityChange);
+});
+
+onBeforeUnmount(() => {
+  stopAutoplay();
+  document.removeEventListener("visibilitychange", onVisibilityChange);
 });
 </script>
 
 <template>
-  <div class="lib-image-carousel">
-    <div ref="listRef" class="carousel-list">
+  <div class="lib-image-carousel" @mouseenter="stopAutoplay" @mouseleave="startAutoplay">
+    <div class="carousel-list">
       <img
         v-for="(url, i) in imageUrls"
-        :key="i"
+        :key="url"
         :src="url"
         class="carousel-item"
-        :class="{ active: index === i }"
+        :class="{ active: innerIndex === i }"
+        :style="getItemStyle(i)"
         @click="clickItem(i)"
       />
     </div>
-    <button class="carousel-prev" @click="prev">&lt;</button>
-    <button class="carousel-next" @click="next">&gt;</button>
+    <button v-if="showArrows" class="carousel-prev" @click="prev">&lt;</button>
+    <button v-if="showArrows" class="carousel-next" @click="next">&gt;</button>
   </div>
 </template>
 

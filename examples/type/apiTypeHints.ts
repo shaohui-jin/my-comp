@@ -79,11 +79,36 @@ const TYPE_HINTS: Record<string, ApiTypeHintInfo> = {
     title: "说明",
     desc: "继承 BaseTableColumn，新增 fixed?: 'left' | 'right'",
   },
+  DragSortItem: {
+    title: "说明",
+    desc: "{ id: string | number, label: string }",
+  },
+  TreeTransferNode: {
+    title: "说明",
+    desc: "{ id: string, label: string, children?: TreeTransferNode[] }",
+  },
+  StepWizardStep: {
+    title: "说明",
+    desc: "{ title: string, description?: string }",
+  },
+  ContextMenuItem: {
+    title: "说明",
+    desc: "{ label: string, shortcut?: string, danger?: boolean, action?: string }",
+  },
+  HeatmapCell: {
+    title: "说明",
+    desc: "{ date: string, count: number }",
+  },
 };
 
 function normalizeTypeKey(type: string): string {
-  return type
-    .trim()
+  const trimmed = type.trim();
+  // 从事件参数 (name: TypeName) 中提取类型名
+  const paramMatch = trimmed.match(/:\s*([A-Za-z][\w]*(?:\[\])?)/);
+  if (paramMatch) {
+    return paramMatch[1].replace(/\[\]$/, "");
+  }
+  return trimmed
     .replace(/\[\]$/, "")
     .split("|")[0]
     .trim();

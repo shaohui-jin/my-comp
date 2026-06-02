@@ -10,6 +10,19 @@ export { default as CanvasTime } from "./basic/canvas-time/CanvasTime.vue";
 export { default as CodeBlock } from "./basic/code-block/CodeBlock.vue";
 export { default as WidgetTabs } from "./basic/widget-tabs/WidgetTabs.vue";
 
+// 交互组件
+export {
+  SplitPane,
+  DragSortList,
+  FloatingToolbar,
+  TreeTransfer,
+  StepWizard,
+  ContextMenu,
+  CountUp,
+  HeatmapCalendar,
+  LightboxGallery,
+} from "./interaction";
+
 // CRUD 组件
 export { default as BaseTable } from "./crud/base-table/BaseTable.vue";
 export { default as BaseSearch } from "./crud/base-search/BaseSearch.vue";

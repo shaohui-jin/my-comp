@@ -1,5 +1,34 @@
 # 版本变更记录
 
+## v0.9.0（2026-06-02）
+
+### 组件模块
+
+#### 新增组件
+
+- **SplitPane**：可拖拽调整比例的左右分割面板
+- **DragSortList**：HTML5 拖拽排序列表
+- **FloatingToolbar**：多选后底部浮动批量操作栏
+- **TreeTransfer**：树形结构左右穿梭选择
+- **StepWizard**：分步表单向导
+- **ContextMenu**：右键上下文菜单
+- **CountUp**：数字滚动动画
+- **HeatmapCalendar**：热力日历
+- **LightboxGallery**：缩略图 + 全屏灯箱预览
+
+### 工程化
+
+#### Demo 站
+
+- 新增 9 个交互组件独立 Demo 文档页，侧边栏新增「交互组件」分组
+- 移除「交互演示」聚合 Tab，交互组件统一纳入组件文档
+- `demoCodes.ts` 全部条目补齐 script 数据定义与 template 完整示例
+- `apiTypeHints.ts` 注册交互组件 opaque 类型
+
+#### 项目规范
+
+- **组件一站式创建规范**：新增「交互」组件分类；新增 §6.2.1 强制要求——`demoCodes.ts` 须含 script 数据定义 + template 完整示例；opaque 类型须注册 `apiTypeHints.ts`
+
 ## v0.8.0（2026-05-27 ~ 2026-05-29）
 
 ### 组件模块

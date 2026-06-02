@@ -93,6 +93,16 @@
   }
 }
 
+// 代码展示白色容器（与 DemoWidgetTabs 代码 Tab 内边距一致）
+.demo-code-panel {
+  background: $doc-bg-card;
+  border: 1px solid $doc-border-color;
+  border-radius: $doc-radius-lg;
+  overflow: hidden;
+  box-shadow: $doc-shadow-lg;
+  padding: $doc-sp-md $doc-sp-lg;
+}
+
 // -- API Section --
 .api-section {
   margin-top: $doc-sp-2xl;

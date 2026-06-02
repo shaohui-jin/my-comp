@@ -15,7 +15,8 @@ alwaysApply: false
 | 分类 | 目录 | 菜单分组 | 命名前缀示例 |
 |------|------|----------|-------------|
 | **CRUD** | `src/component/crud/` | 侧边栏「CRUD 组件」 | `BaseTable`、`BaseSearch` |
-| **基础** | `src/component/basic/` | 侧边栏「基础组件」 | `StatusTag`、`StatusDot` |
+| **基础** | `src/component/basic/` | 侧边栏「基础组件」 | `Tag`、`Dot` |
+| **交互** | `src/component/interaction/` | 侧边栏「交互组件」 | `SplitPane`、`DragSortList` |
 | **特殊** | 需开发者确认 | 需开发者确认是否新开 Tab/分组 | 如 `ConfigProvider` 在 `src/config/` |
 
 特殊类组件必须确认：
@@ -50,13 +51,24 @@ src/component/basic/
 
 - 类型声明统一放在 `src/type/basic.ts`
 
+### 交互组件（现有模式）
+
+```
+src/component/interaction/
+└── split-pane/                  # kebab-case
+    └── SplitPane.vue            # PascalCase
+```
+
+- 类型声明统一放在 `src/type/interaction.ts`
+- 高交互 UI（拖拽、穿梭、向导、右键菜单、动画数字、热力图、灯箱等）归入此类
+
 ### 命名对照（从现有组件归纳）
 
 | 项 | 规范 | 示例 |
 |----|------|------|
 | 文件夹 | kebab-case，带业务前缀 | `base-search-field`、`status-dot` |
 | Vue 文件 | PascalCase = 组件名 | `BaseSearchField.vue` |
-| 类型文件 | 统一放 `src/type/` | `basic.ts`、`crud.ts` |
+| 类型文件 | 统一放 `src/type/` | `basic.ts`、`crud.ts`、`interaction.ts` |
 | 组合式函数 | camelCase + `use` 前缀 | `useBaseTableSelection.ts` |
 | 工具函数 | camelCase | `column.ts`、`canvasDraw.ts` |
 | Demo 页 | `Demo{ComponentName}.vue` | `DemoBaseSearchField.vue` |
@@ -72,7 +84,7 @@ src/component/basic/
 
 ```vue
 <script setup lang="ts">
-import type { XxxProps, XxxEmits } from "@/type/crud"; // 或 @/type/basic
+import type { XxxProps, XxxEmits } from "@/type/crud"; // 或 @/type/basic、@/type/interaction
 
 defineOptions({ name: "Xxx" });
 
@@ -82,20 +94,20 @@ const emit = defineEmits<XxxEmits>();
 ```
 
 - 使用 `<script setup lang="ts">` + Composition API
-- Props / Emits 类型声明在 `src/type/basic.ts` 或 `src/type/crud.ts`，通过 `@/type/` 引入
+- Props / Emits 类型声明在 `src/type/basic.ts`、`src/type/crud.ts` 或 `src/type/interaction.ts`，通过 `@/type/` 引入
 - 注释优先中文（公共 API 的 JSDoc 除外）
 
 ## 四、导出与注册（必做）
 
 1. **`src/component/index.ts`** — 按分类注释分组导出
-2. **`src/type/crud.ts` 或 `src/type/basic.ts`** — 新增类型声明
+2. **`src/type/crud.ts` / `basic.ts` / `interaction.ts`** — 新增类型声明
 3. **`src/index.ts`** — 具名导出组件 + `export type { XxxProps, XxxEmits }`
 4. **`src/index.ts` 的 `components` 数组** — 加入 `install()` 注册
 5. **`doc/架构设计.md`** — 更新「目录结构」章节（新增/删除组件时）
 
 ## 五、创建后检查清单
 
-- [ ] 分类目录正确（`basic/` 或 `crud/` 或已确认的特殊路径）
+- [ ] 分类目录正确（`basic/` / `crud/` / `interaction/` 或已确认的特殊路径）
 - [ ] 命名符合上表
 - [ ] 已从 `src/index.ts` 导出
 - [ ] 已创建 Demo 页并注册菜单（见下文第六节）
@@ -113,7 +125,7 @@ const emit = defineEmits<XxxEmits>();
 - 文档页：`examples/demo/{component-name}/Demo{ComponentName}.vue`
 - 在 `examples/App.vue` 中：
   - `pageMap` 增加路由 key → Demo 组件（`import from "./demo/{component-name}/Demo{ComponentName}.vue"`）
-  - 对应 `el-sub-menu` 下增加 `el-menu-item`（CRUD / 基础 分组与组件分类一致）
+  - 对应 `el-sub-menu` 下增加 `el-menu-item`（CRUD / 基础 / 视觉 / 交互 分组与组件分类一致）
 - 菜单 `index` 用 kebab-case，如 `base-search-field`
 
 ### 6.2 页面结构（固定顺序）
@@ -151,10 +163,33 @@ const emit = defineEmits<XxxEmits>();
 | 文件 | 职责 |
 |------|------|
 | `DemoWidgetTabs.vue` | 演示卡片容器：EP Tabs + 预览/代码 + 复制 |
-| `demoCodes.ts` | 各组件示例代码字符串（`:code` 传入） |
+| `demoCodes.ts` | 各组件示例代码字符串（`:code` 传入），**必须含 script 数据定义 + template** |
+| `apiTypeHints.ts` | opaque 类型 `?` 提示注册（Props / Events 中出现的自定义类型名） |
 | `demoCodeHighlight.ts` | highlight.js 封装（xml 语言高亮 Vue 模板片段） |
 
-**Tab 与容器**
+### 6.2.1 demoCodes 与 apiTypeHints（新增组件必做）
+
+**`demoCodes.ts`**
+
+- 每个新组件必须在 `demoCodes.ts` 新增 camelCase 条目（如 `splitPane`）
+- 条目格式为完整 SFC 片段：`<script setup lang="ts">` 展示 import、props 所需数据（`items`、`treeData`、`steps` 等）、事件处理函数 + `<template>` 展示组件用法
+- **禁止**只写 `<template>` 片段而缺少 script 中的数据定义
+
+**`apiTypeHints.ts`**
+
+- Props 类型列或 Events 参数列出现 **opaque 类型名**（如 `DragSortItem[]`、`TreeTransferNode[]`）时，必须在 `examples/type/apiTypeHints.ts` 注册结构说明
+- 字面量联合类型（如 `'"success" | "warning"'`）写完整即可，无需注册
+- 注册后 ApiTable 自动在类型旁显示 `?` 提示（PC 悬停 / 触屏点击）
+
+```typescript
+// apiTypeHints.ts 示例
+DragSortItem: {
+  title: "说明",
+  desc: "{ id: string | number, label: string }",
+},
+```
+
+### 6.3 Tab 与容器
 
 - 必须使用 `DemoWidgetTabs.vue`，内部为 Element Plus **`el-tabs` + `type="border-card"`**（样式 mixin：`el-overrides.scss` → `el-tabs-border-card`，与 BaseTable Demo 一致）
 - **禁止**自定义 Tab 按钮、禁止左侧「演示」标题、禁止裸 `widget-card` 包一层
@@ -169,6 +204,7 @@ const emit = defineEmits<XxxEmits>();
 **代码 Tab**
 
 - 高亮：`highlight.js`（`demoCodeHighlight.ts`），语言 `xml`
+- **代码 Tab 必须包含完整可运行示例**：`<script setup>` 中展示 props 所需的数据定义（如 `items`、`treeData`、`steps` 等）+ `<template>` 中的组件用法，禁止只写模板片段而缺少数据格式
 - **hljs token 样式必须写在 `DemoWidgetTabs.vue` 的非 scoped `<style>` 块**（`v-html` 注入节点无法命中 scoped）
 - 背景 / token 色使用 `$doc-bg-subtle`、`$doc-color-primary` 等文档变量（跟随 theme）
 - **复制按钮**：代码块右上角绝对定位浮层（`position: absolute`），**不得**通过增大代码块 `padding-top` 挤占布局；复制原始 `code` 字符串，成功 `ElMessage` 提示
@@ -225,7 +261,7 @@ const emit = defineEmits<XxxEmits>();
 
 ### 6.5 类型提示注册
 
- opaque 类型名注册到 `examples/type/apiTypeHints.ts`：
+新增组件时 opaque 类型**必须**注册（详见 §6.2.1），注册到 `examples/type/apiTypeHints.ts`：
 
 ```typescript
 BaseXxxType: {
@@ -251,5 +287,6 @@ BaseXxxColumn: {
 - [ ] 有事件反馈时用 `#footer` + `widget-hint`，特殊说明用 `api-notes-list`
 - [ ] 使用 `ApiTable` 渲染 API
 - [ ] 字面量枚举已完整写在 `type` 字段
-- [ ] 新 opaque 类型已注册 `apiTypeHints.ts`
+- [ ] 新 opaque 类型已注册 `apiTypeHints.ts`（含 Props 类型列与 Events 参数列中出现的自定义类型名）
+- [ ] `demoCodes.ts` 条目含 `<script setup>` 数据定义 + `<template>` 用法
 - [ ] 演示区三端适配

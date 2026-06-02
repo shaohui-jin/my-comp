@@ -1,43 +1,131 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import type { ImagePointerProps } from "@/type/basic";
+import { ref, computed, watch, onMounted, onBeforeUnmount, type CSSProperties } from "vue";
+import type { ImagePointerProps, ImagePointerEmits } from "@/type/basic";
 
 defineOptions({ name: "ImagePointer" });
 
-defineProps<ImagePointerProps>();
+const props = withDefaults(defineProps<ImagePointerProps>(), {
+  gap: 20,
+  pointerColor: "currentColor",
+});
+
+const emit = defineEmits<ImagePointerEmits>();
 
 const containerRef = ref<HTMLDivElement>();
-const showPointer = ref(false);
-const pointerStyle = ref({ "--x": "0px", "--y": "0px", "--w": "0px", "--h": "0px" });
+const imgRefs = ref<(HTMLImageElement | null)[]>([]);
+const innerIndex = ref<number | null>(null);
+const activeStyle = ref<CSSProperties>({});
 
-onMounted(() => {
+const gapStyle = computed(() => `${props.gap}px`);
+
+function setImgRef(el: unknown, i: number) {
+  imgRefs.value[i] = el as HTMLImageElement | null;
+}
+
+function updatePointer(el: HTMLElement, index: number) {
   const container = containerRef.value;
   if (!container) return;
-  const items = container.querySelectorAll<HTMLElement>(".pointer-img");
-  items.forEach((item) => {
-    item.addEventListener("mouseenter", () => {
-      pointerStyle.value = {
-        "--x": `${item.offsetLeft}px`,
-        "--y": `${item.offsetTop}px`,
-        "--w": `${item.offsetWidth}px`,
-        "--h": `${item.offsetHeight}px`,
-      };
-      showPointer.value = true;
+  const cRect = container.getBoundingClientRect();
+  const eRect = el.getBoundingClientRect();
+  activeStyle.value = {
+    "--x": `${eRect.left - cRect.left + container.scrollLeft}px`,
+    "--y": `${eRect.top - cRect.top + container.scrollTop}px`,
+    "--w": `${eRect.width}px`,
+    "--h": `${eRect.height}px`,
+    color: props.pointerColor,
+  };
+  innerIndex.value = index;
+  emit("update:index", index);
+  emit("hover", index);
+}
+
+function onEnter(index: number) {
+  const el = imgRefs.value[index];
+  if (el) updatePointer(el, index);
+}
+
+function onClick(index: number) {
+  onEnter(index);
+  emit("click", index);
+}
+
+function onLeave() {
+  innerIndex.value = null;
+  emit("leave");
+}
+
+function onImgLoad(index: number) {
+  if (innerIndex.value === index) {
+    const el = imgRefs.value[index];
+    if (el) updatePointer(el, index);
+  }
+}
+
+function syncControlledIndex(index: number) {
+  const el = imgRefs.value[index];
+  if (el) updatePointer(el, index);
+}
+
+function onDocumentTouch(e: TouchEvent) {
+  const target = e.target as Node;
+  if (containerRef.value && !containerRef.value.contains(target)) {
+    onLeave();
+  }
+}
+
+let resizeObserver: ResizeObserver | null = null;
+
+watch(() => props.index, (val) => {
+  if (val !== undefined) syncControlledIndex(val);
+});
+
+watch(() => props.pointerColor, () => {
+  if (innerIndex.value !== null) onEnter(innerIndex.value);
+});
+
+onMounted(() => {
+  if (props.index !== undefined) {
+    syncControlledIndex(props.index);
+  }
+  if (containerRef.value) {
+    resizeObserver = new ResizeObserver(() => {
+      if (innerIndex.value !== null) onEnter(innerIndex.value);
     });
-  });
+    resizeObserver.observe(containerRef.value);
+  }
+  document.addEventListener("touchstart", onDocumentTouch, { passive: true });
+});
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect();
+  document.removeEventListener("touchstart", onDocumentTouch);
 });
 </script>
 
 <template>
-  <div ref="containerRef" class="lib-image-pointer">
-    <div v-show="showPointer" class="pointer" :style="pointerStyle" />
-    <img v-for="(url, i) in imageUrls" :key="i" :src="url" class="pointer-img" />
+  <div
+    ref="containerRef"
+    class="lib-image-pointer"
+    :style="{ '--gap': gapStyle }"
+    @mouseleave="onLeave"
+  >
+    <div v-show="innerIndex !== null" class="pointer" :style="activeStyle" />
+    <img
+      v-for="(url, i) in imageUrls"
+      :key="url"
+      :ref="(el) => setImgRef(el, i)"
+      :src="url"
+      class="pointer-img"
+      @mouseenter="onEnter(i)"
+      @touchstart.passive="onEnter(i)"
+      @click="onClick(i)"
+      @load="onImgLoad(i)"
+    />
   </div>
 </template>
 
 <style scoped lang="scss">
 .lib-image-pointer {
-  --gap: 20px;
   position: relative;
   display: flex;
   flex-wrap: wrap;
@@ -48,6 +136,7 @@ onMounted(() => {
     object-fit: cover;
     cursor: pointer;
     display: block;
+    touch-action: manipulation;
   }
 
   .pointer {
@@ -59,7 +148,7 @@ onMounted(() => {
     --x: 0px;
     --y: 0px;
     position: absolute;
-    cursor: pointer;
+    pointer-events: none;
     width: calc(var(--w) + var(--g) * 2);
     height: calc(var(--h) + var(--g) * 2);
     border: 3px solid currentcolor;

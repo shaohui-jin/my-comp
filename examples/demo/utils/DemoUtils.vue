@@ -428,17 +428,23 @@ const highlightedImpl = computed(() =>
 
   <div class="utils-usage">
     <h4 class="utils-usage__title">基础用法</h4>
-    <CodeBlock :code="currentItem.usage" :highlighted="highlightedCode" />
+    <div class="demo-code-panel">
+      <CodeBlock :code="currentItem.usage" :highlighted="highlightedCode" />
+    </div>
   </div>
 
   <div v-if="highlightedSignature" class="utils-usage utils-usage--signature">
     <h4 class="utils-usage__title">配置参数</h4>
-    <CodeBlock :code="currentItem.signature!" :highlighted="highlightedSignature" />
+    <div class="demo-code-panel">
+      <CodeBlock :code="currentItem.signature!" :highlighted="highlightedSignature" />
+    </div>
   </div>
 
   <div v-if="highlightedImpl" class="utils-usage utils-usage--impl">
     <h4 class="utils-usage__title">体操实现</h4>
-    <CodeBlock :code="currentItem.implementation!" :highlighted="highlightedImpl" />
+    <div class="demo-code-panel">
+      <CodeBlock :code="currentItem.implementation!" :highlighted="highlightedImpl" />
+    </div>
   </div>
 
   <div class="api-section">
@@ -452,12 +458,13 @@ const highlightedImpl = computed(() =>
 @use "../../style/demo";
 
 .utils-usage {
-  margin-bottom: 24px;
+  margin-bottom: $doc-sp-2xl;
 
   &__title {
-    margin: 0 0 12px;
-    font-size: 14px;
+    margin: 0 0 $doc-sp-md;
+    font-size: $doc-fs-base;
     font-weight: 600;
+    color: $doc-text-primary;
   }
 }
 </style>
