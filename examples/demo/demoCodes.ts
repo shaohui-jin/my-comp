@@ -1,8 +1,8 @@
-/** 各 Demo 预览区对应的示例代码（供 DemoWidgetTabs 代码 Tab 展示） */
+﻿/** 各 Demo 预览区对应的示例代码（供 DemoWidgetTabs 代码 Tab 展示） */
 export const demoCodes = {
   baseSearch: `<script setup lang="ts">
 import { ref } from "vue";
-import { BaseSearch, type SearchFieldConfig } from "comp-vue-lib";
+import { BaseSearch, type SearchFieldConfig } from "jsh-comp";
 
 const searchParams: SearchFieldConfig[] = [
   { key: "searchKeyword", label: "关键词", placeholder: "请输入", fixed: true },
@@ -49,7 +49,7 @@ function onChange(payload: { field?: string; value: unknown }) {
   baseSearchField: `<script setup lang="ts">
 import { ref } from "vue";
 import { ElForm, ElFormItem } from "element-plus";
-import { BaseSearchField, type SearchFieldConfig } from "comp-vue-lib";
+import { BaseSearchField, type SearchFieldConfig } from "jsh-comp";
 
 const inputField: SearchFieldConfig = {
   key: "searchKeyword",
@@ -115,7 +115,7 @@ function onChange(payload: unknown) {
 
   baseSearchDrawer: `<script setup lang="ts">
 import { ref } from "vue";
-import { BaseSearchDrawer, type SearchFieldConfig } from "comp-vue-lib";
+import { BaseSearchDrawer, type SearchFieldConfig } from "jsh-comp";
 
 const drawerParams: SearchFieldConfig[] = [
   { key: "searchKeyword", label: "关键词", placeholder: "请输入" },
@@ -163,7 +163,7 @@ import {
   stripEditColumn,
   type BaseTableColumn,
   type BaseColumnSettingColumn,
-} from "comp-vue-lib";
+} from "jsh-comp";
 
 const columns = ref<BaseColumnSettingColumn[]>([
   { key: "index", type: "index", width: 36 },
@@ -207,7 +207,7 @@ import {
   BaseCrud,
   type SearchFieldConfig,
   type BaseColumnSettingColumn,
-} from "comp-vue-lib";
+} from "jsh-comp";
 
 const tableData = ref([
   { id: 1, name: "项目 1", category: "A类", status: 1, amount: "1234.56" },
@@ -272,7 +272,7 @@ function onColumnConfirm(cols: BaseColumnSettingColumn[]) {
 </template>`,
 
   tag: `<script setup lang="ts">
-import { Tag } from "comp-vue-lib";
+import { Tag } from "jsh-comp";
 </script>
 
 <template>
@@ -283,7 +283,7 @@ import { Tag } from "comp-vue-lib";
 </template>`,
 
   dotBasic: `<script setup lang="ts">
-import { Dot } from "comp-vue-lib";
+import { Dot } from "jsh-comp";
 </script>
 
 <template>
@@ -293,7 +293,7 @@ import { Dot } from "comp-vue-lib";
 </template>`,
 
   dotSlot: `<script setup lang="ts">
-import { Dot } from "comp-vue-lib";
+import { Dot } from "jsh-comp";
 </script>
 
 <template>
@@ -303,7 +303,7 @@ import { Dot } from "comp-vue-lib";
 </template>`,
 
   image3d: `<script setup lang="ts">
-import { Image3D } from "comp-vue-lib";
+import { Image3D } from "jsh-comp";
 </script>
 
 <template>
@@ -312,7 +312,7 @@ import { Image3D } from "comp-vue-lib";
 
   imageCarousel: `<script setup lang="ts">
 import { ref } from "vue";
-import { ImageCarousel } from "comp-vue-lib";
+import { ImageCarousel } from "jsh-comp";
 
 const urls = [
   "https://picsum.photos/seed/c1/400/300",
@@ -336,7 +336,7 @@ function onChange(index: number) {
 </template>`,
 
   imagePointer: `<script setup lang="ts">
-import { ImagePointer } from "comp-vue-lib";
+import { ImagePointer } from "jsh-comp";
 
 const urls = [
   "https://picsum.photos/seed/p1/150/120",
@@ -367,7 +367,7 @@ function onLeave() {
 </template>`,
 
   canvasTime: `<script setup lang="ts">
-import { CanvasTime } from "comp-vue-lib";
+import { CanvasTime } from "jsh-comp";
 </script>
 
 <template>
@@ -376,7 +376,7 @@ import { CanvasTime } from "comp-vue-lib";
 
   codeBlock: `<script setup lang="ts">
 import { computed } from "vue";
-import { CodeBlock } from "comp-vue-lib";
+import { CodeBlock } from "jsh-comp";
 import { highlightTsCode } from "./demoCodeHighlight";
 
 const sampleCode = \`function greet(name: string) {
@@ -392,7 +392,7 @@ const highlightedSample = computed(() => highlightTsCode(sampleCode));
 
   widgetTabs: `<script setup lang="ts">
 import { computed } from "vue";
-import { WidgetTabs } from "comp-vue-lib";
+import { WidgetTabs } from "jsh-comp";
 import { highlightDemoCode } from "./demoCodeHighlight";
 
 const sourceCode = \`<MyComponent />\`;
@@ -407,7 +407,7 @@ const highlighted = computed(() => highlightDemoCode(sourceCode));
 
   splitPane: `<script setup lang="ts">
 import { ref } from "vue";
-import { SplitPane } from "comp-vue-lib";
+import { SplitPane } from "jsh-comp";
 
 const ratio = ref(0.5);
 
@@ -429,7 +429,7 @@ function onChange(value: number) {
 
   dragSortList: `<script setup lang="ts">
 import { ref } from "vue";
-import { DragSortList } from "comp-vue-lib";
+import { DragSortList } from "jsh-comp";
 
 const items = ref([
   { id: 1, label: "首页菜单" },
@@ -448,7 +448,7 @@ function onChange(list: typeof items.value) {
 
   floatingToolbar: `<script setup lang="ts">
 import { ref, computed } from "vue";
-import { FloatingToolbar } from "comp-vue-lib";
+import { FloatingToolbar } from "jsh-comp";
 
 const rows = ref([
   { id: 1, name: "订单 #1001", checked: false },
@@ -478,7 +478,7 @@ function onAction(action: string) {
 
   treeTransfer: `<script setup lang="ts">
 import { ref } from "vue";
-import { TreeTransfer } from "comp-vue-lib";
+import { TreeTransfer } from "jsh-comp";
 
 const treeData = [
   {
@@ -504,7 +504,7 @@ function onChange(ids: string[]) {
 
   stepWizard: `<script setup lang="ts">
 import { ref } from "vue";
-import { StepWizard } from "comp-vue-lib";
+import { StepWizard } from "jsh-comp";
 
 const step = ref(0);
 const form = ref({ name: "", email: "", role: "" });
@@ -530,8 +530,8 @@ function onFinish() {
 </template>`,
 
   contextMenu: `<script setup lang="ts">
-import { ContextMenu } from "comp-vue-lib";
-import type { ContextMenuItem } from "comp-vue-lib/type";
+import { ContextMenu } from "jsh-comp";
+import type { ContextMenuItem } from "jsh-comp/type";
 
 const items: ContextMenuItem[] = [
   { label: "编辑", shortcut: "Ctrl+E" },
@@ -552,7 +552,7 @@ function onSelect(item: ContextMenuItem) {
 
   canvasCountUp: `<script setup lang="ts">
 import { ref } from "vue";
-import { CanvasCountUp } from "comp-vue-lib";
+import { CanvasCountUp } from "jsh-comp";
 
 const countUpRef = ref<InstanceType<typeof CanvasCountUp>>();
 
@@ -572,8 +572,8 @@ function onFinish() {
 </template>`,
 
   heatmapCalendar: `<script setup lang="ts">
-import { HeatmapCalendar } from "comp-vue-lib";
-import type { HeatmapCell } from "comp-vue-lib/type";
+import { HeatmapCalendar } from "jsh-comp";
+import type { HeatmapCell } from "jsh-comp/type";
 
 const heatmapData: HeatmapCell[] = Array.from({ length: 84 }, (_, i) => ({
   date: \`Day \${i + 1}\`,
@@ -591,7 +591,7 @@ function onCellClick(cell: HeatmapCell) {
 
   imageLightbox: `<script setup lang="ts">
 import { ref } from "vue";
-import { ImageLightbox } from "comp-vue-lib";
+import { ImageLightbox } from "jsh-comp";
 
 const urls = [
   "https://picsum.photos/seed/lb1/800/600",

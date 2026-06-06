@@ -1,10 +1,10 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 /**
  * Demo 站包装：复用组件库的 WidgetTabs，
  * 注入 Demo 站主题 + 本地 highlight 逻辑。
  */
 import { computed, useSlots } from "vue";
-import { WidgetTabs } from "@/component";
+import { WidgetTabs } from "jsh-comp";
 import { highlightDemoCode } from "./demoCodeHighlight";
 
 const props = withDefaults(

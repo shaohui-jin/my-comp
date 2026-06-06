@@ -1,7 +1,7 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref } from "vue";
-import { DragSortList } from "comp-vue-lib";
-import type { DragSortItem } from "comp-vue-lib/type";
+import { DragSortList } from "jsh-comp";
+import type { DragSortItem } from "jsh-comp/type";
 import type { ComponentApi } from "../../type/types";
 import ApiTable from "../ApiTable.vue";
 import DemoWidgetTabs from "../DemoWidgetTabs.vue";

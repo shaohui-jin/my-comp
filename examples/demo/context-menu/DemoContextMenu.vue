@@ -1,7 +1,7 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref } from "vue";
-import { ContextMenu } from "comp-vue-lib";
-import type { ContextMenuItem } from "comp-vue-lib/type";
+import { ContextMenu } from "jsh-comp";
+import type { ContextMenuItem } from "jsh-comp/type";
 import type { ComponentApi } from "../../type/types";
 import ApiTable from "../ApiTable.vue";
 import DemoWidgetTabs from "../DemoWidgetTabs.vue";

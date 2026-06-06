@@ -1,7 +1,7 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref } from "vue";
-import { HeatmapCalendar } from "comp-vue-lib";
-import type { HeatmapCell } from "comp-vue-lib/type";
+import { HeatmapCalendar } from "jsh-comp";
+import type { HeatmapCell } from "jsh-comp/type";
 import type { ComponentApi } from "../../type/types";
 import ApiTable from "../ApiTable.vue";
 import DemoWidgetTabs from "../DemoWidgetTabs.vue";

@@ -1,7 +1,7 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import type { ApiRow } from "../../type/types";
 import ApiTable from "../ApiTable.vue";
-import { CodeBlock } from "@/component";
+import { CodeBlock } from "jsh-comp";
 import { highlightTsCode } from "../demoCodeHighlight";
 
 const props = withDefaults(defineProps<{ activeKey?: string }>(), {
@@ -26,7 +26,7 @@ const items: Record<string, UtilItem> = {
     name: "rgbaToHex",
     desc: "将 rgba/rgb 颜色字符串转为十六进制颜色值",
     signature: `declare const rgbaToHex: (color: string) => string;`,
-    usage: `import { rgbaToHex } from "comp-vue-lib/util/color";
+    usage: `import { rgbaToHex } from "jsh-tool/color";
 
 rgbaToHex("rgba(255, 0, 0, 1)");   // "#ff0000"
 rgbaToHex("rgb(0, 128, 255)");     // "#0080ff"`,
@@ -40,7 +40,7 @@ rgbaToHex("rgb(0, 128, 255)");     // "#0080ff"`,
     name: "hexToRGBA",
     desc: "将十六进制颜色转为 rgba 字符串",
     signature: `declare const hexToRGBA: (hex: string, alpha?: number) => string;`,
-    usage: `import { hexToRGBA } from "comp-vue-lib/util/color";
+    usage: `import { hexToRGBA } from "jsh-tool/color";
 
 hexToRGBA("#ff0000", 1);    // "rgba(255, 0, 0, 1)"
 hexToRGBA("#ff0000");       // "rgb(255, 0, 0)"`,
@@ -55,7 +55,7 @@ hexToRGBA("#ff0000");       // "rgb(255, 0, 0)"`,
     name: "colorToRGBA",
     desc: "将十六进制颜色转为 { r, g, b } 对象",
     signature: `declare const colorToRGBA: (hex: string) => { r: number; g: number; b: number };`,
-    usage: `import { colorToRGBA } from "comp-vue-lib/util/color";
+    usage: `import { colorToRGBA } from "jsh-tool/color";
 
 colorToRGBA("#ff5733");  // { r: 255, g: 87, b: 51 }`,
     api: [
@@ -68,7 +68,7 @@ colorToRGBA("#ff5733");  // { r: 255, g: 87, b: 51 }`,
     name: "getRandom",
     desc: "获取指定范围内的随机整数",
     signature: `declare const getRandom: (min: number, max: number) => number;`,
-    usage: `import { getRandom } from "comp-vue-lib/util/number";
+    usage: `import { getRandom } from "jsh-tool/number";
 
 getRandom(1, 10);   // 1~10 随机整数
 getRandom(0, 100);  // 0~100 随机整数`,
@@ -83,7 +83,7 @@ getRandom(0, 100);  // 0~100 随机整数`,
     name: "scaleFormat",
     desc: "格式化小数，解决浮点精度问题",
     signature: `declare const scaleFormat: (value?: string, scale?: number) => string;`,
-    usage: `import { scaleFormat } from "comp-vue-lib/util/number";
+    usage: `import { scaleFormat } from "jsh-tool/number";
 
 scaleFormat((0.1 + 0.2).toString());  // "0.30"
 scaleFormat("3.14159", 3);            // "3.142"`,
@@ -98,7 +98,7 @@ scaleFormat("3.14159", 3);            // "3.142"`,
     name: "flattenObj",
     desc: "对象扁平化，将嵌套对象转为单层 key.path 格式",
     signature: `declare const flattenObj: (obj: Record<string, any>, prefix?: string) => Record<string, any>;`,
-    usage: `import { flattenObj } from "comp-vue-lib/util/object";
+    usage: `import { flattenObj } from "jsh-tool/object";
 
 flattenObj({ a: { b: 1 }, c: 2 });
 // { "a.b": 1, "c": 2 }
@@ -116,7 +116,7 @@ flattenObj({ a: { b: 1 } }, "prefix");
     name: "unFlatten",
     desc: "扁平化还原，将 key.path 格式还原为嵌套对象",
     signature: `declare const unFlatten: (obj: Record<string, any>) => Record<string, any>;`,
-    usage: `import { unFlatten } from "comp-vue-lib/util/object";
+    usage: `import { unFlatten } from "jsh-tool/object";
 
 unFlatten({ "a.b": 1, c: 2 });
 // { a: { b: 1 }, c: 2 }`,
@@ -130,7 +130,7 @@ unFlatten({ "a.b": 1, c: 2 });
     name: "isObjEqual",
     desc: "深度比较两个对象是否相同",
     signature: `declare function isObjEqual(obj1: Record<string, any>, obj2: Record<string, any>): boolean;`,
-    usage: `import { isObjEqual } from "comp-vue-lib/util/object";
+    usage: `import { isObjEqual } from "jsh-tool/object";
 
 isObjEqual({ a: 1, b: { c: 2 } }, { a: 1, b: { c: 2 } });  // true
 isObjEqual({ a: 1 }, { a: 2 });                              // false`,
@@ -145,7 +145,7 @@ isObjEqual({ a: 1 }, { a: 2 });                              // false`,
     name: "isObjEmpty",
     desc: "判断对象是否为空",
     signature: `declare const isObjEmpty: (obj: Record<string, any>) => boolean;`,
-    usage: `import { isObjEmpty } from "comp-vue-lib/util/object";
+    usage: `import { isObjEmpty } from "jsh-tool/object";
 
 isObjEmpty({});        // true
 isObjEmpty({ a: 1 }); // false`,
@@ -159,7 +159,7 @@ isObjEmpty({ a: 1 }); // false`,
     name: "flattenTree",
     desc: "树形集合扁平化，递归展开 children 为一维数组",
     signature: `declare const flattenTree: (arr: any[], childrenKey?: string) => any[];`,
-    usage: `import { flattenTree } from "comp-vue-lib/util/array";
+    usage: `import { flattenTree } from "jsh-tool/array";
 
 flattenTree([
   { name: "A", children: [{ name: "B" }, { name: "C" }] },
@@ -177,7 +177,7 @@ flattenTree([
     name: "isArrEqual",
     desc: "比较两个基础类型数组是否包含相同元素（无序）",
     signature: `declare function isArrEqual(arr1: Array<string | number>, arr2: Array<string | number>): boolean;`,
-    usage: `import { isArrEqual } from "comp-vue-lib/util/array";
+    usage: `import { isArrEqual } from "jsh-tool/array";
 
 isArrEqual([1, 2, 3], [3, 2, 1]);  // true
 isArrEqual([1, 2], [1, 3]);        // false`,
@@ -192,7 +192,7 @@ isArrEqual([1, 2], [1, 3]);        // false`,
     name: "copyToClipboard",
     desc: "复制文本到剪贴板，使用 Clipboard API + execCommand fallback",
     signature: `declare const copyToClipboard: (text: string) => Promise<boolean>;`,
-    usage: `import { copyToClipboard } from "comp-vue-lib/util/clipboard";
+    usage: `import { copyToClipboard } from "jsh-tool/clipboard";
 
 const success = await copyToClipboard("要复制的文本");
 if (success) console.log("复制成功");`,
@@ -210,7 +210,7 @@ if (success) console.log("复制成功");`,
   delay?: number,
   immediate?: boolean
 ) => (...args: any[]) => void;`,
-    usage: `import { debounce } from "comp-vue-lib/util/debounce";
+    usage: `import { debounce } from "jsh-tool/debounce";
 
 const handleResize = debounce(() => {
   console.log("resize settled");
@@ -230,7 +230,7 @@ const handleClick = debounce(fn, 500, true);`,
     name: "useDebounceRef",
     desc: "防抖响应式 ref，set 操作延迟触发更新",
     signature: `declare const useDebounceRef: <T>(value: T, delay?: number) => Ref<T>;`,
-    usage: `import { useDebounceRef } from "comp-vue-lib/util/debounce";
+    usage: `import { useDebounceRef } from "jsh-tool/debounce";
 
 const keyword = useDebounceRef("", 500);
 // keyword.value = "abc" → 500ms 后才触发依赖更新`,
@@ -249,7 +249,7 @@ const keyword = useDebounceRef("", 500);
   taskHandler: (item: any, index: number) => void,
   scheduler: (run: (goOn: () => boolean) => void) => void
 ) => void;`,
-    usage: `import { performChunk } from "comp-vue-lib/util/optimize";
+    usage: `import { performChunk } from "jsh-tool/optimize";
 
 performChunk(100000, (item, i) => {
   // 每项任务处理
@@ -270,7 +270,7 @@ performChunk(100000, (item, i) => {
     name: "concurRequest",
     desc: "并发请求控制，限制最大同时请求数",
     signature: `declare const concurRequest: (urls?: string[], maxNum?: number) => Promise<Response[]>;`,
-    usage: `import { concurRequest } from "comp-vue-lib/util/optimize";
+    usage: `import { concurRequest } from "jsh-tool/optimize";
 
 const results = await concurRequest([
   "/api/data1",
@@ -293,7 +293,7 @@ const results = await concurRequest([
   hasPermission: (v: number, p: T[number]) => boolean;
   switchPermission: (v: number, p: T[number]) => number;
 };`,
-    usage: `import { usePermission } from "comp-vue-lib/util/permission";
+    usage: `import { usePermission } from "jsh-tool/permission";
 
 const perms = ["add", "edit", "delete", "view"] as const;
 const { getPermission, hasPermission, switchPermission } = usePermission(perms);
@@ -316,7 +316,7 @@ hasPermission(v, "add");                 // false`,
     implementation: `type getValue<T> = {
   [K in keyof T as \`get\${Capitalize<K & string>}\`]: T[K];
 };`,
-    usage: `import type { getValue } from "comp-vue-lib/util/typescript";
+    usage: `import type { getValue } from "jsh-tool/typescript";
 
 interface User { age: number; name: string; }
 type Getters = getValue<User>;
@@ -333,7 +333,7 @@ type Getters = getValue<User>;
     implementation: `type setValue<T> = {
   [K in keyof T as \`set\${Capitalize<K & string>}\`]: T[K];
 };`,
-    usage: `import type { setValue } from "comp-vue-lib/util/typescript";
+    usage: `import type { setValue } from "jsh-tool/typescript";
 
 interface User { age: number; name: string; }
 type Setters = setValue<User>;
@@ -350,7 +350,7 @@ type Setters = setValue<User>;
     implementation: `type getOptional<T> = {
   [K in keyof T as T[K] extends Required<T>[K] ? never : K]: T[K];
 };`,
-    usage: `import type { getOptional } from "comp-vue-lib/util/typescript";
+    usage: `import type { getOptional } from "jsh-tool/typescript";
 
 interface Config { host: string; port?: number; debug?: boolean; }
 type Opts = getOptional<Config>;
@@ -365,7 +365,7 @@ type Opts = getOptional<Config>;
     name: "setOptional<T, K>",
     desc: "TypeScript 类型体操：将指定属性设为可选",
     implementation: `type setOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;`,
-    usage: `import type { setOptional } from "comp-vue-lib/util/typescript";
+    usage: `import type { setOptional } from "jsh-tool/typescript";
 
 interface User { name: string; age: number; email: string; }
 type Relaxed = setOptional<User, "age" | "email">;
@@ -380,7 +380,7 @@ type Relaxed = setOptional<User, "age" | "email">;
     name: "arrayToUnion<T>",
     desc: "TypeScript 类型体操：将 as const 数组转为联合类型",
     implementation: `type arrayToUnion<T extends readonly any[]> = T[number];`,
-    usage: `import type { arrayToUnion } from "comp-vue-lib/util/typescript";
+    usage: `import type { arrayToUnion } from "jsh-tool/typescript";
 
 const modes = ["add", "edit", "view"] as const;
 type Mode = arrayToUnion<typeof modes>;
@@ -395,7 +395,7 @@ type Mode = arrayToUnion<typeof modes>;
     name: "getCompType",
     desc: "获取组件实例 ref 类型的语法糖函数",
     signature: `declare function getCompType<T extends abstract new (...args: any) => any>(_comp: T): Ref<InstanceType<T>>;`,
-    usage: `import { getCompType } from "comp-vue-lib/util/typescript";
+    usage: `import { getCompType } from "jsh-tool/typescript";
 import { ElForm } from "element-plus";
 
 const formRef = getCompType(ElForm);

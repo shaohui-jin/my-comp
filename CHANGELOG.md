@@ -1,5 +1,22 @@
 # 版本变更记录
 
+## v1.0.0（2026-06-06）
+
+### 工程化
+
+#### Monorepo 改造
+
+- 采用 pnpm workspace + Turborepo 编排，根仓库 `my-comp` 仅负责脚本与规范
+- 源码拆分为 `jsh-core`（配置 + SCSS 变量）、`jsh-comp`（组件 + 类型）、`jsh-tool`（工具函数）三个包
+- `comp-vue-lib` 更名为 `jsh-comp`，工具函数独立为 `jsh-tool`，不再通过 `jsh-comp/util` 转发
+- `examples/` 升级为独立 workspace 包，构建产物仍输出至 `dist-playground/`
+- GitHub Actions 升级 checkout / setup-node / pnpm 至 v4，修复依赖安装顺序并启用 `frozen-lockfile`
+
+#### 项目规范
+
+- `project-conventions.mdc` 同步 monorepo 目录结构、路径引用与 npm 导出规范
+- `doc/组件规则流程图.md` 同步包路径节点
+
 ## v0.9.0（2026-06-02 ~ 2026-06-05）
 
 ### 组件模块

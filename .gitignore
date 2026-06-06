@@ -12,3 +12,5 @@ coverage
 *.tsbuildinfo
 .env
 .env.*
+/.turbo/
+/.turbo/cache/

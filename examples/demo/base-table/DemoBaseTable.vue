@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref, shallowReactive } from "vue";
 import {
   BaseTable,
@@ -7,7 +7,7 @@ import {
   type BaseTableEmits,
   type BaseTableMode,
   type BaseTableProps,
-} from "comp-vue-lib";
+} from "jsh-comp";
 import type { ApiRow, ComponentApi } from "../../type/types";
 import ApiTable from "../ApiTable.vue";
 

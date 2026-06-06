@@ -1,9 +1,9 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref, computed, reactive, inject } from "vue";
-import { ConfigProvider, BaseTable, Dot } from "comp-vue-lib";
-import type { LibConfig, ResolvedLibConfig } from "@/config/configTypes";
-import { defaultLibConfig } from "@/config/configDefaults";
-import type { BaseTableColumn } from "@/type/crud";
+import { ConfigProvider, BaseTable, Dot } from "jsh-comp";
+import type { LibConfig, ResolvedLibConfig } from "jsh-core";
+import { defaultLibConfig } from "jsh-core";
+import type { BaseTableColumn } from "jsh-comp/type";
 
 const lib = inject<{ saveConfig: (c: LibConfig) => void; config: ResolvedLibConfig }>("compLib")!;
 

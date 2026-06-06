@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { Image3D } from "comp-vue-lib";
+﻿<script setup lang="ts">
+import { Image3D } from "jsh-comp";
 import type { ApiRow, ComponentApi } from "../../type/types";
 import ApiTable from "../ApiTable.vue";
 import DemoWidgetTabs from "../DemoWidgetTabs.vue";

@@ -1,7 +1,7 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref } from "vue";
 import { ElMessage } from "element-plus";
-import { StepWizard } from "comp-vue-lib";
+import { StepWizard } from "jsh-comp";
 import type { ComponentApi } from "../../type/types";
 import ApiTable from "../ApiTable.vue";
 import DemoWidgetTabs from "../DemoWidgetTabs.vue";

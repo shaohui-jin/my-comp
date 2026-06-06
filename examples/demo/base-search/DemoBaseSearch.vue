@@ -1,11 +1,11 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref } from "vue";
 import {
   BaseSearch,
   type SearchFieldConfig,
   type BaseSearchProps,
   type BaseSearchEmits,
-} from "comp-vue-lib";
+} from "jsh-comp";
 import type { ApiRow, ComponentApi } from "../../type/types";
 import ApiTable from "../ApiTable.vue";
 import DemoWidgetTabs from "../DemoWidgetTabs.vue";

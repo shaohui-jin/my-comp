@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { Dot } from "comp-vue-lib";
+﻿<script setup lang="ts">
+import { Dot } from "jsh-comp";
 import type { ComponentApi } from "../../type/types";
 import ApiTable from "../ApiTable.vue";
 import DemoWidgetTabs from "../DemoWidgetTabs.vue";

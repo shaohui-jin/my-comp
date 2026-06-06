@@ -18,23 +18,28 @@ alwaysApply: true
 
 ## 目录结构规范
 
-`src/` 下目录名使用单数形式，各职责分离：
+Monorepo 根目录使用 **pnpm workspace + turbo** 管理，源码按职责拆分为 workspace 包：
 
 ```
-src/
-  component/           ← Vue 组件源码
-    basic/             ← 基础组件（Tag、Dot、图片类、CodeBlock 等简易组件）
-    crud/              ← CRUD 组件（BaseTable、BaseSearch 等）
-    interaction/       ← 高交互组件（SplitPane、DragSortList 等）
-  config/              ← 配置注入系统（ConfigProvider 等）
-  style/               ← SCSS 变量 + TS 颜色默认值
-  type/                ← 类型声明（所有组件类型的唯一源头）
-    basic.ts           ← 基础组件类型
-    crud.ts            ← CRUD 组件类型
-    interaction.ts     ← 交互组件类型
-    index.ts           ← 统一 re-export
-  util/                ← 工具函数
-  index.ts             ← 库入口
+packages/
+  core/                ← jsh-core：配置注入系统 + SCSS 变量 + 颜色 token
+    src/config/
+    src/style/
+    src/index.ts
+  comp/                ← jsh-comp：Vue 组件 + 类型声明
+    src/style/         ← SCSS 转发层（@forward jsh-core 变量）
+    src/component/
+      basic/           ← 基础组件（Tag、Dot、图片类、CodeBlock 等）
+      crud/            ← CRUD 组件（BaseTable、BaseSearch 等）
+      interaction/     ← 高交互组件（SplitPane、DragSortList 等）
+    src/type/          ← 类型声明（所有组件类型的唯一源头）
+    src/index.ts       ← 组件库主入口（re-export jsh-core 配置 API）
+  tool/                ← jsh-tool：工具函数
+    src/
+examples/              ← 演示站（独立 workspace 包）
+pnpm-workspace.yaml
+turbo.json
+package.json           ← 根编排（private）
 ```
 
 `examples/` 下按职责分离：
@@ -58,7 +63,7 @@ examples/
 
 ## 组件分类（全局）
 
-`src/component/` 下当前为以下三个子目录：
+`packages/comp/src/component/` 下当前为以下三个子目录：
 
 | 分类 | 目录 | 适用场景 | Demo 菜单分组 |
 |------|------|----------|--------------|
@@ -73,9 +78,9 @@ examples/
 - **经开发者确认新增 `component/` 子目录后**，须同步更新：
   1. 本节「组件分类（全局）」表格
   2. 「组件一站式创建规范」第一节分类表
-  3. 新建 `src/type/{category}.ts`（类型声明），并在 `src/type/index.ts` 追加 re-export
-  4. `src/component/index.ts` 增加该分类的 export 注释区块
-  5. `src/index.ts` 追加具名导出、`export type` 及 `components` 数组注册（该分类首个对外组件时）
+  3. 新建 `packages/comp/src/type/{category}.ts`（类型声明），并在 `packages/comp/src/type/index.ts` 追加 re-export
+  4. `packages/comp/src/component/index.ts` 增加该分类的 export 注释区块
+  5. `packages/comp/src/index.ts` 追加具名导出、`export type` 及 `components` 数组注册（该分类首个对外组件时）
   6. 若新目录对应新的 Demo 菜单分组，更新 `examples/App.vue` 新增 `el-sub-menu` 及菜单项
   7. `doc/组件规则流程图.md` 同步更新流程图
   - 此后硬约束以上述更新后的目录列表为准
@@ -88,11 +93,11 @@ examples/
 
 ## 路径引用规范
 
-- `src/` 内的文件，跨目录引用必须使用 `@/` alias（`@` 指向 `src/`）
+- **包内**（`packages/comp`、`packages/core`）：使用 `@/` alias（`@` 指向该包 `src/`）
+- **跨包**：使用 workspace 包名 `jsh-comp`、`jsh-core`、`jsh-tool`（禁止 `../../../`）
 - 同目录内用 `./` 相对引用
-- 禁止出现三层及以上的相对路径（`../../../`）
-- SCSS `@use` 同样支持 `@/style/variables`
-- `examples/` 下的 Demo 文件引用 `src/` 内容时使用 `@/` 或 `comp-vue-lib` 别名
+- SCSS：`packages/comp` 内 `@use "@/style/variables"`；`examples` 通过 sass `loadPaths` 继承 `jsh-core` 变量
+- `examples/` 引用组件库使用 `jsh-comp` / `jsh-core` / `jsh-tool`
 - 唯一例外：`node_modules` 运行时资源引用和项目根文件（如 `CHANGELOG.md`）
 
 ## 代码风格
@@ -101,9 +106,9 @@ examples/
 - 组件文件名：PascalCase（如 `ChangelogPanel.vue`）
 - 组合式函数文件名：camelCase，`use` 前缀（如 `useCanvasCheckboxHover.ts`）
 - 工具函数文件名：camelCase（如 `canvasDraw.ts`）
-- SCSS 变量统一定义在 `src/style/variables.scss`（组件库公共变量源头），Demo 页通过 `@use` 继承
-- 主题 token 统一定义在 `src/component/crud/base-table/theme/tableSurface.ts`
-- 类型声明统一放在 `src/type/`，组件目录内不再保留 `types.ts`
+- SCSS 变量统一定义在 `packages/core/src/style/variables.scss`，Demo 页通过 `@use` 继承
+- 主题 token 统一定义在 `packages/comp/src/component/crud/base-table/theme/tableSurface.ts`
+- 类型声明统一放在 `packages/comp/src/type/`，组件目录内不再保留 `types.ts`
 - 不要自行添加 npm 依赖，除非明确要求
 
 ## 组件复用原则
@@ -112,32 +117,35 @@ examples/
 - 代码展示 + 复制功能统一使用组件库的 `CodeBlock` 组件，不要自行实现复制逻辑
 - 预览/代码切换容器统一使用组件库的 `WidgetTabs` 组件（默认 `flush: true`）
 - `examples/demo/DemoCodeBlock.vue` 和 `DemoWidgetTabs.vue` 是 Demo 站的薄包装层
-- 新增 Demo 辅助组件前，先检查 `src/component/basic/` 下是否已有可复用的组件
+- 新增 Demo 辅助组件前，先检查 `packages/comp/src/component/basic/` 下是否已有可复用的组件
 
 ## npm 包导出规范
 
-组件和工具函数使用不同的导入路径：
+组件、配置、工具函数使用不同 workspace 包：
 
 ```ts
-// 组件（主入口）
-import { BaseTable, CodeBlock } from "comp-vue-lib";
+// 组件 + 配置（主入口）
+import { BaseTable, CodeBlock, ConfigProvider, createCompLib } from "jsh-comp";
 
-// 工具函数（/util 子路径）
-import { rgbaToHex, debounce } from "comp-vue-lib/util";
-import { rgbaToHex } from "comp-vue-lib/util/color";
+// 工具函数（独立包）
+import { rgbaToHex, debounce } from "jsh-tool";
+import { rgbaToHex } from "jsh-tool/color";
 
-// 类型（/type 子路径）
-import type { TagProps, BaseTableColumn } from "comp-vue-lib/type";
+// 类型（jsh-comp 子路径）
+import type { TagProps, BaseTableColumn } from "jsh-comp/type";
+
+// 配置底层 API（高级场景）
+import { useLibConfig, defaultLibConfig } from "jsh-core";
 
 // 样式
-import "comp-vue-lib/style.css";
+import "jsh-comp/style.css";
 ```
 
-- `src/index.ts` 只导出组件和配置，不导出工具函数和类型
-- 工具函数通过 `src/util/index.ts` 统一导出
-- 类型通过 `src/type/index.ts` 统一导出
-- `package.json` 的 `exports` 字段维护子路径映射
-- 构建使用 `vite.lib.config.ts`（多入口），确保每个子路径有独立产物
+- `packages/comp/src/index.ts` 导出组件，并 re-export `jsh-core` 配置 API
+- 工具函数通过 `packages/tool/src/index.ts` 统一导出（`jsh-tool`）
+- 类型通过 `packages/comp/src/type/index.ts` 统一导出（`jsh-comp/type`）
+- 各包 `package.json` 的 `exports` 字段维护子路径映射
+- 构建：`turbo build`；`jsh-comp` 使用 `vite.lib.config.ts`（多入口）
 
 ## 文件命名
 
@@ -160,7 +168,7 @@ import "comp-vue-lib/style.css";
 
 ## 组件一站式创建规范
 
-> **适用前提**：新增或修改 `src/component/` 下组件、同步 Demo 文档、更新 `examples/App.vue` 菜单时，必须完整遵循本节。
+> **适用前提**：新增或修改 `packages/comp/src/component/` 下组件、同步 Demo 文档、更新 `examples/App.vue` 菜单时，必须完整遵循本节。
 
 - **新增**顶层对外组件：流程为 **先确认分类 → 再创建代码 → 最后同步 Demo + 导出**
 - **修改**已有顶层组件（修 bug、调样式/逻辑、API 小改）：**跳过分类询问**，仍须遵守代码规范、三端适配；若 Props/Events 变更则同步 Demo
@@ -171,9 +179,9 @@ import "comp-vue-lib/style.css";
 
 | 分类 | 目录 | 类型文件 | 命名前缀示例 |
 |------|------|----------|-------------|
-| **CRUD** | `src/component/crud/` | `src/type/crud.ts` | `BaseTable`、`BaseSearch` |
-| **基础** | `src/component/basic/` | `src/type/basic.ts` | `Tag`、`Dot`、`ImageCarousel` |
-| **交互** | `src/component/interaction/` | `src/type/interaction.ts` | `SplitPane`、`DragSortList` |
+| **CRUD** | `packages/comp/src/component/crud/` | `packages/comp/src/type/crud.ts` | `BaseTable`、`BaseSearch` |
+| **基础** | `packages/comp/src/component/basic/` | `packages/comp/src/type/basic.ts` | `Tag`、`Dot`、`ImageCarousel` |
+| **交互** | `packages/comp/src/component/interaction/` | `packages/comp/src/type/interaction.ts` | `SplitPane`、`DragSortList` |
 
 若表格所列目录均不适合，按上文「组件分类（全局）」硬约束询问开发者；确认新增目录后须回写全局分类表、本节分类表，并按全局硬约束完成类型文件与 Demo 菜单同步。
 
@@ -182,7 +190,7 @@ import "comp-vue-lib/style.css";
 #### CRUD 组件
 
 ```
-src/component/crud/
+packages/comp/src/component/crud/
 └── base-xxx/                    # kebab-case，语义化
     ├── BaseXxx.vue              # PascalCase，与导出名一致
     └── ...                      # 子模块按需：modes/ utils/ theme/
@@ -194,7 +202,7 @@ src/component/crud/
 #### 基础组件
 
 ```
-src/component/basic/
+packages/comp/src/component/basic/
 └── tag/                         # kebab-case
     └── Tag.vue                  # PascalCase
 ```
@@ -202,7 +210,7 @@ src/component/basic/
 #### 交互组件
 
 ```
-src/component/interaction/
+packages/comp/src/component/interaction/
 └── split-pane/                  # kebab-case
     └── SplitPane.vue            # PascalCase
 ```
@@ -213,7 +221,7 @@ src/component/interaction/
 |----|------|------|
 | 文件夹 | kebab-case，带业务前缀 | `base-search-field`、`image-carousel` |
 | Vue 文件 | PascalCase = 组件名 | `BaseSearchField.vue` |
-| 类型文件 | 统一放 `src/type/` | `basic.ts`、`crud.ts`、`interaction.ts` |
+| 类型文件 | 统一放 `packages/comp/src/type/` | `basic.ts`、`crud.ts`、`interaction.ts` |
 | 组合式函数 | camelCase + `use` 前缀 | `useBaseTableSelection.ts` |
 | 工具函数 | camelCase | `column.ts`、`canvasDraw.ts` |
 | Demo 页 | `Demo{ComponentName}.vue` | `DemoBaseSearchField.vue` |
@@ -222,7 +230,7 @@ src/component/interaction/
 #### 禁止
 
 - 泛化文件名：`utils.ts`、`temp.vue`、`blank.vue`
-- 硬编码颜色（组件内用 `src/style/variables.scss` 的 `$lib-*`）
+- 硬编码颜色（组件内用 `packages/core/src/style/variables.scss` 的 `$lib-*`）
 - 未经确认自行新增 `component/` 子目录或 npm 依赖
 
 ### 三、代码模板与实现约束
@@ -240,15 +248,15 @@ const emit = defineEmits<XxxEmits>();
 </script>
 ```
 
-- Props / Emits 类型声明在 `src/type/basic.ts`、`src/type/crud.ts` 或 `src/type/interaction.ts`，通过 `@/type/` 引入
+- Props / Emits 类型声明在 `packages/comp/src/type/basic.ts`、`crud.ts` 或 `interaction.ts`，通过 `@/type/` 引入
 - 注释优先中文（公共 API 的 JSDoc 除外）
 
 ### 四、导出与注册（对外发布的顶层组件）
 
-1. **`src/component/index.ts`** — 按分类注释分组导出
-2. **`src/type/{category}.ts`** — 新增类型声明
-3. **`src/index.ts`** — 具名导出组件 + `export type { XxxProps, XxxEmits }`
-4. **`src/index.ts` 的 `components` 数组** — 加入 `install()` 注册
+1. **`packages/comp/src/component/index.ts`** — 按分类注释分组导出
+2. **`packages/comp/src/type/{category}.ts`** — 新增类型声明
+3. **`packages/comp/src/index.ts`** — 具名导出组件 + `export type { XxxProps, XxxEmits }`
+4. **`packages/comp/src/index.ts` 的 `components` 数组** — 加入 `install()` 注册
 5. 大业务组件的内部实现（如 `base-table/modes/*`）**不在此列表注册**
 6. `doc/架构设计.md` — **仅当开发者明确要求更新文档时**维护
 
@@ -256,7 +264,7 @@ const emit = defineEmits<XxxEmits>();
 
 - [ ] 分类目录正确（`basic/` / `crud/` / `interaction/` 或已确认的特殊路径）
 - [ ] 命名符合上表
-- [ ] 已从 `src/index.ts` 导出
+- [ ] 已从 `packages/comp/src/index.ts` 导出
 - [ ] 已创建 Demo 页并注册菜单（见下文第六节）
 - [ ] 三端断点适配（`$doc-bp-tablet` / `$doc-bp-mobile`）
 - [ ] 未引入无 Demo 的对外组件

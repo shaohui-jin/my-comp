@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, ref } from "vue";
 import {
   BaseTable,
@@ -7,7 +7,7 @@ import {
   stripEditColumn,
   type BaseTableColumn,
   type BaseColumnSettingColumn,
-} from "comp-vue-lib";
+} from "jsh-comp";
 import type { ComponentApi } from "../../type/types";
 import ApiTable from "../ApiTable.vue";
 import DemoWidgetTabs from "../DemoWidgetTabs.vue";
@@ -46,7 +46,7 @@ function openSetting() {
 
 function onConfirm(cols: BaseColumnSettingColumn[]) {
   columns.value = stripEditColumn(cols) as BaseColumnSettingColumn[];
-  const visible = columns.value.filter((c) => c.show !== false).length;
+  const visible = columns.value.filter((c: BaseColumnSettingColumn) => c.show !== false).length;
   lastEvent.value = `confirm: ${visible} 列可见`;
 }
 

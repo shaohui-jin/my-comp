@@ -3,7 +3,7 @@
 // 颜色继承自组件库公共变量（src/styles/variables.scss）
 // 此文件仅补充 Demo 页面特有的布局、字体、间距等变量
 // ============================================================
-@use "../../src/style/variables" as lib;
+@use "../../packages/core/src/style/variables" as lib;
 
 // -- 文字色（继承组件库） --
 $doc-text-heading: lib.$lib-text-heading;
